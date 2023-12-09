@@ -1,45 +1,69 @@
 plugins {
     id 'java'
+	id 'org.springframework.boot' version '3.2.0'
+	id 'io.spring.dependency-management' version '1.1.4'
+
+
 }
 
-group 'org.effective_mobile.tz'
+group 'org.effective_mobile.task_management_system'
 version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.22'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    testCompileOnly 'org.projectlombok:lombok:1.18.22'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    //LOMBOK --------------------------------------------------------------
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
-    implementation 'ch.qos.logback:logback-classic:1.2.10'
+    //SPRING --------------------------------------------------------------
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+
+    //JWT --------------------------------------------------------------
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     //HIBERNATE --------------------------------------------------------------
-    dependencies {
-        def hibernateVersion = '5.6.3.Final'
-        implementation 'com.vladmihalcea:hibernate-types-52:2.14.0'
-        implementation "org.hibernate:hibernate-core:$hibernateVersion"
-        implementation 'org.postgresql:postgresql:42.3.1'
-    }
+    def hibernateVersion = '6.1.7.Final'
+    implementation 'com.vladmihalcea:hibernate-types-52:2.14.0'
+    implementation "org.hibernate:hibernate-core:$hibernateVersion"
 
+
+    //4.0.0: java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlElement
+    implementation 'javax.xml.bind:jaxb-api:2.3.0'
+
+    //TESTS --------------------------------------------------------------
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
+    testImplementation 'org.testcontainers:postgresql:1.17.3'
+    testRuntimeOnly 'com.h2database:h2'
+    implementation 'net.datafaker:datafaker:2.0.2'
+
+    //MISC --------------------------------------------------------------
+    implementation 'org.postgresql:postgresql:42.3.1'
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.apache.commons:commons-text:1.9'
 
-    //TESTS --------------------------------------------------------------
-    dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-        testImplementation 'org.testcontainers:postgresql:1.16.3'
-    }
 }
 
 test {
     useJUnitPlatform()
 }
-
-
