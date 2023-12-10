@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.effective_mobile.task_management_system.enums.UserRole;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,7 +54,7 @@ public class User extends AbstractEntity{
     @Size(max = 120)
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -69,7 +70,11 @@ public class User extends AbstractEntity{
         this.username = username;
         this.email = email;
         this.password = password;
-        this.roles = roles;
+        if (roles.isEmpty()) {
+            this.roles = List.of(new Role(UserRole.USER));
+        } else {
+            this.roles = roles;
+        }
         this.tasks = tasks;
     }
 }
