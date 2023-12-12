@@ -17,7 +17,7 @@ import org.effective_mobile.task_management_system.validator.ValidEnum;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public abstract class TaskEssential implements HasCreatorUsername {
+public abstract class TaskEssential {
 
     @ValidEnum(clazz = Status.class)
     @JsonProperty

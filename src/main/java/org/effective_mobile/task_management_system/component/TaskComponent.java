@@ -1,7 +1,5 @@
 package org.effective_mobile.task_management_system.component;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.converter.TaskConverter;
@@ -11,12 +9,10 @@ import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.enums.Priority;
 import org.effective_mobile.task_management_system.enums.Status;
 import org.effective_mobile.task_management_system.enums.UserRole;
-import org.effective_mobile.task_management_system.enums.converter.EnumNameConverter;
 import org.effective_mobile.task_management_system.enums.converter.PriorityConverter;
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
-import org.effective_mobile.task_management_system.exception.ToEnumConvertException;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
@@ -27,7 +23,6 @@ import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -51,8 +46,7 @@ public class TaskComponent {
         return taskRepository.findOrThrow(Task.class, taskId);
     }
 
-    @PreAuthorize("@authorizationComponent.currentUserAsCreator(#taskCreationPayload)")
-    public Task createTask(TaskCreationPayload taskCreationPayload, User user) {
+    public Task createTask(User user, TaskCreationPayload taskCreationPayload) {
         Task newTask = TaskConverter.convert(taskCreationPayload, user);
         Task save = taskRepository.save(newTask);
         addRoleIfAbsent(user, CREATOR);
@@ -96,8 +90,8 @@ public class TaskComponent {
     @CachePut(cacheNames = TASKS_CACHE, key = "#id")
     public Task editTask(Long id, TaskEditionPayload payload) {
         Task task = taskRepository.findOrThrow(Task.class, id);
-        String newPriority = payload.getNewPriority();
-        String newContent = payload.getNewContent();
+        String newPriority = payload.getPriority();
+        String newContent = payload.getContent();
 
         boolean toSave = false;
         if (StringUtils.isNotBlank(newContent)) {

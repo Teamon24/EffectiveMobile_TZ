@@ -70,6 +70,7 @@ public class GlobalExceptionHandler {
         AssignmentException.class,
         IllegalStatusChangeException.class,
         UserAlreadyExistsException.class,
+        TaskHasNoExecutorException.class,
         NothingToUpdateInTaskException.class
     })
     public ErrorInfo toBadRequest(
@@ -107,7 +108,10 @@ public class GlobalExceptionHandler {
      */
     @ResponseBody
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    @ExceptionHandler({ AccessDeniedException.class })
+    @ExceptionHandler({
+        AccessDeniedException.class,
+        DeniedOperationException.class
+    })
     public ErrorInfo toForbidden(
         HttpServletRequest req,
         Exception ex,

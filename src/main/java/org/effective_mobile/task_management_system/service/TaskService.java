@@ -32,9 +32,9 @@ public class TaskService {
     private AuthorizationComponent authorizationComponent;
 
     @Transactional
-    public Long createTask(TaskCreationPayload taskCreationPayload) {
-        User creator = userComponent.getByUsername(taskCreationPayload.getCreatorUsername());
-        Task task = taskComponent.createTask(taskCreationPayload, creator);
+    public Long createTask(Long userId, TaskCreationPayload taskCreationPayload) {
+        User creator = userComponent.getById(userId);
+        Task task = taskComponent.createTask(creator, taskCreationPayload);
         return task.getId();
     }
 

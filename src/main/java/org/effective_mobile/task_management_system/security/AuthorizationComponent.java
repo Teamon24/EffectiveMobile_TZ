@@ -15,20 +15,10 @@ import static org.effective_mobile.task_management_system.exception.messages.Exc
 @Component
 @AllArgsConstructor
 public class AuthorizationComponent {
-
-
-
-    private ContextComponent contextComponent;
     private UserComponent userComponent;
-
-    public boolean currentUserAsCreator(TaskCreationPayload taskCreationPayload) {
-        userComponent.checkCurrentUserInPayload(taskCreationPayload.getCreatorUsername());
-        return true;
-    }
 
     public boolean currentUserIsCreator(Long taskId) {
         userComponent.checkCurrentUserIsCreator(taskId);
-
         return true;
     }
 

@@ -9,17 +9,17 @@ import org.effective_mobile.task_management_system.enums.converter.StatusConvert
 import org.effective_mobile.task_management_system.pojo.PageResponse;
 import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
 import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponse;
-import org.effective_mobile.task_management_system.pojo.task.PrioritiesResponse;
-import org.effective_mobile.task_management_system.pojo.task.StatusesResponse;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
+import org.effective_mobile.task_management_system.security.JwtPrincipal;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.validator.ValidEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,9 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping(Api.TASK)
 @AllArgsConstructor
@@ -43,8 +40,11 @@ public class TaskResource {
 
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody Long createTask(@RequestBody @Valid TaskCreationPayload taskCreationPayload) {
-        return taskService.createTask(taskCreationPayload);
+    public @ResponseBody Long createTask(
+        @RequestBody @Valid TaskCreationPayload taskCreationPayload,
+        @AuthenticationPrincipal JwtPrincipal jwtPrincipal)
+    {
+        return taskService.createTask(jwtPrincipal.getUserId(), taskCreationPayload);
     }
 
     @GetMapping("/{id}")

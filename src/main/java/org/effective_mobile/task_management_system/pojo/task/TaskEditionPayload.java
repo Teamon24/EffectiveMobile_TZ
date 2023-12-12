@@ -1,12 +1,9 @@
 package org.effective_mobile.task_management_system.pojo.task;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.effective_mobile.task_management_system.enums.Priority;
-import org.effective_mobile.task_management_system.validator.ValidEnum;
 
 @Getter
 @NoArgsConstructor
@@ -14,8 +11,8 @@ import org.effective_mobile.task_management_system.validator.ValidEnum;
 public class TaskEditionPayload {
 
     @JsonProperty
-    private String newContent;
+    private String content;
 
     @JsonProperty
-    private String newPriority;
+    private String priority;
 }

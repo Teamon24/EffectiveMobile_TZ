@@ -1,24 +1,25 @@
 package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.entity.Role;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
+import org.effective_mobile.task_management_system.exception.DeniedOperationException;
+import org.effective_mobile.task_management_system.exception.TaskHasNoExecutorException;
 import org.effective_mobile.task_management_system.exception.UserAlreadyExistsException;
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
 import org.effective_mobile.task_management_system.repository.UserRepository;
 import org.effective_mobile.task_management_system.security.JwtPrincipal;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.*;
 
 @AllArgsConstructor
 @Component
@@ -66,27 +67,15 @@ public class UserComponent {
         return user.get();
     }
 
-    public void checkCurrentUserInPayload(@NotNull String creatorUsernameInPayload) {
-        JwtPrincipal principal = contextComponent.getPrincipal();
-        String currentUsername = principal.getUsernameAtDb();
-        if (!currentUsername.equals(creatorUsernameInPayload)) {
-            String message = ExceptionMessages.getMessage(
-                "exception.access.task.creation",
-                User.class.getSimpleName(),
-                currentUsername,
-                Task.class.getSimpleName(),
-                User.class.getSimpleName(),
-                creatorUsernameInPayload
-            );
-            throw new AccessDeniedException(message);
-        }
+    public User getById(Long id) {
+        return userRepository.findOrThrow(User.class, id);
     }
 
     public void checkCurrentUserIsCreator(Long taskId) {
         Task task = taskComponent.getTask(taskId);
         JwtPrincipal principal = contextComponent.getPrincipal();
         if (!Objects.equals(task.getCreator().getId(), principal.getUserId())) {
-            throw createAccessDeniedEx(task, principal, "exception.access.task.edition.notCreator");
+            throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notCreator");
         }
     }
 
@@ -94,23 +83,29 @@ public class UserComponent {
         Task task = taskComponent.getTask(taskId);
         JwtPrincipal principal = contextComponent.getPrincipal();
         User executor = task.getExecutor();
+
+        if (executor == null) {
+            String message = getMessage("exception.access.task.executor.absent", Task.class.getSimpleName(), taskId);
+            throw new TaskHasNoExecutorException(message);
+        }
+
         if (!Objects.equals(executor.getId(), principal.getUserId())) {
-            throw createAccessDeniedEx(task, principal, "exception.access.task.edition.notExecutor");
+            throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notExecutor");
         }
     }
 
-    private AccessDeniedException createAccessDeniedEx(
+    private DeniedOperationException createDeniedOperationEx(
         Task task,
         JwtPrincipal principal,
         String templateKey
     ) {
-        String message = ExceptionMessages.getMessage(
+        String message = getMessage(
             templateKey,
             User.class.getSimpleName(),
             principal.getUsernameAtDb(),
             Task.class.getSimpleName(),
             task.getId()
         );
-        return new AccessDeniedException(message);
+        return new DeniedOperationException(message);
     }
 }
