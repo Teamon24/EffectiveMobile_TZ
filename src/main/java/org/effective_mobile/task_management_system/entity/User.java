@@ -39,7 +39,11 @@ import java.util.Set;
         @UniqueConstraint(columnNames = "email")
     })
 @ToString
-public class User extends AbstractEntity{
+public class User extends AbstractEntity {
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @NotBlank
     @Size(max = 20)
@@ -60,9 +64,14 @@ public class User extends AbstractEntity{
         inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
+    public List<UserRole> getRoleEnums() {
+        return getRoles().stream().map(Role::getName).toList();
+    }
+
     @Setter
     @OneToMany(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "creator_id")
+    @ToString.Exclude
     private List<Task> tasks = new ArrayList<>();
 
     @Builder

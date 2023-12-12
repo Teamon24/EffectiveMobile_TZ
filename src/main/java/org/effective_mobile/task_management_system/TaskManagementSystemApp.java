@@ -7,7 +7,9 @@ import org.springframework.context.annotation.PropertySource;
 
 @PropertySource(value = {
     "classpath:custom.properties",
-    "classpath:application.properties"}, encoding = "UTF-8")
+    "classpath:application.properties",
+    "classpath:messages.properties",
+}, encoding = "UTF-8")
 @SpringBootApplication
 public class TaskManagementSystemApp {
 

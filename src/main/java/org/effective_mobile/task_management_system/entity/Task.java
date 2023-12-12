@@ -35,20 +35,24 @@ import java.util.Objects;
 @Getter
 @Entity
 @Table(name = "tasks")
-public class Task extends AbstractEntity{
+public class Task extends AbstractEntity {
 
+    @Setter
     @Column(length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private Priority priority;
 
+    @Setter
     @Column
     private String content;
 
-    @ManyToOne
+    @Setter
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "executor_id")
     private User executor;
 

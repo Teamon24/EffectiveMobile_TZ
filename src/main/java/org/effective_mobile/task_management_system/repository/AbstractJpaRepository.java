@@ -9,7 +9,12 @@ import org.springframework.data.repository.CrudRepository;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public interface AbstractJpaRepository<T extends AbstractEntity, ID> extends JpaRepository<T, ID> {
+import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
+
+public interface AbstractJpaRepository<T extends AbstractEntity, ID>
+    extends
+    JpaRepository<T, ID>
+{
 
     /**
      * Вызывает {@link CrudRepository#findById}, и возвращает результат, если сущность найдена,
@@ -19,7 +24,7 @@ public interface AbstractJpaRepository<T extends AbstractEntity, ID> extends Jpa
      */
     default T findOrThrow(Class<T> entityClass, final ID id) {
         return findById(id).orElseThrow(() -> {
-            String message = String.format(entityClass.getSimpleName() + " (id = %s) was not found", id);
+            String message = getMessage("exception.entity.notFound.id", entityClass.getSimpleName(), id);
             return createException(EntityNotFoundException.class, message);
         });
     }
