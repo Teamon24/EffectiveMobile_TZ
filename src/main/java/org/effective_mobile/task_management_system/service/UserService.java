@@ -1,9 +1,7 @@
 package org.effective_mobile.task_management_system.service;
 
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.component.RoleComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.effective_mobile.task_management_system.entity.Role;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
 import org.springframework.stereotype.Service;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private UserComponent userComponent;
-    private RoleComponent roleComponent;
 
     public void checkUserDoesNotExists(SignupPayload signUpPayload) {
         userComponent.checkUsernameDoesNotExist(signUpPayload.getUsername());
@@ -21,8 +18,7 @@ public class UserService {
     }
 
     public Long createNewUser(SignupPayload signUpPayload) {
-        Role defaultRole = roleComponent.getDefaultRole();
-        User user = userComponent.createAndSaveUser(signUpPayload, defaultRole);
+        User user = userComponent.createAndSaveUser(signUpPayload);
         return user.getId();
     }
 }

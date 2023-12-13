@@ -44,12 +44,6 @@ public class User extends AbstractEntity {
     @Size(max = 120)
     private String password;
 
-    @ManyToMany
-    @JoinTable(name = "users_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roles = new ArrayList<>();
-
     @Setter
     @OneToMany(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "creator_id")
@@ -57,11 +51,10 @@ public class User extends AbstractEntity {
     private List<Task> tasks = new ArrayList<>();
 
     @Builder
-    public User(String username, String email, String password, List<Role> roles, List<Task> tasks) {
+    public User(String username, String email, String password, List<Task> tasks) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.roles = roles.isEmpty() ? List.of(new Role(UserRole.USER)) : roles;
         this.tasks = tasks;
     }
 }

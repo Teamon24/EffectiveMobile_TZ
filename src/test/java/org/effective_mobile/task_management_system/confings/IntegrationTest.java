@@ -1,21 +1,16 @@
-package org.effective_mobile.task_management_system;
+package org.effective_mobile.task_management_system.confings;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import net.datafaker.Faker;
-import org.effective_mobile.task_management_system.entity.Role;
+import org.effective_mobile.task_management_system.TaskManagementSystemApp;
 import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.enums.UserRole;
-import org.effective_mobile.task_management_system.repository.RoleRepository;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.effective_mobile.task_management_system.repository.UserRepository;
+import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.security.JwtTokenComponent;
-import org.effective_mobile.task_management_system.security.JwtPrincipal;
-import org.effective_mobile.task_management_system.security.PrivilegesDiscoverer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,13 +26,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.BiFunction;
-
-import static org.effective_mobile.task_management_system.enums.UserRole.CREATOR;
-import static org.effective_mobile.task_management_system.enums.UserRole.USER;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -45,18 +34,6 @@ import static org.effective_mobile.task_management_system.enums.UserRole.USER;
     classes = TaskManagementSystemApp.class)
 @AutoConfigureMockMvc
 public abstract class IntegrationTest {
-
-    @BeforeEach
-    protected void createRoles() {
-        Arrays.stream(UserRole.values()).forEach(it -> roleRepository.saveAndFlush(new Role(it)));
-    }
-
-    @AfterEach
-    protected void deleteRoles() {
-        taskRepository.deleteAll();
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-    }
 
     @Value("${app.jwt.cookieName}")
     private String jwtCookie;
@@ -68,15 +45,12 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MockMvc mvc;
-    @Autowired protected RoleRepository roleRepository;
     @Autowired protected TaskRepository taskRepository;
     @Autowired protected UserRepository userRepository;
     @Autowired protected ObjectMapper objectMapper;
     @Autowired private JwtTokenComponent jwtTokenComponent;
-    @Autowired protected PrivilegesDiscoverer privilegesDiscoverer;
 
     protected User user;
-    protected List<Role> roles;
 
     protected MockHttpServletResponse postJson(User user, String path, Object payload) throws Exception {
         return methodJson(user, path, payload, MockMvcRequestBuilders::post).andReturn().getResponse();
@@ -101,13 +75,13 @@ public abstract class IntegrationTest {
         BiFunction<String, Object[], MockHttpServletRequestBuilder> method
     ) throws Exception {
 
-        JwtPrincipal jwtPrincipal = new JwtPrincipal(user, privilegesDiscoverer.getAuthorities(user));
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         return mvc.perform(
             method.apply(path, new Object[]{})
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload == null ? "" : asString(payload))
-                .cookie(new Cookie(jwtCookie, jwtTokenComponent.generateJwtCookie(jwtPrincipal).getValue()))
+                .cookie(new Cookie(jwtCookie, jwtTokenComponent.generateJwtCookie(customUserDetails).getValue()))
         );
     }
 
@@ -119,16 +93,11 @@ public abstract class IntegrationTest {
         return objectMapper.readValue(objectAsString, objectClass);
     }
 
-    public User createUser(String username, UserRole... userRoles) {
+    public User createUser(String username) {
         return User.builder()
             .username(username)
             .email(username + "@gmail.com")
             .password(passwordEncoder.encode(password))
-            .roles(Arrays.stream(userRoles).map(it -> roleRepository.findByName(it).get()).toList())
             .build();
-    }
-
-    protected Long extractLong(MockHttpServletResponse response) throws UnsupportedEncodingException {
-        return Long.valueOf(response.getContentAsString());
     }
 }

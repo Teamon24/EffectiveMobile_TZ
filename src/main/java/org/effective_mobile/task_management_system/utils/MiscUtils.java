@@ -3,7 +3,6 @@ package org.effective_mobile.task_management_system.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -18,5 +17,18 @@ public final class MiscUtils {
         if (value != null) {
             operation.accept(value);
         }
+    }
+
+    /**
+     * @param value nullable-значение.
+     * @param operation логика, которая выполняется, если value - не null.
+     * @return если value - null, то - null.
+     *         если value - не null, то - результат выполнения operation.
+     */
+    public static <In, Out> Out evalIfNotNull(In value, Function<In, Out> operation) {
+        if (value != null) {
+            return operation.apply(value);
+        }
+        return null;
     }
 }

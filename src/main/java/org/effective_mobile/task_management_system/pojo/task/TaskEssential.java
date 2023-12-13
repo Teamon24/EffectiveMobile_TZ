@@ -19,10 +19,6 @@ import org.effective_mobile.task_management_system.validator.ValidEnum;
 @Setter
 public abstract class TaskEssential {
 
-    @ValidEnum(clazz = Status.class)
-    @JsonProperty
-    private String status;
-
     @ValidEnum(clazz = Priority.class)
     @JsonProperty
     private String priority;
@@ -32,11 +28,9 @@ public abstract class TaskEssential {
     private String content;
 
     public TaskEssential(
-        String status,
         String priority,
         String content
     ) {
-        this.status = status;
         this.priority = priority;
         this.content = content;
     }

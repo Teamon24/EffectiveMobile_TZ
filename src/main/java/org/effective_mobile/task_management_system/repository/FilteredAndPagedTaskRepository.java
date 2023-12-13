@@ -14,12 +14,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * <p>Репозиторий, сделан для того, чтобы обойти проблему фильтрации, когда отсутствует один из фильтров поиска в при использовании spring-репозитория.
+ * <p>Репозиторий, сделан для того, чтобы обойти проблему фильтрации при использовании spring-репозитория, когда отсутствует один из фильтров поиска.
  * <p>Допустим есть два фильтра: ... where f1 = F1 AND f2 = F2.
  * Если они оба заданы, то выполняется корректный запрос.
  * Если F1 = null и F2 != null, то фильтр where f1 = null AND f2 = F2
- * уже имеет другой смысл - не надо фильтровать по f1 и из фильтра надо убирать фильтрацию по f1.
- * Иначе из выборки исключаются результаты, где поле f1 не null, что уже не верно.
+ * уже имеет другой смысл - не надо фильтровать по f1.
+ * Но из выборки исключаются результаты, где поле f1 не null, что уже не верно.
  *
  * <p>Решается проблема при помощи динамического формирования запроса.
  */
@@ -32,6 +32,12 @@ public class FilteredAndPagedTaskRepository {
         this.queryFactory = new JPAQueryFactory(entityManager);
     }
 
+    /**
+     * @param creator username создателя задачи.
+     * @param executor username исполнителя задачи.
+     * @param pageable объект с информацией о пагинации.
+     * @return объект, содержащий результат поиска и информацию о странице пагинации.
+     */
     public Page<Task> findByCreatorAndExecutor(
         @Nullable String creator,
         @Nullable String executor,
@@ -39,8 +45,8 @@ public class FilteredAndPagedTaskRepository {
     ) {
         QTask task = QTask.task;
 
-        Long totalCount = filter(count(task), task, creator, executor).fetchOne();
-        List<Task> fetch = filter(queryFactory.selectFrom(task), task, creator, executor)
+        Long totalCount = filter(selectCount(task), task, creator, executor).fetchOne();
+        List<Task> fetch = filter(selectFrom(task), task, creator, executor)
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
@@ -48,7 +54,11 @@ public class FilteredAndPagedTaskRepository {
         return PageableExecutionUtils.getPage(fetch, pageable, () -> totalCount);
     }
 
-    private JPAQuery<Long> count(QTask task) {
+    private JPAQuery<Task> selectFrom(QTask task) {
+        return queryFactory.selectFrom(task);
+    }
+
+    private JPAQuery<Long> selectCount(QTask task) {
         return queryFactory.select(task.id.count()).from(task);
     }
 

@@ -3,16 +3,18 @@ package org.effective_mobile.task_management_system.resource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
-import org.effective_mobile.task_management_system.IntegrationTest;
+import org.effective_mobile.task_management_system.confings.IntegrationTest;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.pojo.auth.SigninPayload;
 import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -20,11 +22,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@TestPropertySource(properties = {
+    "spring.jpa.hibernate.ddl-auto=create-drop"
+})
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class AuthenticationResourceTest extends IntegrationTest {
 
     @Value("${app.jwt.cookieName}")
     private String jwtCookieName;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * Test for {@link AuthenticationResource#signin} и {@link AuthenticationResource#signup}.
@@ -32,7 +40,7 @@ public class AuthenticationResourceTest extends IntegrationTest {
     @Test
     public void signInSignUpTest() throws Exception {
         testSignUp();
-        Cookie jwtTokenCookie = testSignIn();
+        testSignIn();
     }
 
     private void testSignUp() throws Exception {
@@ -52,9 +60,10 @@ public class AuthenticationResourceTest extends IntegrationTest {
             post(Api.SIGN_IN, signinPayload)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn();
-        final JsonNode node = new ObjectMapper().readTree(resultActions.getResponse().getContentAsString());
-        String accessToken = "accessToken";
-        Assertions.assertTrue(node.has(accessToken));
+
+        final JsonNode node = objectMapper.readTree(resultActions.getResponse().getContentAsString());
+
+        Assertions.assertTrue(node.has(jwtCookieName));
         Cookie cookie = resultActions.getResponse().getCookie(jwtCookieName);
         Assertions.assertNotNull(cookie);
         return cookie;
