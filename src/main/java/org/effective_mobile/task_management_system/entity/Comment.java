@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.entity;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -29,7 +28,7 @@ public class Comment extends AbstractEntity {
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -45,14 +44,14 @@ public class Comment extends AbstractEntity {
         this.creationDate = Objects.requireNonNull(creationDate);
     }
 
-    @PostLoad
-    public void postConstruct() {
-        // TODO: сделать так, чтобы комментарий удаленного пользователя корректно обрабатывался, т.е.
-        // если пользователь удален, то отдавать вместо имя пользователя
-        // информацию об отсутствии пользователя в системе
-        this.user = Objects.requireNonNullElse(
-            this.getUser(),
-            User.builder().username("Пользователь удален").build()
-        );
-    }
+//    @PostLoad
+//    public void postConstruct() {
+//        // TODO: сделать так, чтобы комментарий удаленного пользователя корректно обрабатывался, т.е.
+//        // если пользователь удален, то отдавать вместо имя пользователя
+//        // информацию об отсутствии пользователя в системе
+//        this.user = Objects.requireNonNullElse(
+//            this.getUser(),
+//            User.builder().username("Пользователь удален").build()
+//        );
+//    }
 }

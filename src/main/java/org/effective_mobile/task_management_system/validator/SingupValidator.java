@@ -7,7 +7,7 @@ import org.hibernate.validator.constraintvalidation.HibernateConstraintValidator
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
 import org.springframework.beans.factory.annotation.Value;
 
-public class UniqueSingupValidator implements ConstraintValidator<Signup, String> {
+public class SingupValidator implements ConstraintValidator<Signup, String> {
 
     private final UserComponent userComponent;
 
@@ -17,7 +17,7 @@ public class UniqueSingupValidator implements ConstraintValidator<Signup, String
     @Value("${validation.error.signup.value}")
     private String valueName;
 
-    public UniqueSingupValidator(UserComponent userComponent) {
+    public SingupValidator(UserComponent userComponent) {
         this.userComponent = userComponent;
     }
 

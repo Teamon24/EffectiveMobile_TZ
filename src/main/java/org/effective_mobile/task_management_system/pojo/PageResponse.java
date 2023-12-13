@@ -15,8 +15,13 @@ public class PageResponse<E> {
         this.page = new LinkedHashMap<>();
         this.page.put("total items", page.getTotalElements());
         this.page.put("page size", page.getSize());
-        this.page.put("page", page.getNumber() + "/" + totalPagesNumber(page));
-        this.page.put("page items", page.getContent());
+        this.page.put("page", pageNumber(page));
+        this.page.put("items on current page", page.get().count());
+        this.page.put("items", page.getContent());
+    }
+
+    private String pageNumber(Page<E> page) {
+        return page.getNumber() + "/" + totalPagesNumber(page);
     }
 
     private int totalPagesNumber(Page<E> page) {

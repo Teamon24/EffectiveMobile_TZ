@@ -8,7 +8,7 @@ import org.effective_mobile.task_management_system.converter.TaskConverter;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.enums.Status;
-import org.effective_mobile.task_management_system.pojo.TasksPayload;
+import org.effective_mobile.task_management_system.pojo.TasksFiltersPayload;
 import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
 import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponse;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
@@ -80,13 +80,19 @@ public class TaskService {
     }
 
     public Page<TaskJsonPojo> getByCreatorOrExecutor(
-        TasksPayload tasksPayload,
+        TasksFiltersPayload tasksFiltersPayload,
         Pageable pageable
     ) {
+        String creatorUsername = tasksFiltersPayload.getCreatorUsername();
+        String executorUsername = tasksFiltersPayload.getExecutorUsername();
+
+        MiscUtils.evalIfNotNull(creatorUsername, (s) -> userComponent.checkUsernameExists(s));
+        MiscUtils.evalIfNotNull(executorUsername, (s) -> userComponent.checkUsernameExists(s));
+
         return taskComponent
-            .findByCreatorAndExecutor(tasksPayload, pageable)
+            .findByCreatorAndExecutor(tasksFiltersPayload, pageable)
             .map(task -> {
-                Boolean withComments = tasksPayload.getWithComments();
+                Boolean withComments = tasksFiltersPayload.getWithComments();
                 return TaskConverter.convert(task, withComments);
             });
     }

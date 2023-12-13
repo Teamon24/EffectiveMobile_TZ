@@ -10,7 +10,8 @@ import org.effective_mobile.task_management_system.validator.NullOrNotBlank;
 @NoArgsConstructor
 @Getter
 public
-class TasksPayload {
+class TasksFiltersPayload {
+
     @JsonProperty
     @NullOrNotBlank
     private String creatorUsername;
