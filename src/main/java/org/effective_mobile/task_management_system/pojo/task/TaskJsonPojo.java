@@ -21,6 +21,8 @@ public class TaskJsonPojo extends TaskEssential implements HasExecutorUsername, 
 
     @JsonProperty private Long id;
 
+    @JsonProperty private String status;
+
     @JsonProperty("creator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private TaskCreatorJsonPojo taskCreatorJsonPojo;
@@ -42,8 +44,10 @@ public class TaskJsonPojo extends TaskEssential implements HasExecutorUsername, 
         TaskCreatorJsonPojo taskCreatorJsonPojo,
         List<CommentJsonPojo> comments
     ) {
-        super(status, priority, content);
+        super(priority, content);
+
         this.id = id;
+        this.status = status;
         this.taskExecutorJsonPojo = taskExecutorJsonPojo;
         this.taskCreatorJsonPojo = taskCreatorJsonPojo;
         this.comments = comments;

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.entity.Comment;
 import org.effective_mobile.task_management_system.pojo.CommentCreationPayload;
-import org.effective_mobile.task_management_system.security.JwtPrincipal;
+import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.CommentService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,9 +27,9 @@ public class CommentResource {
     public @ResponseBody Long createComment(
         @PathVariable(Api.COMMENT_TASK_ID) Long taskId,
         @RequestBody @Valid CommentCreationPayload commentCreationPayload,
-        @AuthenticationPrincipal JwtPrincipal jwtPrincipal
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        Long userId = jwtPrincipal.getUserId();
+        Long userId = customUserDetails.getUserId();
         Comment comment = commentService.createComment(userId, taskId, commentCreationPayload);
         return comment.getId();
     }

@@ -1,25 +1,23 @@
 package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.entity.Role;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.exception.DeniedOperationException;
 import org.effective_mobile.task_management_system.exception.TaskHasNoExecutorException;
 import org.effective_mobile.task_management_system.exception.UserAlreadyExistsException;
+import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
 import org.effective_mobile.task_management_system.repository.UserRepository;
-import org.effective_mobile.task_management_system.security.JwtPrincipal;
+import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.*;
+import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
 @Component
 public class UserComponent {
@@ -74,10 +72,9 @@ public class UserComponent {
         }
     }
 
-    public User createAndSaveUser(SignupPayload signUpPayload, Role defaultRole) {
+    public User createAndSaveUser(SignupPayload signUpPayload) {
         User user = User.builder()
             .username(signUpPayload.getUsername())
-            .roles(List.of(defaultRole))
             .email(signUpPayload.getEmail())
             .password(passwordEncoder.encode(signUpPayload.getPassword())).build();
 
@@ -97,7 +94,7 @@ public class UserComponent {
 
     public void checkCurrentUserIsCreator(Long taskId) {
         Task task = taskComponent.getTask(taskId);
-        JwtPrincipal principal = contextComponent.getPrincipal();
+        CustomUserDetails principal = contextComponent.getPrincipal();
         if (!Objects.equals(task.getCreator().getId(), principal.getUserId())) {
             throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notCreator");
         }
@@ -105,11 +102,11 @@ public class UserComponent {
 
     public void checkCurrentUserIsExecutor(Long taskId) {
         Task task = taskComponent.getTask(taskId);
-        JwtPrincipal principal = contextComponent.getPrincipal();
+        CustomUserDetails principal = contextComponent.getPrincipal();
         User executor = task.getExecutor();
 
         if (executor == null) {
-            String message = getMessage("exception.access.task.executor.absent", Task.class.getSimpleName(), taskId);
+            String message = TaskExceptionMessages.hasNoExecutor(taskId);
             throw new TaskHasNoExecutorException(message);
         }
 
@@ -120,7 +117,7 @@ public class UserComponent {
 
     private DeniedOperationException createDeniedOperationEx(
         Task task,
-        JwtPrincipal principal,
+        CustomUserDetails principal,
         String templateKey
     ) {
         String message = getMessage(

@@ -4,24 +4,22 @@ import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.converter.TaskConverter;
-import org.effective_mobile.task_management_system.entity.Role;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.enums.Priority;
 import org.effective_mobile.task_management_system.enums.Status;
-import org.effective_mobile.task_management_system.enums.UserRole;
 import org.effective_mobile.task_management_system.enums.converter.PriorityConverter;
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
+import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.TasksFiltersPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
 import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepository;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
-import org.effective_mobile.task_management_system.repository.UserRepository;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -37,8 +35,6 @@ import java.util.function.Function;
 import static org.effective_mobile.task_management_system.confing.CacheConfigurations.TASKS_CACHE;
 import static org.effective_mobile.task_management_system.enums.Status.ASSIGNED;
 import static org.effective_mobile.task_management_system.enums.Status.NEW;
-import static org.effective_mobile.task_management_system.enums.UserRole.CREATOR;
-import static org.effective_mobile.task_management_system.enums.UserRole.EXECUTOR;
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
 @Component
@@ -47,8 +43,6 @@ public class TaskComponent {
 
     private final TaskRepository taskRepository;
     private final FilteredAndPagedTaskRepository filteredAndPagedTaskRepository;
-    private final UserRepository userRepository;
-    private final RoleComponent roleComponent;
     private final UserComponent userComponent;
 
     /**
@@ -63,10 +57,13 @@ public class TaskComponent {
         return taskRepository.findOrThrow(Task.class, taskId);
     }
 
+    public Status getStatus(Long taskId) {
+        return getTask(taskId).getStatus();
+    }
+
     public Task createTask(User user, TaskCreationPayload taskCreationPayload) {
         Task newTask = TaskConverter.convert(taskCreationPayload, user);
         Task save = taskRepository.save(newTask);
-        addRoleIfAbsent(user, CREATOR);
         return save;
     }
 
@@ -75,9 +72,7 @@ public class TaskComponent {
         Task task = getTask(taskId);
         Status oldStatus = task.getStatus();
         if (Objects.equals(oldStatus, newStatus)) {
-            String message = ExceptionMessages.getMessage(
-                "exception.access.task.status.same", newStatus
-            );
+            String message = TaskExceptionMessages.sameStatusChange(taskId, newStatus);
             throw new IllegalStatusChangeException(message);
         }
         task.setStatus(newStatus);
@@ -94,7 +89,6 @@ public class TaskComponent {
         Task task = taskRepository.findOrThrow(Task.class, taskId);
         User oldExecutor = task.getExecutor();
         throwIfSameExecutor(user, oldExecutor);
-        addRoleIfAbsent(user, EXECUTOR);
         return setExecutorAndSave(task, user, Status.ASSIGNED);
     }
 
@@ -115,7 +109,7 @@ public class TaskComponent {
             toSave = setIfNew(task, newContent, Task::getContent, Task::setContent);
         }
 
-        if (newPriority != null) {
+        if (StringUtils.isNotBlank(newPriority)) {
             Priority priority = new PriorityConverter().convert(newPriority);
             toSave = toSave | setIfNew(task, priority, Task::getPriority, Task::setPriority);
         }
@@ -124,12 +118,7 @@ public class TaskComponent {
             return taskRepository.save(task);
         }
 
-        String message = ExceptionMessages.getMessage(
-            "exception.entity.task.update.nothing",
-            Task.class.getSimpleName(),
-            task.getId()
-        );
-
+        String message = TaskExceptionMessages.nothingToChange(task.getId());
         throw new NothingToUpdateInTaskException(message);
     }
 
@@ -139,30 +128,27 @@ public class TaskComponent {
         taskRepository.delete(task);
     }
 
-    private Task setExecutorAndSave(Task task, User user, Status assigned) {
-        task.setExecutor(user);
-        task.setStatus(assigned);
-        return taskRepository.save(task);
+    public Page<Task> findByCreatorAndExecutor(TasksFiltersPayload tasksFiltersPayload, Pageable pageable) {
+        return filteredAndPagedTaskRepository
+            .findByCreatorAndExecutor(
+                tasksFiltersPayload.getCreatorUsername(),
+                tasksFiltersPayload.getExecutorUsername(),
+                pageable
+            );
     }
 
-    private void addRoleIfAbsent(User user, UserRole executor) {
-        boolean userIsNotExecutor = user.getRoles()
-            .stream()
-            .noneMatch(role -> role.getName().equals(executor));
-
-        if (userIsNotExecutor) {
-            Role executorRole = roleComponent.findByName(executor);
-            user.getRoles().add(executorRole);
-            userRepository.save(user);
-        }
-    }
-
-    private void throwIfSameExecutor(User user, User oldExecutor) {
-        String oldUsername = MiscUtils.nullOrApply(oldExecutor, User::getUsername);
-        if (Objects.equals(oldUsername, user.getUsername())) {
-            String message = String.format("%s is already assigned.", oldExecutor.getUsername());
-            throw new AssignmentException(message);
-        }
+    public void validateStatusChange(Long taskId, Status newStatus) {
+        switch (newStatus) {
+            case ASSIGNED -> {
+                String message = getMessage("exception.task.status.assign", ASSIGNED);
+                throw new IllegalStatusChangeException(message);
+            }
+            case EXECUTING, DONE, PENDING -> userComponent.checkCurrentUserIsExecutor(taskId);
+            case NEW -> {
+                String message = getMessage("exception.task.status.initial", NEW);
+                throw new IllegalStatusChangeException(message);
+            }
+        };
     }
 
     private <V> boolean setIfNew(
@@ -181,30 +167,17 @@ public class TaskComponent {
         return false;
     }
 
-    public Status getStatus(Long taskId) {
-        return getTask(taskId).getStatus();
+    private Task setExecutorAndSave(Task task, User user, Status assigned) {
+        task.setExecutor(user);
+        task.setStatus(assigned);
+        return taskRepository.save(task);
     }
 
-    public Page<Task> findByCreatorAndExecutor(TasksFiltersPayload tasksFiltersPayload, Pageable pageable) {
-        return filteredAndPagedTaskRepository
-            .findByCreatorAndExecutor(
-                tasksFiltersPayload.getCreatorUsername(),
-                tasksFiltersPayload.getExecutorUsername(),
-                pageable
-            );
-    }
-
-    public void validateStatusChange(Long taskId, Status newStatus) {
-        switch (newStatus) {
-            case ASSIGNED -> {
-                String message = getMessage("exception.access.task.status.assign", ASSIGNED);
-                throw new IllegalStatusChangeException(message);
-            }
-            case EXECUTING, DONE, PENDING -> userComponent.checkCurrentUserIsCreator(taskId);
-            case NEW -> {
-                String message = getMessage("exception.access.task.status.initial", NEW);
-                throw new IllegalStatusChangeException(message);
-            }
-        };
+    private void throwIfSameExecutor(User user, User oldExecutor) {
+        String oldUsername = MiscUtils.nullOrApply(oldExecutor, User::getUsername);
+        if (Objects.equals(oldUsername, user.getUsername())) {
+            String message = getMessage("exception.task.executor.same", oldExecutor);
+            throw new AssignmentException(message);
+        }
     }
 }

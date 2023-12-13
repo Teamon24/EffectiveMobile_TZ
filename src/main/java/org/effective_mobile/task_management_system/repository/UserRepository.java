@@ -13,4 +13,5 @@ public interface UserRepository extends AbstractJpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
+    Boolean deleteByUsername(String username);
 }

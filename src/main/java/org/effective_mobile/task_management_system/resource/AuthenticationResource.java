@@ -2,11 +2,12 @@ package org.effective_mobile.task_management_system.resource;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.pojo.auth.SigninPayload;
 import org.effective_mobile.task_management_system.pojo.auth.SigninResponse;
 import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
 import org.effective_mobile.task_management_system.security.JwtTokenComponent;
-import org.effective_mobile.task_management_system.security.JwtUserDetailsService;
+import org.effective_mobile.task_management_system.security.CustomUserDetailsService;
 import org.effective_mobile.task_management_system.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthenticationResource {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtUserDetailsService jwtUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final ContextComponent contextComponent;
     private final JwtTokenComponent jwtTokenComponent;
     private final UserService userService;
 
@@ -45,12 +47,12 @@ public class AuthenticationResource {
         try {
             UsernamePasswordAuthenticationToken authentication = createNamePassToken(signinPayload);
             authenticationManager.authenticate(authentication);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            contextComponent.setAuthentication(authentication);
         } catch (final BadCredentialsException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(signinPayload.getEmail());
+        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(signinPayload.getEmail());
         final String jwtCookie = jwtTokenComponent.generateToken(userDetails);
 
         return new SigninResponse(jwtCookie);

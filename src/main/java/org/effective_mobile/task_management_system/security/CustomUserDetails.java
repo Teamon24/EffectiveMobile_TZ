@@ -7,9 +7,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 @Getter
-public class JwtPrincipal implements UserDetails {
+public class CustomUserDetails implements UserDetails {
 
     private final Long userId;
     private final String password;
@@ -19,12 +20,12 @@ public class JwtPrincipal implements UserDetails {
     @Setter
     private Collection<? extends GrantedAuthority> authorities;
 
-    public JwtPrincipal(User user, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(User user) {
         this.userId = user.getId();
         this.usernameAtDb = user.getUsername();
         this.password = user.getPassword();
         this.email = user.getEmail();
-        this.authorities = authorities;
+        this.authorities = HashSet.newHashSet(0);
     }
 
     @Override

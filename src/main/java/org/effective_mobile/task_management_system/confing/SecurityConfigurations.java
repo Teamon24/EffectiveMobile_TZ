@@ -1,7 +1,7 @@
 package org.effective_mobile.task_management_system.confing;
 
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.security.JwtTokenFilter;
+import org.effective_mobile.task_management_system.security.AuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +22,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @AllArgsConstructor
 public class SecurityConfigurations {
 
-    public final JwtTokenFilter jwtTokenFilter;
+    public final AuthenticationFilter authenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,7 +41,7 @@ public class SecurityConfigurations {
         return http.cors(withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 

@@ -21,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.effective_mobile.task_management_system.utils.MiscUtils.evalIfNotNull;
+
 @Service
 @AllArgsConstructor
 public class TaskService {
@@ -86,8 +88,8 @@ public class TaskService {
         String creatorUsername = tasksFiltersPayload.getCreatorUsername();
         String executorUsername = tasksFiltersPayload.getExecutorUsername();
 
-        MiscUtils.evalIfNotNull(creatorUsername, (s) -> userComponent.checkUsernameExists(s));
-        MiscUtils.evalIfNotNull(executorUsername, (s) -> userComponent.checkUsernameExists(s));
+        evalIfNotNull(creatorUsername, (s) -> { userComponent.checkUsernameExists(s); });
+        evalIfNotNull(executorUsername, (s) -> { userComponent.checkUsernameExists(s); });
 
         return taskComponent
             .findByCreatorAndExecutor(tasksFiltersPayload, pageable)

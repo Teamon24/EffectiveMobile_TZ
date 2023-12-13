@@ -13,7 +13,7 @@ import org.effective_mobile.task_management_system.pojo.task.ChangedStatusRespon
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
-import org.effective_mobile.task_management_system.security.JwtPrincipal;
+import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.validator.ValidEnum;
 import org.springframework.data.domain.Page;
@@ -43,9 +43,10 @@ public class TaskResource {
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createTask(
         @RequestBody @Valid TaskCreationPayload taskCreationPayload,
-        @AuthenticationPrincipal JwtPrincipal jwtPrincipal)
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
+    )
     {
-        return taskService.createTask(jwtPrincipal.getUserId(), taskCreationPayload);
+        return taskService.createTask(customUserDetails.getUserId(), taskCreationPayload);
     }
 
     @GetMapping("/{id}")

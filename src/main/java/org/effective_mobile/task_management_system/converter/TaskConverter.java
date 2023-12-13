@@ -18,7 +18,6 @@ public class TaskConverter {
         return Task.builder()
             .content(taskCreationPayload.getContent())
             .creator(user)
-            .status(Status.valueOf(taskCreationPayload.getStatus()))
             .priority(Priority.valueOf(taskCreationPayload.getPriority()))
             .build();
     }

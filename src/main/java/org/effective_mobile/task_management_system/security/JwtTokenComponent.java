@@ -10,12 +10,13 @@ import org.effective_mobile.task_management_system.exception.InvalidTokenExcepti
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.WebUtils;
 
 import java.time.Instant;
 
-@Service
+@Component
 public class JwtTokenComponent {
 
     @Value("${app.jwt.expirationMs}")
