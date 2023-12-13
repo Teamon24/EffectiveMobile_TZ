@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SigninResponse {
     @JsonProperty
-    private String accessToken;
+    private String jwtToken;
 }

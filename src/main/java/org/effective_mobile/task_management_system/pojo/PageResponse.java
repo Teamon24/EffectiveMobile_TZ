@@ -13,8 +13,13 @@ public class PageResponse<E> {
 
     public PageResponse(Page<E> page) {
         this.page = new LinkedHashMap<>();
-        this.page.put("page", page.getNumber() + "/" + (page.getTotalPages() - 1));
         this.page.put("total items", page.getTotalElements());
-        this.page.put("page  items", page.getContent());
+        this.page.put("page size", page.getSize());
+        this.page.put("page", page.getNumber() + "/" + totalPagesNumber(page));
+        this.page.put("page items", page.getContent());
+    }
+
+    private int totalPagesNumber(Page<E> page) {
+        return page.getTotalPages() == 0 ? 0 : page.getTotalPages() - 1;
     }
 }

@@ -7,6 +7,7 @@ import lombok.NonNull;
 import org.effective_mobile.task_management_system.enums.Status;
 import org.effective_mobile.task_management_system.enums.converter.StatusConverter;
 import org.effective_mobile.task_management_system.pojo.PageResponse;
+import org.effective_mobile.task_management_system.pojo.TasksPayload;
 import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
 import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponse;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
@@ -56,13 +57,12 @@ public class TaskResource {
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody PageResponse<TaskJsonPojo> getTasks(
-        @RequestParam(required = false, name = "creatorUsername") String creatorUsername,
-        @RequestParam(required = false, name = "executorUsername") String executorUsername,
+        @Valid @RequestBody TasksPayload tasksPayload,
         @RequestParam(defaultValue = "0", name = "page") @NotNull int pageNumber,
-        @RequestParam(defaultValue = "3", name = "size") @NotNull int size
+        @RequestParam(defaultValue = "10", name = "size") @NotNull int size
     ) {
         Pageable page = PageRequest.of(pageNumber, size);
-        Page<TaskJsonPojo> tasksPage = taskService.getByCreatorOrExecutor(creatorUsername, executorUsername, page);
+        Page<TaskJsonPojo> tasksPage = taskService.getByCreatorOrExecutor(tasksPayload, page);
         return new PageResponse<>(tasksPage);
     }
 

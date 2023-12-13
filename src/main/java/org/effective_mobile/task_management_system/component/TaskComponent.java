@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.component;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.converter.TaskConverter;
@@ -13,16 +14,20 @@ import org.effective_mobile.task_management_system.enums.converter.PriorityConve
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
+import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
+import org.effective_mobile.task_management_system.pojo.TasksPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
+import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
+import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepository;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.effective_mobile.task_management_system.repository.UserRepository;
-import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -30,16 +35,28 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static org.effective_mobile.task_management_system.confing.CacheConfigurations.TASKS_CACHE;
+import static org.effective_mobile.task_management_system.enums.Status.ASSIGNED;
+import static org.effective_mobile.task_management_system.enums.Status.NEW;
 import static org.effective_mobile.task_management_system.enums.UserRole.CREATOR;
 import static org.effective_mobile.task_management_system.enums.UserRole.EXECUTOR;
+import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
-@AllArgsConstructor
 @Component
+@AllArgsConstructor
 public class TaskComponent {
-    private TaskRepository taskRepository;
 
-    private UserRepository userRepository;
-    private RoleComponent roleComponent;
+    private final TaskRepository taskRepository;
+    private final FilteredAndPagedTaskRepository filteredAndPagedTaskRepository;
+    private final UserRepository userRepository;
+    private final RoleComponent roleComponent;
+    private final UserComponent userComponent;
+
+    /**
+     * Метод исключает циклическую зависимость. */
+    @PostConstruct
+    public void init() {
+        userComponent.setTaskComponent(this);
+    }
 
     @Cacheable(value = TASKS_CACHE, key = "#taskId")
     public Task getTask(Long taskId) {
@@ -69,7 +86,7 @@ public class TaskComponent {
 
     public TaskJsonPojo getJsonPojo(Long id) {
         Task task = taskRepository.findOrThrow(Task.class, id);
-        return TaskConverter.convert(task);
+        return TaskConverter.convert(task, true);
     }
 
     @CachePut(cacheNames = TASKS_CACHE, key = "#taskId")
@@ -166,5 +183,28 @@ public class TaskComponent {
 
     public Status getStatus(Long taskId) {
         return getTask(taskId).getStatus();
+    }
+
+    public Page<Task> findByCreatorAndExecutor(TasksPayload tasksPayload, Pageable pageable) {
+        return filteredAndPagedTaskRepository
+            .findByCreatorAndExecutor(
+                tasksPayload.getCreatorUsername(),
+                tasksPayload.getExecutorUsername(),
+                pageable
+            );
+    }
+
+    public void validateStatusChange(Long taskId, Status newStatus) {
+        switch (newStatus) {
+            case ASSIGNED -> {
+                String message = getMessage("exception.access.task.status.assign", ASSIGNED);
+                throw new IllegalStatusChangeException(message);
+            }
+            case EXECUTING, DONE, PENDING -> userComponent.checkCurrentUserIsCreator(taskId);
+            case NEW -> {
+                String message = getMessage("exception.access.task.status.initial", NEW);
+                throw new IllegalStatusChangeException(message);
+            }
+        };
     }
 }

@@ -1,12 +1,7 @@
 package org.effective_mobile.task_management_system.entity;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -19,54 +14,41 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.effective_mobile.task_management_system.enums.UserRole;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-@NoArgsConstructor
 @Getter
-
 @Entity
 @Table(name = "users",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")
-    })
-@ToString
+})
+@NoArgsConstructor
 public class User extends AbstractEntity {
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @NotBlank
     @Size(max = 20)
     private String username;
 
+    @Email
     @NotBlank
     @Size(max = 50)
-    @Email
     private String email;
 
     @NotBlank
     @Size(max = 120)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles = new ArrayList<>();
-
-    public List<UserRole> getRoleEnums() {
-        return getRoles().stream().map(Role::getName).toList();
-    }
 
     @Setter
     @OneToMany(cascade = CascadeType.REMOVE)
@@ -79,11 +61,7 @@ public class User extends AbstractEntity {
         this.username = username;
         this.email = email;
         this.password = password;
-        if (roles.isEmpty()) {
-            this.roles = List.of(new Role(UserRole.USER));
-        } else {
-            this.roles = roles;
-        }
+        this.roles = roles.isEmpty() ? List.of(new Role(UserRole.USER)) : roles;
         this.tasks = tasks;
     }
 }

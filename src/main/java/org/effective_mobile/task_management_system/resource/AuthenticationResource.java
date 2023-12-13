@@ -17,7 +17,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +39,7 @@ public class AuthenticationResource {
     }
 
     @PostMapping(Api.SIGN_IN)
-    public ResponseEntity<SigninResponse> signin(
+    public SigninResponse signin(
         @RequestBody @Valid final SigninPayload signinPayload
     ) {
         try {
@@ -52,11 +51,9 @@ public class AuthenticationResource {
         }
 
         final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(signinPayload.getEmail());
-        final ResponseCookie jwtCookie = jwtTokenComponent.generateJwtCookie(userDetails);
+        final String jwtCookie = jwtTokenComponent.generateToken(userDetails);
 
-        return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-            .body(new SigninResponse(jwtCookie.getValue()));
+        return new SigninResponse(jwtCookie);
     }
 
     private UsernamePasswordAuthenticationToken createNamePassToken(SigninPayload signinPayload) {

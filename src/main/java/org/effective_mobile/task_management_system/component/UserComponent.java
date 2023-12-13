@@ -21,14 +21,32 @@ import java.util.Optional;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.*;
 
-@AllArgsConstructor
 @Component
 public class UserComponent {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ContextComponent contextComponent;
+
     private TaskComponent taskComponent;
-    private PasswordEncoder passwordEncoder;
-    private ContextComponent contextComponent;
+
+    public UserComponent(
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder,
+        ContextComponent contextComponent
+    ) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.contextComponent = contextComponent;
+    }
+
+    /**
+     * Сеттер для устранения циклической зависимости.
+     * @param taskComponent - экземпляр класса {@link TaskComponent}.
+     */
+    public void setTaskComponent(TaskComponent taskComponent) {
+        this.taskComponent = taskComponent;
+    }
 
     public Boolean usernameExists(String username) {
         return userRepository.existsByUsername(username);

@@ -8,13 +8,12 @@ import org.effective_mobile.task_management_system.converter.TaskConverter;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.enums.Status;
+import org.effective_mobile.task_management_system.pojo.TasksPayload;
 import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
 import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponse;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
-import org.effective_mobile.task_management_system.repository.TaskRepository;
-import org.effective_mobile.task_management_system.security.AuthorizationComponent;
+import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TaskService {
 
     private UserComponent userComponent;
-    private TaskRepository taskRepository;
     private TaskComponent taskComponent;
-    private AuthorizationComponent authorizationComponent;
 
     @Transactional
     public Long createTask(Long userId, TaskCreationPayload taskCreationPayload) {
@@ -68,26 +65,29 @@ public class TaskService {
     }
 
     @Transactional
+    @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
+    public TaskJsonPojo editTask(@NotNull Long id, TaskEditionPayload payload) {
+        Task task = taskComponent.editTask(id, payload);
+        return TaskConverter.convert(task, false);
+    }
+
+    @Transactional
     public ChangedStatusResponse setStatus(Long taskId, Status newStatus) {
-        authorizationComponent.canChangeStatus(taskId, newStatus);
+        taskComponent.validateStatusChange(taskId, newStatus);
         Status oldStatus = taskComponent.getStatus(taskId);
         taskComponent.changeStatus(taskId, newStatus);
         return new ChangedStatusResponse(taskId, oldStatus, newStatus);
     }
 
-    @Transactional
-    @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
-    public TaskJsonPojo editTask(@NotNull Long id, TaskEditionPayload payload) {
-        Task task = taskComponent.editTask(id, payload);
-        return TaskConverter.convert(task);
-    }
-
     public Page<TaskJsonPojo> getByCreatorOrExecutor(
-        String creatorUsername,
-        String executorUsername,
-        Pageable page
+        TasksPayload tasksPayload,
+        Pageable pageable
     ) {
-        Page<Task> tasks = taskRepository.findAll(page);
-        return tasks.map(TaskConverter::convert);
+        return taskComponent
+            .findByCreatorAndExecutor(tasksPayload, pageable)
+            .map(task -> {
+                Boolean withComments = tasksPayload.getWithComments();
+                return TaskConverter.convert(task, withComments);
+            });
     }
 }

@@ -10,9 +10,5 @@ import org.springframework.data.domain.Pageable;
 public interface TaskRepository extends AbstractJpaRepository<Task, Long> {
     Page<Task> findAll(Pageable pageable);
 
-    Page<Task> findByExecutor_UsernameOrCreator_Username(
-        String executorUsername,
-        String creatorUsername,
-        Pageable pageable
-    );
+
 }
