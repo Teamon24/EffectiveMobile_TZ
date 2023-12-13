@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.effective_mobile.task_management_system.enums.UserRole;
 
+import java.util.Collection;
+import java.util.List;
+
 @Entity
 @Table(name = "roles")
 @NoArgsConstructor

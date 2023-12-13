@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,29 +18,30 @@ import java.io.IOException;
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtUserDetailsService jwtUserDetailsService;
-    private final JwtTokenService jwtTokenService;
+    private final JwtTokenComponent jwtTokenComponent;
 
     @Value("${app.jwt.cookieName}")
     private String jwtCookieName;
 
     public JwtTokenFilter(
         JwtUserDetailsService jwtUserDetailsService,
-        JwtTokenService jwtTokenService
+        JwtTokenComponent jwtTokenComponent
     ) {
         this.jwtUserDetailsService = jwtUserDetailsService;
-        this.jwtTokenService = jwtTokenService;
+        this.jwtTokenComponent = jwtTokenComponent;
     }
 
     @Override
     protected void doFilterInternal(
         final HttpServletRequest request,
-        final HttpServletResponse response,
-        final FilterChain chain
+        final @NonNull HttpServletResponse response,
+        final @NonNull FilterChain chain
     )
-        throws ServletException, IOException {
-        String jwtToken = jwtTokenService.getJwtFromCookies(request);
+        throws ServletException, IOException
+    {
+        String jwtToken = jwtTokenComponent.getJwtFromCookies(request);
         if (jwtToken != null) {
-            String username = jwtTokenService.validateJwtToken(jwtToken);
+            String username = jwtTokenComponent.validateJwtToken(jwtToken);
             UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken authentication =

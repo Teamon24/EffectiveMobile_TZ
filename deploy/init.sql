@@ -22,12 +22,16 @@ create table IF NOT EXISTS roles (
     primary key (id)
 );
 
+insert into roles (name) values ('USER');
+insert into roles (name) values ('CREATOR');
+insert into roles (name) values ('EXECUTOR');
+
 create table IF NOT EXISTS tasks (
     priority    smallint    not null check (priority between 0 and 2),
     creator_id  bigint      not null,
     executor_id bigint,
     id          bigserial   not null,
-    status      varchar(20) not null check (status in ('NEW', 'ASSIGNED', 'EXECUTING', 'DONE')),
+    status      varchar(20) not null check (status in ('NEW', 'ASSIGNED', 'EXECUTING', 'DONE', 'PENDING')),
     content     varchar(255),
     primary key (id)
 );
@@ -70,7 +74,3 @@ alter table if exists users_roles
     add constraint FK2o0jvgh89lemvvo17cbqvdxaa
         foreign key (user_id)
             references users;
-
-insert into roles (name) values ('USER');
-insert into roles (name) values ('CREATOR');
-insert into roles (name) values ('EXECUTOR');

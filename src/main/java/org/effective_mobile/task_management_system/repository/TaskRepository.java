@@ -1,10 +1,14 @@
 package org.effective_mobile.task_management_system.repository;
 
 import org.effective_mobile.task_management_system.entity.Task;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
- *
+ * Репозиторий для сущности {@link Task}.
  */
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends AbstractJpaRepository<Task, Long> {
+    Page<Task> findAll(Pageable pageable);
+
+
 }

@@ -35,30 +35,34 @@ import java.util.Objects;
 @Getter
 @Entity
 @Table(name = "tasks")
-public class Task extends AbstractEntity{
+public class Task extends AbstractEntity {
 
+    @Setter
     @Column(length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private Priority priority;
 
+    @Setter
     @Column
     private String content;
 
-    @ManyToOne
+    @Setter
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "executor_id")
     private User executor;
 
     @NotNull
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
     @Setter
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "task_id")
     private List<Comment> comments = new ArrayList<>();
 

@@ -1,30 +1,24 @@
 package org.effective_mobile.task_management_system.security;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.repository.UserRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.effective_mobile.task_management_system.utils.PrivilegesUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@AllArgsConstructor
 public class JwtUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
-    private PermissionService permissionsService;
-
-    public JwtUserDetailsService(
-        UserRepository userRepository,
-        PermissionService permissionsService
-    ) {
-        this.userRepository = userRepository;
-        this.permissionsService = permissionsService;
-    }
+    private PrivilegesDiscoverer privilegesDiscoverer;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(final String email) {
         final User user = userRepository
             .findByEmail(email)
@@ -33,8 +27,7 @@ public class JwtUserDetailsService implements UserDetailsService {
                 return new EntityNotFoundException(message);
             });
 
-        final List<SimpleGrantedAuthority> permissions = permissionsService.getPermissions(user);
-        return new JwtUserDetails(user, permissions);
+        return new JwtPrincipal(user, privilegesDiscoverer.getAuthorities(user));
     }
 
 }
