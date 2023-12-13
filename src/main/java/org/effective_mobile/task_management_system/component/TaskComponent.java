@@ -15,7 +15,7 @@ import org.effective_mobile.task_management_system.exception.AssignmentException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
-import org.effective_mobile.task_management_system.pojo.TasksPayload;
+import org.effective_mobile.task_management_system.pojo.TasksFiltersPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
@@ -185,11 +185,11 @@ public class TaskComponent {
         return getTask(taskId).getStatus();
     }
 
-    public Page<Task> findByCreatorAndExecutor(TasksPayload tasksPayload, Pageable pageable) {
+    public Page<Task> findByCreatorAndExecutor(TasksFiltersPayload tasksFiltersPayload, Pageable pageable) {
         return filteredAndPagedTaskRepository
             .findByCreatorAndExecutor(
-                tasksPayload.getCreatorUsername(),
-                tasksPayload.getExecutorUsername(),
+                tasksFiltersPayload.getCreatorUsername(),
+                tasksFiltersPayload.getExecutorUsername(),
                 pageable
             );
     }

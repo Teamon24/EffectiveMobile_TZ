@@ -52,6 +52,12 @@ public class UserComponent {
         return userRepository.existsByUsername(username);
     }
 
+    public void checkUsernameExists(String username) {
+        if (!usernameExists(username)) {
+            throw new EntityNotFoundException(UserExceptionMessages.notFound(username));
+        }
+    }
+
     public Boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
