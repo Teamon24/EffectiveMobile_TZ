@@ -1,5 +1,11 @@
 package org.effective_mobile.task_management_system.resource;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.effective_mobile.task_management_system.docs.Docs.TASK_PATH_VAR_DESCRIPTION;
+
 @RestController
 @RequestMapping(Api.TASK)
 @AllArgsConstructor
@@ -39,22 +47,27 @@ public class TaskResource {
 
     private final TaskService taskService;
 
+
+    @Tag(name = "Создание")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createTask(
         @RequestBody @Valid TaskCreationPayload taskCreationPayload,
         @AuthenticationPrincipal CustomUserDetails customUserDetails
-    )
-    {
+    ) {
         return taskService.createTask(customUserDetails.getUserId(), taskCreationPayload);
     }
 
+    @Tag(name = "Получение")
     @GetMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody TaskJsonPojo getTask(@NotNull @PathVariable Long id) {
+    public @ResponseBody TaskJsonPojo getTask(
+        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
+    ) {
         return taskService.getTask(id);
     }
 
+    @Tag(name = "Пагинация и фильтрация")
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody PageResponse<TaskJsonPojo> getTasks(
@@ -67,37 +80,48 @@ public class TaskResource {
         return new PageResponse<>(tasksPage);
     }
 
+    @Tag(name = "Редактирование")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskJsonPojo.class)) })
+    })
     @PutMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody TaskJsonPojo editTask(
-        @NotNull @PathVariable Long id,
+        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
         @RequestBody @Valid @NonNull TaskEditionPayload taskEditionPayload
     ) {
         return taskService.editTask(id, taskEditionPayload);
     }
 
+    @Tag(name = "Удаление")
     @DeleteMapping("/{id}")
-    public void deleteTask(@NotNull @PathVariable Long id) {
+    @PreAuthorize("@authenticationComponent.isAuthenticated()")
+    public void deleteTask(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
         taskService.deleteTask(id);
     }
 
+    @Tag(name = "Назначение исполнителя")
     @PutMapping("/{id}" + Api.EXECUTOR)
+    @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody AssignmentResponse setExecutor(
-        @NotNull @PathVariable Long id,
+        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
         @RequestParam(Api.EXECUTOR_USERNAME) String executorUsername
     ) {
         return taskService.setExecutor(id, executorUsername);
     }
 
+    @Tag(name = "Удаление исполнителя")
     @PutMapping("/{id}" + Api.UNASSIGN)
-    public Long removeExecutor(@NotNull @PathVariable Long id) {
+    @PreAuthorize("@authenticationComponent.isAuthenticated()")
+    public Long removeExecutor(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
         return taskService.unassign(id);
     }
 
+    @Tag(name = "Изменение статуса")
     @PutMapping("/{id}" + Api.STATUS)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody ChangedStatusResponse setStatus(
-        @NotNull @PathVariable Long id,
+        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
         @RequestParam(name = Api.NEW_STATUS_PARAM) @ValidEnum(clazz = Status.class) String newStatusStr
     ) {
         Status newStatus = new StatusConverter().convert(newStatusStr);

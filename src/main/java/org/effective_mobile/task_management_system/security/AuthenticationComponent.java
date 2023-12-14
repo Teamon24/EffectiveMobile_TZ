@@ -13,13 +13,13 @@ public class AuthenticationComponent {
     private JwtTokenComponent jwtTokenComponent;
     private ContextComponent contextComponent;
 
-    public boolean isAuthenticated() {
+    public boolean isAuthenticated() throws InvalidTokenException {
         HttpServletRequest request = contextComponent.getRequest();
-        String jwtToken = jwtTokenComponent.getJwtFromCookies(request);
+        String jwtToken = jwtTokenComponent.getTokenFromCookies(request);
         if (jwtToken != null) {
-            jwtTokenComponent.validateJwtToken(jwtToken);
+            jwtTokenComponent.validateToken(jwtToken);
         } else {
-            throw new InvalidTokenException("There is no cookie with jwt-token");
+            throw new InvalidTokenException("There is no token in cookies");
         }
         return true;
     }

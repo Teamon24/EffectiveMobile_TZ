@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.resource;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.entity.Comment;
@@ -22,6 +23,7 @@ public class CommentResource {
 
     private CommentService commentService;
 
+    @Tag(name = "Создание комментария")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createComment(
