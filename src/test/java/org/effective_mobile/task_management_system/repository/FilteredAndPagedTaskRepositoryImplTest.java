@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Тест для класса {@link FilteredAndPagedTaskRepository}.
+ * Тест для класса {@link FilteredAndPagedTaskRepositoryImpl}.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -43,11 +43,11 @@ import java.util.stream.Stream;
     "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-public class FilteredAndPagedTaskRepositoryTest {
+public class FilteredAndPagedTaskRepositoryImplTest {
 
     @Autowired private TaskRepository taskRepository;
     @Autowired private UserRepository userRepository;
-    @Autowired private FilteredAndPagedTaskRepository repository;
+    @Autowired private FilteredAndPagedTaskRepositoryImpl repository;
 
     private final static String creatorName = new Faker().internet().username();
     private final static String executorName = new Faker().internet().username();
@@ -91,7 +91,7 @@ public class FilteredAndPagedTaskRepositoryTest {
     }
 
     /**
-     * Test for {@link FilteredAndPagedTaskRepository#findByCreatorAndExecutor}.
+     * Test for {@link FilteredAndPagedTaskRepositoryImpl#findByCreatorAndExecutor}.
      */
     @Transactional
     @ParameterizedTest

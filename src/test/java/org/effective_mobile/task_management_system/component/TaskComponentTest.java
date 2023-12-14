@@ -14,7 +14,7 @@ import org.effective_mobile.task_management_system.exception.NothingToUpdateInTa
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
-import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepository;
+import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepositoryImpl;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ import static org.effective_mobile.task_management_system.exception.messages.Exc
 class TaskComponentTest {
 
     private TaskRepository taskRepository;
-    private FilteredAndPagedTaskRepository filteredAndPagedTaskRepository;
+    private FilteredAndPagedTaskRepositoryImpl filteredAndPagedTaskRepositoryImpl;
     private UserComponent userComponent;
 
     private TaskComponent component;
@@ -43,11 +43,11 @@ class TaskComponentTest {
     public void setUp() {
         taskRepository = Mockito.mock(TaskRepository.class);
         userComponent = Mockito.mock(UserComponent.class);
-        filteredAndPagedTaskRepository = Mockito.mock(FilteredAndPagedTaskRepository.class);
+        filteredAndPagedTaskRepositoryImpl = Mockito.mock(FilteredAndPagedTaskRepositoryImpl.class);
 
         component = new TaskComponent(
             taskRepository,
-            filteredAndPagedTaskRepository,
+            filteredAndPagedTaskRepositoryImpl,
             userComponent
         );
     }

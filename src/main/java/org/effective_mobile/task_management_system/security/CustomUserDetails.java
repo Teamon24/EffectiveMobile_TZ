@@ -25,7 +25,7 @@ public class CustomUserDetails implements UserDetails {
         this.usernameAtDb = user.getUsername();
         this.password = user.getPassword();
         this.email = user.getEmail();
-        this.authorities = HashSet.newHashSet(0);
+        this.authorities = new HashSet<>();
     }
 
     @Override

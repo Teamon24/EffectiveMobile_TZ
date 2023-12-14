@@ -18,4 +18,6 @@ public final class Api {
 
     public static final String COMMENT_TASK_ID = "task_id";
     public static final String COMMENT = TASK + "/{" + COMMENT_TASK_ID + "}/comment";
+
+    public static final String TOKEN_NAME = "token";
 }

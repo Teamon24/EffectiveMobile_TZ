@@ -81,7 +81,7 @@ public abstract class IntegrationTest {
             method.apply(path, new Object[]{})
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload == null ? "" : asString(payload))
-                .cookie(new Cookie(jwtCookie, jwtTokenComponent.generateJwtCookie(customUserDetails).getValue()))
+                .cookie(new Cookie(jwtCookie, jwtTokenComponent.generateTokenCookie(customUserDetails).getValue()))
         );
     }
 
