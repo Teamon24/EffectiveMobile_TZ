@@ -1,16 +1,23 @@
 version: '3.3'
 services:
-  task_management_sys_db:
+  task_management_system:
+    image: 'task-management-system-image'
+    container_name: task-management-system-container
+    depends_on:
+      - task_management_system_db
+    ports:
+      - 8007:2345
+  task_management_system_db:
     image: postgres
     restart: always
-    container_name: task-management-sys-db
+    container_name: task-management-system-db
     environment:
-      PGDATA: /var/lib/postgresql/data/task_management_sys/
-      POSTGRES_DB: task_management_sys
+      PGDATA: /var/lib/postgresql/data/task_management_system_db/
+      POSTGRES_DB: task_management_system
       POSTGRES_USER: artem
       POSTGRES_PASSWORD: 123456
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - /var/lib/deploy/volumes/task_management_sys/:/var/lib/postgresql/data/task_management_sys
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /var/lib/deploy/volumes/task_management_system_db/:/var/lib/postgresql/data/task_management_system_db
     ports:
       - 9876:5432

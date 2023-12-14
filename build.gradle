@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.4'
 }
@@ -30,9 +31,11 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
     // SPRING ----------------------------------------------------------------
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     annotationProcessor 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
@@ -41,14 +44,14 @@ dependencies {
     implementation 'com.auth0:java-jwt:4.4.0'
     // QUERYDSL --------------------------------------------------------------
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    implementation "jakarta.persistence:jakarta.persistence-api:3.1.0"
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
     annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
     // MISC -----------------------------------------------------------------
     implementation 'org.postgresql:postgresql:42.3.1'
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.apache.commons:commons-text:1.9'
-
-    implementation 'javax.xml.bind:jaxb-api:2.3.0'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
     // DOCUMENTING----------------------------------------------------------
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3'
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.0.3'
@@ -71,6 +74,43 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
+
 test {
     useJUnitPlatform()
+}
+
+def fatJarName = 'task-management-system-fat'
+def fatJarNameVersExt = "$fatJarName-${version}.jar"
+
+def fatJarBuildPath = "build/libs/$fatJarNameVersExt"
+def fatJarDeployPath = "deploy/$fatJarNameVersExt"
+
+task copyJar(type: Copy) {
+    from fatJarBuildPath
+    into 'deploy'
+}
+
+task deleteJar() {
+    project.delete(files(fatJarDeployPath))
+}
+
+def mainClazz = 'org.effective_mobile.task_management_system.TaskManagementSystemApp'
+
+task runWithJavaExec(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = mainClazz
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': mainClazz
+    }
+
+    archiveBaseName = fatJarName
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
 }
