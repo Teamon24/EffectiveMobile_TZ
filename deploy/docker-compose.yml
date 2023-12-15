@@ -1,13 +1,18 @@
 version: '3.3'
 services:
   task_management_system:
+    profiles: ["default"]
     image: 'task-management-system-image'
     container_name: task-management-system-container
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PROFILE}
+    command: -Dspring.profiles.active=${PROFILE}
     depends_on:
       - task_management_system_db
     ports:
-      - 8007:2345
+      - ${API_EXT_PORT}:${API_INT_PORT}
   task_management_system_db:
+    profiles: ["default", "dev"]
     image: postgres
     restart: always
     container_name: task-management-system-db
@@ -18,6 +23,7 @@ services:
       POSTGRES_PASSWORD: 123456
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./sql/tables.sql:/docker-entrypoint-initdb.d/tables.sql
       - /var/lib/deploy/volumes/task_management_system_db/:/var/lib/postgresql/data/task_management_system_db
     ports:
-      - 9876:5432
+      - ${DB_EXT_PORT}:${DB_INT_PORT}

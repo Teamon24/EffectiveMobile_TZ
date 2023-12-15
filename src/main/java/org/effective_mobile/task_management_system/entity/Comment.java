@@ -43,15 +43,4 @@ public class Comment extends AbstractEntity {
         this.task = Objects.requireNonNull(task);
         this.creationDate = Objects.requireNonNull(creationDate);
     }
-
-//    @PostLoad
-//    public void postConstruct() {
-//        // TODO: сделать так, чтобы комментарий удаленного пользователя корректно обрабатывался, т.е.
-//        // если пользователь удален, то отдавать вместо имя пользователя
-//        // информацию об отсутствии пользователя в системе
-//        this.user = Objects.requireNonNullElse(
-//            this.getUser(),
-//            User.builder().username("Пользователь удален").build()
-//        );
-//    }
 }
