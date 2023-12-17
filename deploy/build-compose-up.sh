@@ -1,9 +1,14 @@
+. ./vars.sh
+. ./functions.sh
 
-#1 - пропуск тестов
-#2 - профиль
+echo "build-compose-up.sh: expects 1[$TEST_ARG] 2[$PROFILE_ARGS]; actual: 1[$1] 2[$2] $@"
+
+checkTestArg $1
+checkProfileArg $2
+shouldBeEmpty $2 2
+
 PROFILE=""
-echo "build-compose-up.sh: expects 1[$1] 2[$2]; actual: $@"
-if [ "$2" = "" ]; then
+if [ -z "$2" ]; then
     PROFILE="default"
 fi
 ./build.sh "$1"
