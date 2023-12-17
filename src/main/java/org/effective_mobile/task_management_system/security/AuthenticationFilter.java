@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,15 +24,15 @@ import java.io.IOException;
 
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
-    private final CustomUserDetailsService customUserDetailsService;
-    private final JwtTokenComponent jwtTokenComponent;
+    private final UserDetailsService userDetailsService;
+    private final TokenComponent tokenComponent;
 
     public AuthenticationFilter(
-        CustomUserDetailsService customUserDetailsService,
-        JwtTokenComponent jwtTokenComponent
+        CustomUserDetailsService userDetailsService,
+        JwtTokenComponent tokenComponent
     ) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.jwtTokenComponent = jwtTokenComponent;
+        this.userDetailsService = userDetailsService;
+        this.tokenComponent = tokenComponent;
     }
 
     @Override
@@ -42,11 +43,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     )
         throws ServletException, IOException
     {
-        String jwtToken = jwtTokenComponent.getTokenFromCookies(request);
+        String jwtToken = tokenComponent.getTokenFromCookies(request);
         if (jwtToken != null) {
             try {
-                String username = jwtTokenComponent.validateToken(jwtToken);
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                String username = tokenComponent.validateToken(jwtToken);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
