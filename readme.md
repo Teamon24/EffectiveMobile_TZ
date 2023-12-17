@@ -1,23 +1,28 @@
 # Запуск API "Система управления задачами"
 
-### run-jar.sh "-x test"
-    Запуск проекта: 
-    - аргумент: "-x test" - запуск без прогонки тестов
+### ./entrypoints/default.sh
+    Запуск проекта в default-профиле: 
+    - запускается при помощи docker-compose
+    - api и база данных запускается при помощи gradle-задачи
+
+### ./entrypoints/dev.sh
+    Запуск проекта в dev-профиле: 
     - база данных запускается при помощи docker-compose
     - проект запускается при помощи gradle-задачи
 
-### build.sh "-x test"
-    Сборка проекта:
+### build.sh
+    Сборка проекта (собирается исполняемый jar):
     - аргумент: "-x test" - запуск без прогонки тестов
-    - собирается fat jar
 
 ### compose-up.sh
     Запуск проекта при помощи docker-compose:
-    - аргумент: rmi - пересборка docker-образа
+    - аргумент: rmi/<empty> - пересборка docker-образа
+    - аргумент: dev/default/<empty> - пересборка docker-образа
 
-### build-compose-up.sh "-x test"
+### build-compose-up.sh
     Сборка и запуск проекта в docker-контейнере при помощи docker-compose:
-    - аргумент: "-x test" - запуск без прогонки тестов
+    - аргумент "-x test": запуск без прогонки тестов 
+    - аргумент dev / default / '>empty<': профиль приложения  
 
 ### Документация
 [swagger ui](http://localhost:8008/swagger-ui/index.html)

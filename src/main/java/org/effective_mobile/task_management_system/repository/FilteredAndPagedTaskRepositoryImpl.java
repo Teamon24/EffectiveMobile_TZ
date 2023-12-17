@@ -4,14 +4,12 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.effective_mobile.task_management_system.entity.QTask;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

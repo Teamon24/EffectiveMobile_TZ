@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -37,8 +35,6 @@ import java.util.stream.Stream;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.MOCK,
     classes = TaskManagementSystemApp.class)
-@AutoConfigureMockMvc
-@Transactional
 @TestPropertySource(properties = {
     "spring.jpa.hibernate.ddl-auto=create-drop"
 })
@@ -65,14 +61,21 @@ public class FilteredAndPagedTaskRepositoryImplTest {
         task(creator, executor),
         task(creator, null),
         task(creator, null)
-    ).collect(Collectors.toList());
+    ).toList();
 
     record ExpectedCount(
         Long creatorFilterCount,
         Long executorFilterCount,
         Long filterByBothCount,
         Long totalCount
-    ) {}
+    ) {
+        public Long expectedCount(String creator, String executor) {
+            if (creator != null && executor == null) { return this.creatorFilterCount; }
+            if (creator == null && executor != null) { return this.executorFilterCount; }
+            if (creator != null && executor != null) { return this.filterByBothCount; }
+            return this.totalCount; // creator == null && executor == null
+        }
+    }
 
     @BeforeEach
     void setUp() {
@@ -102,13 +105,7 @@ public class FilteredAndPagedTaskRepositoryImplTest {
         Pageable pageable
     ) {
         Page<Task> tasks = repository.findByCreatorAndExecutor(creator, executor, pageable);
-        Long expectedCount = null;
-
-        if (creator != null && executor == null) { expectedCount = expectedCountDto.creatorFilterCount; }
-        if (creator == null && executor != null) { expectedCount = expectedCountDto.executorFilterCount; }
-        if (creator != null && executor != null) { expectedCount = expectedCountDto.filterByBothCount; }
-        if (creator == null && executor == null) { expectedCount = expectedCountDto.totalCount; }
-
+        Long expectedCount = expectedCountDto.expectedCount(creator, executor);
         Assertions.assertEquals(expectedCount, tasks.getTotalElements());
     }
 
