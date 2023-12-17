@@ -12,17 +12,17 @@
 
 ### build.sh
     Сборка проекта (собирается исполняемый jar):
-    - аргумент: "-x test" - запуск без прогонки тестов
+    - аргумент "-x test": - запуск без прогонки тестов
 
 ### compose-up.sh
     Запуск проекта при помощи docker-compose:
-    - аргумент: rmi/<empty> - пересборка docker-образа
-    - аргумент: dev/default/<empty> - пересборка docker-образа
+    - аргумент rmi: пересборка docker-образов
+    - аргумент dev/default/<empty>=default: профиль приложения
 
 ### build-compose-up.sh
     Сборка и запуск проекта в docker-контейнере при помощи docker-compose:
     - аргумент "-x test": запуск без прогонки тестов 
-    - аргумент dev / default / '>empty<': профиль приложения  
+    - аргумент dev/default/<empty>=default: профиль приложения  
 
 ### Документация
 [swagger ui](http://localhost:8008/swagger-ui/index.html)
