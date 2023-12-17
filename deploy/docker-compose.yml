@@ -15,7 +15,7 @@ services:
     profiles: ["default", "dev"]
     image: postgres
     restart: always
-    container_name: task-management-system-db
+    container_name: task-management-system-db${CONTAINER_POSTFIX}
     environment:
       PGDATA: /var/lib/postgresql/data/task_management_system_db/
       POSTGRES_DB: task_management_system
@@ -24,6 +24,6 @@ services:
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./sql/tables.sql:/docker-entrypoint-initdb.d/tables.sql
-      - /var/lib/deploy/volumes/task_management_system_db/:/var/lib/postgresql/data/task_management_system_db
+      - /var/lib/deploy/volumes/task_management_system_db${CONTAINER_POSTFIX}/:/var/lib/postgresql/data/task_management_system_db${CONTAINER_POSTFIX}
     ports:
       - ${DB_EXT_PORT}:${DB_INT_PORT}
