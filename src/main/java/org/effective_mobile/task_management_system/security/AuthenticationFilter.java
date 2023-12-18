@@ -7,7 +7,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.effective_mobile.task_management_system.confing.JacksonConfig;
 import org.effective_mobile.task_management_system.exception.ErrorCreator;
 import org.effective_mobile.task_management_system.exception.ErrorInfo;
 import org.effective_mobile.task_management_system.exception.InvalidTokenException;
@@ -23,17 +25,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@AllArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenComponent tokenComponent;
-
-    public AuthenticationFilter(
-        CustomUserDetailsService userDetailsService,
-        JwtTokenComponent tokenComponent
-    ) {
-        this.userDetailsService = userDetailsService;
-        this.tokenComponent = tokenComponent;
-    }
 
     @Override
     protected void doFilterInternal(
@@ -43,10 +38,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     )
         throws ServletException, IOException
     {
-        String jwtToken = tokenComponent.getTokenFromCookies(request);
-        if (jwtToken != null) {
+        String token = tokenComponent.getTokenFromCookies(request);
+        if (token != null) {
             try {
-                String username = tokenComponent.validateToken(jwtToken);
+                String username = tokenComponent.validateToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities());
@@ -68,19 +63,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         HttpServletRequest request,
         HttpServletResponse response,
         Exception e,
-        HttpStatus unauthorized
+        HttpStatus httpStatus
     ) throws IOException {
-        ErrorInfo errorInfo = ErrorCreator.createErrorInfo(request, e, unauthorized);
-        response.setStatus(unauthorized.value());
+        ErrorInfo errorInfo = ErrorCreator.createErrorInfo(request, e, httpStatus);
+        response.setStatus(httpStatus.value());
         response.getWriter().write(convertObjectToJson(errorInfo));
     }
-
 
     public String convertObjectToJson(Object object) throws JsonProcessingException {
         if (object == null) {
             return null;
         }
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(object);
+        return JacksonConfig.getObjectMapperInstance().writeValueAsString(object);
     }
 }

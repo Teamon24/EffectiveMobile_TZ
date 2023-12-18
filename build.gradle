@@ -23,25 +23,39 @@ sourceSets {
 
 dependencies {
     //LOMBOK -----------------------------------------------------------------
-    def lombokVersion = '1.18.30'
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    def lombok_v = '1.18.30'
+    def querydsl_v = '5.0.0:jakarta'
+    def jakarta_v = '3.1.0'
+    def junitVersion = '5.10.1'
+
+    compileOnly "org.projectlombok:lombok:${lombok_v}"
+    annotationProcessor "org.projectlombok:lombok:${lombok_v}"
+    testCompileOnly "org.projectlombok:lombok:${lombok_v}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombok_v}"
 
     // SPRING ----------------------------------------------------------------
+    configurations {
+        all {
+            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+            exclude group: 'org.springframework.boot', module: 'logback-classic'
+        }
+    }
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
     // JWT -------------------------------------------------------------------
     implementation 'com.auth0:java-jwt:4.4.0'
     // QUERYDSL --------------------------------------------------------------
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    implementation "jakarta.persistence:jakarta.persistence-api:3.1.0"
-    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
+    implementation "com.querydsl:querydsl-jpa:${querydsl_v}"
+    annotationProcessor "com.querydsl:querydsl-apt:${querydsl_v}"
+
+    implementation "jakarta.persistence:jakarta.persistence-api:${jakarta_v}"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api:${jakarta_v}"
     // MISC -----------------------------------------------------------------
     implementation 'org.postgresql:postgresql:42.5.4'
     implementation 'com.google.guava:guava:31.0.1-jre'
@@ -53,7 +67,6 @@ dependencies {
 
     // TESTS --------------------------------------------------------------
     implementation 'net.datafaker:datafaker:2.0.2'
-    def junitVersion = "5.10.1"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"

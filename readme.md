@@ -25,9 +25,9 @@
     - аргумент dev/default/<empty>=default: профиль приложения  
 
 ### Документация
-[swagger ui](http://localhost:8008/swagger-ui/index.html)
+[swagger ui](http://localhost:9000/swagger-ui/index.html)
     
-[json-формат](http://localhost:8008/v3/api-docs)
+[json-формат](http://localhost:9000/v3/api-docs)
 
 ### Готовые запросы
 [Коллекция запросов в Postman](https://www.postman.com/eom-back/workspace/task-management-system/collection/2929901-3c1a7865-4b0c-4dab-95fc-15d55ede2119?action=share&creator=2929901&active-environment=2929901-f19febb9-39d0-46c2-803e-04d60dcf2c28)

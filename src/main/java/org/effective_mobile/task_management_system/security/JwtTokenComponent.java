@@ -26,22 +26,24 @@ public class JwtTokenComponent implements TokenComponent {
     private final Algorithm hmac512;
     private final JWTVerifier verifier;
 
-    private String jwtCookieName = TOKEN_NAME;
-
     public JwtTokenComponent(@Value("${app.jwt.secret}") final String secret) {
         this.hmac512 = Algorithm.HMAC512(secret);
         this.verifier = JWT.require(this.hmac512).build();
     }
 
-
     @Override
     public ResponseCookie getCleanTokenCookie() {
-        return ResponseCookie.from(jwtCookieName, "").path("/").maxAge(0).build();
+        return ResponseCookie.from(TOKEN_NAME, "").path("/").maxAge(0).build();
     }
 
     @Override
     public String getTokenFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookieName);
+        Cookie cookie = WebUtils.getCookie(request, TOKEN_NAME);
+        return getToken(cookie);
+    }
+
+    @Override
+    public String getToken(Cookie cookie) {
         if (cookie != null) {
             return cookie.getValue();
         } else {
@@ -51,8 +53,8 @@ public class JwtTokenComponent implements TokenComponent {
 
     @Override
     public ResponseCookie generateTokenCookie(UserDetails userDetails) {
-        String jwt = generateToken(userDetails);
-        return ResponseCookie.from(jwtCookieName, jwt).maxAge(24 * 60 * 60).httpOnly(true).build();
+        String token = generateToken(userDetails);
+        return ResponseCookie.from(TOKEN_NAME, token).maxAge(24 * 60 * 60).httpOnly(true).build();
     }
 
     @Override

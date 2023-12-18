@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system;
 
+import lombok.extern.log4j.Log4j2;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,8 +23,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     basePackages = "org.effective_mobile.task_management_system.repository",
     basePackageClasses = TaskRepository.class
 )
+@Log4j2
 public class TaskManagementSystemApp {
     public static void main(String[] args) {
         SpringApplication.run(TaskManagementSystemApp.class, args);
+        logAppInitialized();
+    }
+
+    public static void logAppInitialized(){
+        log.info("application is initialized (info)");
+        log.warn("application is initialized (warn)");
+        log.debug("application is initialized (debug)");
+        log.error("application is initialized (error)");
+        log.fatal("application is initialized (fatal)");
     }
 }
