@@ -3,7 +3,6 @@ package org.effective_mobile.task_management_system.converter;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.enums.Priority;
-import org.effective_mobile.task_management_system.enums.Status;
 import org.effective_mobile.task_management_system.pojo.CommentJsonPojo;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
 import org.effective_mobile.task_management_system.pojo.task.TaskCreatorJsonPojo;
@@ -32,7 +31,7 @@ public class TaskConverter {
             task.getPriority().name(),
             executorInfoOrNull(executor),
             new TaskCreatorJsonPojo(creator.getId(), creator.getUsername()),
-            commentsOfEmptyList(task, withComments)
+            convertComments(task, withComments)
         );
     }
 
@@ -41,9 +40,7 @@ public class TaskConverter {
             null : new TaskExecutorJsonPojo(executor.getId(), executor.getUsername());
     }
 
-    private static List<CommentJsonPojo> commentsOfEmptyList(Task task, Boolean withComments) {
+    private static List<CommentJsonPojo> convertComments(Task task, Boolean withComments) {
         return withComments ? CommentConverter.convert(task.getComments()) : List.of();
     }
-
-
 }

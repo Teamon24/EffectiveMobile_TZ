@@ -48,7 +48,7 @@ public class User extends AbstractEntity {
     private List<Task> tasks = new ArrayList<>();
 
     @Builder
-    public User(String username, String email, String password, List<Task> tasks) {
+    private User(String username, String email, String password, List<Task> tasks) {
         this.username = username;
         this.email = email;
         this.password = password;

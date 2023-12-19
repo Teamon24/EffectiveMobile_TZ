@@ -31,10 +31,10 @@ public class TaskService {
     private TaskComponent taskComponent;
 
     @Transactional
-    public Long createTask(Long userId, TaskCreationPayload taskCreationPayload) {
+    public TaskJsonPojo createTask(Long userId, TaskCreationPayload taskCreationPayload) {
         User creator = userComponent.getById(userId);
         Task task = taskComponent.createTask(creator, taskCreationPayload);
-        return task.getId();
+        return TaskConverter.convert(task, false);
     }
 
     public TaskJsonPojo getTask(Long id) {

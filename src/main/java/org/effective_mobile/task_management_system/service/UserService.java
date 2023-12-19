@@ -17,8 +17,7 @@ public class UserService {
         userComponent.checkEmailDoesNotExist(signUpPayload.getEmail());
     }
 
-    public Long createNewUser(SignupPayload signUpPayload) {
-        User user = userComponent.createAndSaveUser(signUpPayload);
-        return user.getId();
+    public User createNewUser(SignupPayload signUpPayload) {
+        return userComponent.createAndSaveUser(signUpPayload);
     }
 }

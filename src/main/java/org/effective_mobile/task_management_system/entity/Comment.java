@@ -37,7 +37,7 @@ public class Comment extends AbstractEntity {
     private Date creationDate;
 
     @Builder
-    public Comment(String content, User user, Task task, Date creationDate) {
+    private Comment(String content, User user, Task task, Date creationDate) {
         this.content = content;
         this.user = user;
         this.task = Objects.requireNonNull(task);

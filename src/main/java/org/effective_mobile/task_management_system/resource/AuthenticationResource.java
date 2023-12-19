@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.converter.UserConverter;
+import org.effective_mobile.task_management_system.entity.User;
+import org.effective_mobile.task_management_system.pojo.UserCreationResponse;
 import org.effective_mobile.task_management_system.pojo.auth.SigninPayload;
 import org.effective_mobile.task_management_system.pojo.auth.SigninResponse;
 import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
@@ -44,9 +47,10 @@ public class AuthenticationResource {
         @ApiResponse(responseCode = "404", description = "Пользователя не существует")
     })
     @PostMapping(Api.SIGN_UP)
-    public Long signup(@RequestBody @Valid SignupPayload signUpPayload) {
+    public UserCreationResponse signup(@RequestBody @Valid SignupPayload signUpPayload) {
         userService.checkUserDoesNotExists(signUpPayload);
-        return userService.createNewUser(signUpPayload);
+        User newUser = userService.createNewUser(signUpPayload);
+        return UserConverter.userCreationResponse(newUser);
     }
 
     @Tag(name = "Вход в систему")

@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.logging;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.ToString;
@@ -14,7 +15,9 @@ public class HttpResponseInfo {
 
     /**
      * Тело ответа. */
-    @JsonProperty private Object responseBody;
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Object responseBody;
 
     /**
      * Заголовки http-запроса. */

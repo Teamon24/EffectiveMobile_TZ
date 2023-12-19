@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.logging;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,11 +27,15 @@ public class HttpRequestInfo {
 
     /**
      * Тело запроса (чаще всего - принимаемый json). */
-    @JsonProperty private Object requestBody;
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Object requestBody;
 
     /**
      * Строка запроса (если есть). */
-    @JsonProperty private String queryString;
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String queryString;
 
     /**
      * Информация об аутентифицированном пользователе. */

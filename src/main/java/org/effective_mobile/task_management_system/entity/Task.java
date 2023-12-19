@@ -67,7 +67,7 @@ public class Task extends AbstractEntity {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public Task(
+    private Task(
         Priority priority,
         Status status,
         String content,

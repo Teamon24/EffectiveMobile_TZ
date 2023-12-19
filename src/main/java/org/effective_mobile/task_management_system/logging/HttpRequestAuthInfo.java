@@ -1,7 +1,7 @@
 package org.effective_mobile.task_management_system.logging;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import lombok.Builder;
 
@@ -12,7 +12,9 @@ import lombok.Builder;
 public class HttpRequestAuthInfo {
     /**
      * Токен аутентификации. */
-    @Nullable @JsonProperty private String token;
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String token;
 
     /**
      * Cookie из http-запроса. */

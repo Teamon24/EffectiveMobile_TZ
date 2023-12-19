@@ -1,11 +1,11 @@
 # Запуск API "Система управления задачами"
 
-### ./entrypoints/default.sh
+### ./run/default.sh
     Запуск проекта в default-профиле: 
     - запускается при помощи docker-compose
     - api и база данных запускается при помощи gradle-задачи
 
-### ./entrypoints/dev.sh
+### ./run/dev.sh
     Запуск проекта в dev-профиле: 
     - база данных запускается при помощи docker-compose
     - проект запускается при помощи gradle-задачи

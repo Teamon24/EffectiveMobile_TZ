@@ -51,7 +51,7 @@ public class TaskResource {
     @Tag(name = "Создание")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody Long createTask(
+    public @ResponseBody TaskJsonPojo createTask(
         @RequestBody @Valid TaskCreationPayload taskCreationPayload,
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
