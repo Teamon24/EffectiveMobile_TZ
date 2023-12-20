@@ -1,15 +1,15 @@
 package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.effective_mobile.task_management_system.entity.Task;
-import org.effective_mobile.task_management_system.entity.User;
+import org.effective_mobile.task_management_system.database.entity.Task;
+import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.database.repository.UserRepository;
 import org.effective_mobile.task_management_system.exception.DeniedOperationException;
 import org.effective_mobile.task_management_system.exception.TaskHasNoExecutorException;
 import org.effective_mobile.task_management_system.exception.UserAlreadyExistsException;
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages;
-import org.effective_mobile.task_management_system.pojo.auth.SignupRequestPojo;
-import org.effective_mobile.task_management_system.repository.UserRepository;
+import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

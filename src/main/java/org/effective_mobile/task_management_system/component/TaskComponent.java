@@ -3,23 +3,23 @@ package org.effective_mobile.task_management_system.component;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.effective_mobile.task_management_system.converter.TaskConverter;
-import org.effective_mobile.task_management_system.entity.Task;
-import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.enums.Priority;
-import org.effective_mobile.task_management_system.enums.Status;
-import org.effective_mobile.task_management_system.enums.converter.PriorityConverter;
+import org.effective_mobile.task_management_system.database.entity.Task;
+import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.database.repository.FilteredAndPagedTaskRepository;
+import org.effective_mobile.task_management_system.database.repository.TaskRepository;
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
-import org.effective_mobile.task_management_system.pojo.TasksFiltersRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskResponsePojo;
-import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepository;
-import org.effective_mobile.task_management_system.repository.TaskRepository;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
+import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
+import org.effective_mobile.task_management_system.utils.enums.Priority;
+import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.effective_mobile.task_management_system.utils.enums.converter.PriorityConverter;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -32,9 +32,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static org.effective_mobile.task_management_system.confing.CacheConfigurations.TASKS_CACHE;
-import static org.effective_mobile.task_management_system.enums.Status.ASSIGNED;
-import static org.effective_mobile.task_management_system.enums.Status.NEW;
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
+import static org.effective_mobile.task_management_system.utils.enums.Status.ASSIGNED;
+import static org.effective_mobile.task_management_system.utils.enums.Status.NEW;
 
 @Component
 @AllArgsConstructor
@@ -60,6 +60,7 @@ public class TaskComponent {
         return getTask(taskId).getStatus();
     }
 
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
     public Task createTask(User user, TaskCreationRequestPojo taskCreationPayload) {
         Task newTask = TaskConverter.convert(taskCreationPayload, user);
         Task save = taskRepository.save(newTask);

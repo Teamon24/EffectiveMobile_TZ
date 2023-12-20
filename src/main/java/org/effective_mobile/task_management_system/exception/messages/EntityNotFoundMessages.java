@@ -2,7 +2,7 @@ package org.effective_mobile.task_management_system.exception.messages;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.effective_mobile.task_management_system.entity.AbstractEntity;
+import org.effective_mobile.task_management_system.database.entity.AbstractEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EntityNotFoundMessages {

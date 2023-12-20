@@ -12,7 +12,8 @@ import java.util.stream.Collector;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Headers extends ArrayList<Headers.Header> {
 
-    public static final String START_TIME_HEADER = "start-time";
+    public static final String START_TIME_ATTRIBUTE = "start-time";
+
     public static final Collector<Header, Headers, Headers> pairsToHeaders =
         Collector.of(
             Headers::new,

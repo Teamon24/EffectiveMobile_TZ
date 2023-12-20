@@ -2,8 +2,8 @@ package org.effective_mobile.task_management_system.service;
 
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.pojo.auth.SignupRequestPojo;
+import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
 import org.springframework.stereotype.Service;
 
 @Service

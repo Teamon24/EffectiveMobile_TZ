@@ -3,9 +3,9 @@ package org.effective_mobile.task_management_system.service;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.effective_mobile.task_management_system.entity.Comment;
-import org.effective_mobile.task_management_system.pojo.task.CommentCreationRequestPojo;
-import org.effective_mobile.task_management_system.repository.CommentRepository;
+import org.effective_mobile.task_management_system.database.entity.Comment;
+import org.effective_mobile.task_management_system.database.repository.CommentRepository;
+import org.effective_mobile.task_management_system.resource.json.CommentCreationRequestPojo;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

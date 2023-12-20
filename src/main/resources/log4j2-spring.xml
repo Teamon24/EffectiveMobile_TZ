@@ -1,50 +1,54 @@
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
         <Property name="LOG_PATTERN">%d{[yyyy-MM-dd HH:mm:ss.SSSZ]} %p %m%n</Property>
-        <Property name="FILE_SIZE_THRESHOLD">1000KB</Property>
+        <Property name="FILE_SIZE_THRESHOLD">2500KB</Property>
         <Property name="FILE_NAME_PATTERN">%d{yyyy-MM-dd HH.mm.ss}</Property>
+        <Property name="LOG_DIR">logs</Property>
+        <Property name="APPLICATION_LOG_PREFIX">app</Property>
     </Properties>
 
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT" follow="true">
+        <Console name="stdout" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
 
+        <RollingFile name="stdoutFile"
+                     fileName="${LOG_DIR}/stdout.log"
+                     filePattern="${LOG_DIR}/stdout-${FILE_NAME_PATTERN}.log.gz">
+            <LevelRangeFilter minLevel="FATAL"
+                              maxLevel="ALL"
+                              onMatch="ACCEPT"
+                              onMismatch="DENY"/>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
         <RollingFile name="debugLog"
-                     fileName="logs/application-debug.log"
-                     filePattern="logs/application-debug-${FILE_NAME_PATTERN}.log">
+                     fileName="${LOG_DIR}/app.debug.log"
+                     filePattern="${LOG_DIR}/app.debug-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="DEBUG"
                               maxLevel="DEBUG"
                               onMatch="ACCEPT"
                               onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/>
-            </Policies>
+            <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
         <RollingFile name="infoLog"
-                     fileName="logs/application-info.log"
-                     filePattern="logs/application-info-${FILE_NAME_PATTERN}.log">
-            <LevelRangeFilter minLevel="WARN"
-                              maxLevel="INFO"
-                              onMatch="ACCEPT"
-                              onMismatch="DENY"/>
+                     fileName="${LOG_DIR}/app.info.log"
+                     filePattern="${LOG_DIR}/app.info-${FILE_NAME_PATTERN}.log.gz">
+            <LevelRangeFilter minLevel="WARN" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/>
-            </Policies>
+            <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
         <RollingFile name="errorLog"
-                     fileName="logs/application-error.log"
-                     filePattern="logs/application-error-${FILE_NAME_PATTERN}.log">
-            <LevelRangeFilter minLevel="ERROR"
-                              maxLevel="ERROR"
-                              onMatch="ACCEPT"
-                              onMismatch="DENY"/>
+                     fileName="${LOG_DIR}/app.error.log"
+                     filePattern="${LOG_DIR}/app.error-${FILE_NAME_PATTERN}.log.gz">
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/>
@@ -52,67 +56,42 @@
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
-        <RollingFile name="springLog"
-                     fileName="logs/spring.log"
-                     filePattern="logs/spring-${FILE_NAME_PATTERN}.log">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/>
-            </Policies>
-            <DefaultRolloverStrategy max="1"/>
-        </RollingFile>
-
         <RollingFile name="apiLog"
-                     fileName="logs/application-api.log"
-                     filePattern="logs/application-api-${FILE_NAME_PATTERN}.log">
-            <LevelRangeFilter minLevel="DEBUG"
-                              maxLevel="DEBUG"
-                              onMatch="ACCEPT"
-                              onMismatch="DENY"/>
+                     fileName="${LOG_DIR}/app.api.log"
+                     filePattern="${LOG_DIR}/app.api-${FILE_NAME_PATTERN}.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/>
-            </Policies>
+            <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="1"/>
         </RollingFile>
 
-        <RollingFile name="dbLog"
-                     fileName="logs/application-db.log"
-                     filePattern="logs/application-db-${FILE_NAME_PATTERN}.log">
+        <RollingFile name="databaseLog"
+                     fileName="${LOG_DIR}/hibernate.log"
+                     filePattern="${LOG_DIR}/hibernate-${FILE_NAME_PATTERN}.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/>
-            </Policies>
+            <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="1"/>
         </RollingFile>
 
     </Appenders>
 
     <Loggers>
-        <Logger name="org.hibernate" level="info" additivity="false">
-            <AppenderRef ref="dbLog"/>
-        </Logger>
-
-        <Logger name="org.hibernate.SQL" level="debug" additivity="false">
-            <AppenderRef ref="dbLog"/>
-        </Logger>
-
-        <Logger name="org.effective_mobile.task_management_system" additivity="false">
+        <AsyncLogger name="org.effective_mobile.task_management_system.logging.HttpExchangeLoggingInterceptor" additivity="false">
             <AppenderRef ref="apiLog"/>
-        </Logger>
+        </AsyncLogger>
 
-        <Logger name="org.springframework" additivity="false">
-            <AppenderRef ref="springLog"/>
-            <AppenderRef ref="Console"/>
-        </Logger>
+        <AsyncLogger name="org.hibernate" level="ALL" additivity="false">
+            <AppenderRef ref="databaseLog"/>
+        </AsyncLogger>
 
-        <Logger name="org.effective_mobile.task_management_system" additivity="false">
+        <AsyncLogger name="org.effective_mobile.task_management_system" additivity="false">
             <AppenderRef ref="debugLog"/>
             <AppenderRef ref="infoLog"/>
             <AppenderRef ref="errorLog"/>
-            <AppenderRef ref="Console"/>
-        </Logger>
+        </AsyncLogger>
 
-        <Root level="all"><AppenderRef ref="Console"/> </Root>
+        <Root level="ALL">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stdoutFile"/>
+        </Root>
     </Loggers>
 </Configuration>

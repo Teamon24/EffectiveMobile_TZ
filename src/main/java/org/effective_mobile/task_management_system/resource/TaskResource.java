@@ -10,18 +10,18 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.effective_mobile.task_management_system.enums.Status;
-import org.effective_mobile.task_management_system.enums.converter.StatusConverter;
-import org.effective_mobile.task_management_system.pojo.PageResponsePojo;
-import org.effective_mobile.task_management_system.pojo.TasksFiltersRequestPojo;
-import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
-import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponsePojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.TaskService;
-import org.effective_mobile.task_management_system.validator.ValidEnum;
+import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
+import org.effective_mobile.task_management_system.utils.validator.ValidEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.effective_mobile.task_management_system.docs.Docs.TASK_PATH_VAR_DESCRIPTION;
+import static org.effective_mobile.task_management_system.utils.docs.Docs.TASK_PATH_VAR_DESCRIPTION;
 
 @RestController
 @RequestMapping(Api.TASK)
@@ -107,7 +107,8 @@ public class TaskResource {
     @Tag(name = "Назначение исполнителя")
     @PutMapping("/{id}" + Api.EXECUTOR)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody AssignmentResponse setExecutor(
+    public @ResponseBody
+    AssignmentResponsePojo setExecutor(
         @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
         @RequestParam(Api.EXECUTOR_USERNAME) String executorUsername
     ) {

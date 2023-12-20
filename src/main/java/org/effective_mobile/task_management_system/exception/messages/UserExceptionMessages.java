@@ -1,6 +1,6 @@
 package org.effective_mobile.task_management_system.exception.messages;
 
-import org.effective_mobile.task_management_system.entity.User;
+import org.effective_mobile.task_management_system.database.entity.User;
 
 public final class UserExceptionMessages {
 

@@ -1,6 +1,6 @@
 package org.effective_mobile.task_management_system.exception.messages;
 
-import org.effective_mobile.task_management_system.enums.Status;
+import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.scheduling.config.Task;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;

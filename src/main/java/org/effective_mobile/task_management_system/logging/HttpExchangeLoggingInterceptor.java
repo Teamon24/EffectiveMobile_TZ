@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.effective_mobile.task_management_system.security.AuthTokenComponent;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -15,17 +14,16 @@ import java.io.IOException;
 import static org.effective_mobile.task_management_system.logging.HttpExchangeLoggingUtils.getHeaders;
 import static org.effective_mobile.task_management_system.logging.HttpExchangeLoggingUtils.getPayload;
 
+@Log4j2
 @AllArgsConstructor
 public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
-
-    private static final Logger logger = LogManager.getLogger(HttpExchangeLoggingInterceptor.class);
 
     private final AuthTokenComponent authTokenComponent;
     private final ObjectMapper objectMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (logger.isDebugEnabled() || logger.isInfoEnabled()) {
+        if (log.isDebugEnabled() || log.isInfoEnabled()) {
             setStartTime(request);
             HttpRequestLogPojo httpRequestLogPojo = HttpRequestLogPojo.builder()
                 .httpMethod(request.getMethod())
@@ -40,7 +38,7 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
                         .token(authTokenComponent.getTokenFromCookies(request))
                         .build()).build();
 
-            logger.debug(httpRequestLogPojo.toPrettyJson(objectMapper));
+            log.debug(httpRequestLogPojo.asPrettyJson(objectMapper));
         }
         return true;
     }
@@ -54,7 +52,7 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
         val startTime = getStartTime(request);
         val endTime = System.currentTimeMillis();
 
-        if (logger.isDebugEnabled() || logger.isInfoEnabled()) {
+        if (log.isDebugEnabled() || log.isInfoEnabled()) {
             try {
                 final HttpResponseLogPojo httpResponseLogPojo = HttpResponseLogPojo.builder()
                     .status(response.getStatus())
@@ -63,7 +61,7 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
                     .executionTime(endTime - startTime)
                     .build();
 
-                logger.debug(httpResponseLogPojo.toPrettyJson(objectMapper));
+                log.debug(httpResponseLogPojo.asPrettyJson(objectMapper));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -72,10 +70,10 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
     }
 
     private void setStartTime(HttpServletRequest request) {
-        request.setAttribute(Headers.START_TIME_HEADER, System.currentTimeMillis());
+        request.setAttribute(Headers.START_TIME_ATTRIBUTE, System.currentTimeMillis());
     }
 
     private Long getStartTime(HttpServletRequest request) {
-        return (Long) request.getAttribute(Headers.START_TIME_HEADER);
+        return (Long) request.getAttribute(Headers.START_TIME_ATTRIBUTE);
     }
 }

@@ -1,12 +1,9 @@
 package org.effective_mobile.task_management_system;
 
 import lombok.extern.log4j.Log4j2;
-import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
 @PropertySource(

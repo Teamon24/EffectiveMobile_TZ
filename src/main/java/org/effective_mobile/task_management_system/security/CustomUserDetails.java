@@ -2,7 +2,7 @@ package org.effective_mobile.task_management_system.security;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.effective_mobile.task_management_system.entity.User;
+import org.effective_mobile.task_management_system.database.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

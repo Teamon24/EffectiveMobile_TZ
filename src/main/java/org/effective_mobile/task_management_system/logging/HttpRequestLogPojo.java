@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.effective_mobile.task_management_system.pojo.JsonPojo;
+import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 
 /**
  * Информация о http-запросе.

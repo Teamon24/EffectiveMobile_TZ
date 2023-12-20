@@ -4,17 +4,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.effective_mobile.task_management_system.converter.TaskConverter;
-import org.effective_mobile.task_management_system.entity.Task;
-import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.enums.Status;
-import org.effective_mobile.task_management_system.pojo.TasksFiltersRequestPojo;
-import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
-import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponsePojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
-import org.effective_mobile.task_management_system.pojo.task.TaskResponsePojo;
-import org.effective_mobile.task_management_system.utils.MiscUtils;
+import org.effective_mobile.task_management_system.database.entity.Task;
+import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
+import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
+import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.effective_mobile.task_management_system.utils.MiscUtils.evalIfNotNull;
+import static org.effective_mobile.task_management_system.utils.MiscUtils.nullOrApply;
 
 @Service
 @AllArgsConstructor
@@ -49,15 +49,15 @@ public class TaskService {
 
     @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#taskId)")
-    public AssignmentResponse setExecutor(
+    public AssignmentResponsePojo setExecutor(
         @NotNull Long taskId,
-        @NotNull String executorUsername
+        @NotNull String newExecutorUsername
     ) {
-        User user = userComponent.getByUsername(executorUsername);
+        User newExecutor = userComponent.getByUsername(newExecutorUsername);
         User oldExecutor = taskComponent.getTask(taskId).getExecutor();
-        taskComponent.setExecutor(taskId, user);
-        String oldExecutorUsername = MiscUtils.nullOrApply(oldExecutor, User::getUsername);
-        return new AssignmentResponse(taskId, user.getUsername(), oldExecutorUsername);
+        taskComponent.setExecutor(taskId, newExecutor);
+        String oldExecutorUsername = nullOrApply(oldExecutor, User::getUsername);
+        return new AssignmentResponsePojo(taskId, newExecutor.getUsername(), oldExecutorUsername);
     }
 
     @Transactional

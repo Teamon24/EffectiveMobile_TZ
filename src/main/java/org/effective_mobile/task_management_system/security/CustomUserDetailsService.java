@@ -2,8 +2,8 @@ package org.effective_mobile.task_management_system.security;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.repository.UserRepository;
+import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.database.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -27,5 +27,4 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return new CustomUserDetails(user);
     }
-
 }
