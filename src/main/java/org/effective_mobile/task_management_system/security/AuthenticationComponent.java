@@ -1,17 +1,23 @@
 package org.effective_mobile.task_management_system.security;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.exception.InvalidTokenException;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
 public class AuthenticationComponent {
 
-    private AuthTokenComponent authTokenComponent;
-    private ContextComponent contextComponent;
+    private final AuthTokenComponent authTokenComponent;
+    private final ContextComponent contextComponent;
+
+    public AuthenticationComponent(
+        AuthTokenComponent authTokenComponent,
+        ContextComponent contextComponent
+    ) {
+        this.authTokenComponent = authTokenComponent;
+        this.contextComponent = contextComponent;
+    }
 
     public boolean isAuthenticated() throws InvalidTokenException {
         HttpServletRequest request = contextComponent.getRequest();
