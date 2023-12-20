@@ -1,7 +1,6 @@
 package org.effective_mobile.task_management_system.confing;
 
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.logging.CustomRequestLoggingFilter;
 import org.effective_mobile.task_management_system.security.AuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfigurations {
 
     public final AuthenticationFilter authenticationFilter;
-    public final CustomRequestLoggingFilter customRequestLoggingFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
