@@ -6,7 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.effective_mobile.task_management_system.exception.InvalidTokenException;
+import org.effective_mobile.task_management_system.exception.InvalidAuthTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -70,20 +70,20 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
     }
 
     @Override
-    public void validateToken(final String token) throws InvalidTokenException {
+    public void validateToken(final String token) throws InvalidAuthTokenException {
         try {
             verifier.verify(token);
         } catch (final JWTVerificationException verificationEx) {
-            throw new InvalidTokenException(verificationEx);
+            throw new InvalidAuthTokenException(verificationEx);
         }
     }
 
     @Override
-    public String validateTokenAndGetSubject(final String token) throws InvalidTokenException {
+    public String validateTokenAndGetSubject(final String token) throws InvalidAuthTokenException {
         try {
             return verifier.verify(token).getSubject();
         } catch (final JWTVerificationException verificationEx) {
-            throw new InvalidTokenException(verificationEx);
+            throw new InvalidAuthTokenException(verificationEx);
         }
     }
 }

@@ -53,8 +53,8 @@ public class GlobalExceptionHandler {
      */
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler({ InvalidTokenException.class })
-    public ErrorInfo toUnauthorized(HttpServletRequest req, InvalidTokenException ex) {
+    @ExceptionHandler({ InvalidAuthTokenException.class })
+    public ErrorInfo toUnauthorized(HttpServletRequest req, InvalidAuthTokenException ex) {
         return createErrorInfo(req, ex, HttpStatus.UNAUTHORIZED);
     }
 

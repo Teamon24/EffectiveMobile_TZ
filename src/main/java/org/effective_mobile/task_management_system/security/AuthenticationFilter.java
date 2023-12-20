@@ -11,7 +11,7 @@ import lombok.NonNull;
 import org.effective_mobile.task_management_system.confing.JacksonConfig;
 import org.effective_mobile.task_management_system.exception.ErrorCreator;
 import org.effective_mobile.task_management_system.exception.ErrorInfo;
-import org.effective_mobile.task_management_system.exception.InvalidTokenException;
+import org.effective_mobile.task_management_system.exception.InvalidAuthTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,7 +49,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             } catch (EntityNotFoundException e) {
                 addErrorToResponse(request, response, e, HttpStatus.NOT_FOUND);
                 return;
-            } catch (InvalidTokenException e) {
+            } catch (InvalidAuthTokenException e) {
                 addErrorToResponse(request, response, e, HttpStatus.UNAUTHORIZED);
                 return;
             }
