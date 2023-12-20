@@ -8,7 +8,7 @@ import org.effective_mobile.task_management_system.exception.TaskHasNoExecutorEx
 import org.effective_mobile.task_management_system.exception.UserAlreadyExistsException;
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages;
-import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
+import org.effective_mobile.task_management_system.pojo.auth.SignupRequestPojo;
 import org.effective_mobile.task_management_system.repository.UserRepository;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -72,7 +72,7 @@ public class UserComponent {
         }
     }
 
-    public User createAndSaveUser(SignupPayload signUpPayload) {
+    public User createAndSaveUser(SignupRequestPojo signUpPayload) {
         User user = User.builder()
             .username(signUpPayload.getUsername())
             .email(signUpPayload.getEmail())

@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.effective_mobile.task_management_system.pojo.JsonPojo;
 
 /**
  * Информация о http-запросе.
  */
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HttpRequestInfo {
+public class HttpRequestLogPojo implements JsonPojo {
 
     /**
      * http-метод (GET, POST, ...). */

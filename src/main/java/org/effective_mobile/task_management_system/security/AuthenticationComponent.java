@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class AuthenticationComponent {
 
-    private JwtTokenComponent jwtTokenComponent;
+    private AuthTokenComponent authTokenComponent;
     private ContextComponent contextComponent;
 
     public boolean isAuthenticated() throws InvalidTokenException {
         HttpServletRequest request = contextComponent.getRequest();
-        String jwtToken = jwtTokenComponent.getTokenFromCookies(request);
-        if (jwtToken != null) {
-            jwtTokenComponent.validateToken(jwtToken);
+        String token = authTokenComponent.getTokenFromCookies(request);
+        if (token != null) {
+            authTokenComponent.validateToken(token);
         } else {
             throw new InvalidTokenException("There is no token in cookies");
         }

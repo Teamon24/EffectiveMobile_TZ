@@ -6,11 +6,12 @@ import org.effective_mobile.task_management_system.exception.InvalidTokenExcepti
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public interface TokenComponent {
+public interface AuthTokenComponent {
     ResponseCookie getCleanTokenCookie();
     String getTokenFromCookies(HttpServletRequest request);
     String getToken(Cookie cookie);
     ResponseCookie generateTokenCookie(UserDetails userDetails);
     String generateToken(final UserDetails userDetails);
-    String validateToken(final String token) throws InvalidTokenException;
+    void validateToken(String token) throws InvalidTokenException;
+    String validateTokenAndGetSubject(final String token) throws InvalidTokenException;
 }

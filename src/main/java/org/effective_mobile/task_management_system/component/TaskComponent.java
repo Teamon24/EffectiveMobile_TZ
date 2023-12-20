@@ -12,12 +12,11 @@ import org.effective_mobile.task_management_system.enums.converter.PriorityConve
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
-import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
-import org.effective_mobile.task_management_system.pojo.TasksFiltersPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
+import org.effective_mobile.task_management_system.pojo.TasksFiltersRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepository;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
@@ -61,7 +60,7 @@ public class TaskComponent {
         return getTask(taskId).getStatus();
     }
 
-    public Task createTask(User user, TaskCreationPayload taskCreationPayload) {
+    public Task createTask(User user, TaskCreationRequestPojo taskCreationPayload) {
         Task newTask = TaskConverter.convert(taskCreationPayload, user);
         Task save = taskRepository.save(newTask);
         return save;
@@ -79,7 +78,7 @@ public class TaskComponent {
         return taskRepository.save(task);
     }
 
-    public TaskJsonPojo getJsonPojo(Long id) {
+    public TaskResponsePojo getJsonPojo(Long id) {
         Task task = taskRepository.findOrThrow(Task.class, id);
         return TaskConverter.convert(task, true);
     }
@@ -99,7 +98,7 @@ public class TaskComponent {
     }
 
     @CachePut(cacheNames = TASKS_CACHE, key = "#id")
-    public Task editTask(Long id, TaskEditionPayload payload) {
+    public Task editTask(Long id, TaskEditionRequestPojo payload) {
         Task task = taskRepository.findOrThrow(Task.class, id);
         String newPriority = payload.getPriority();
         String newContent = payload.getContent();
@@ -128,7 +127,7 @@ public class TaskComponent {
         taskRepository.delete(task);
     }
 
-    public Page<Task> findByCreatorAndExecutor(TasksFiltersPayload tasksFiltersPayload, Pageable pageable) {
+    public Page<Task> findByCreatorAndExecutor(TasksFiltersRequestPojo tasksFiltersPayload, Pageable pageable) {
         return filteredAndPagedTaskRepository
             .findByCreatorAndExecutor(
                 tasksFiltersPayload.getCreatorUsername(),

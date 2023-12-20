@@ -1,7 +1,7 @@
 package org.effective_mobile.task_management_system.converter;
 
 import org.effective_mobile.task_management_system.entity.Comment;
-import org.effective_mobile.task_management_system.pojo.CommentJsonPojo;
+import org.effective_mobile.task_management_system.pojo.task.CommentJsonPojo;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -12,13 +12,13 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.effective_mobile.task_management_system.enums.Status;
 import org.effective_mobile.task_management_system.enums.converter.StatusConverter;
-import org.effective_mobile.task_management_system.pojo.PageResponse;
-import org.effective_mobile.task_management_system.pojo.TasksFiltersPayload;
+import org.effective_mobile.task_management_system.pojo.PageResponsePojo;
+import org.effective_mobile.task_management_system.pojo.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
-import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponse;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
+import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponsePojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.validator.ValidEnum;
@@ -51,8 +51,9 @@ public class TaskResource {
     @Tag(name = "Создание")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody TaskJsonPojo createTask(
-        @RequestBody @Valid TaskCreationPayload taskCreationPayload,
+    public @ResponseBody
+    TaskResponsePojo createTask(
+        @RequestBody @Valid TaskCreationRequestPojo taskCreationPayload,
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         return taskService.createTask(customUserDetails.getUserId(), taskCreationPayload);
@@ -61,7 +62,8 @@ public class TaskResource {
     @Tag(name = "Получение")
     @GetMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody TaskJsonPojo getTask(
+    public @ResponseBody
+    TaskResponsePojo getTask(
         @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
     ) {
         return taskService.getTask(id);
@@ -70,27 +72,29 @@ public class TaskResource {
     @Tag(name = "Пагинация и фильтрация")
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody PageResponse<TaskJsonPojo> getTasks(
-        @RequestBody @Valid  TasksFiltersPayload tasksFiltersPayload,
+    public @ResponseBody
+    PageResponsePojo<TaskResponsePojo> getTasks(
+        @RequestBody @Valid TasksFiltersRequestPojo tasksFiltersRequestPojo,
         @RequestParam(defaultValue = "0", name = "page") @NotNull int pageNumber,
         @RequestParam(defaultValue = "10", name = "size") @NotNull int size
     ) {
         Pageable page = PageRequest.of(pageNumber, size);
-        Page<TaskJsonPojo> tasksPage = taskService.getByCreatorOrExecutor(tasksFiltersPayload, page);
-        return new PageResponse<>(tasksPage);
+        Page<TaskResponsePojo> tasksPage = taskService.getByCreatorOrExecutor(tasksFiltersRequestPojo, page);
+        return new PageResponsePojo<>(tasksPage);
     }
 
     @Tag(name = "Редактирование")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskJsonPojo.class)) })
+        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponsePojo.class)) })
     })
     @PutMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody TaskJsonPojo editTask(
+    public @ResponseBody
+    TaskResponsePojo editTask(
         @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
-        @RequestBody @Valid @NonNull TaskEditionPayload taskEditionPayload
+        @RequestBody @Valid @NonNull TaskEditionRequestPojo taskEditionRequestPojo
     ) {
-        return taskService.editTask(id, taskEditionPayload);
+        return taskService.editTask(id, taskEditionRequestPojo);
     }
 
     @Tag(name = "Удаление")
@@ -120,7 +124,8 @@ public class TaskResource {
     @Tag(name = "Изменение статуса")
     @PutMapping("/{id}" + Api.STATUS)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody ChangedStatusResponse setStatus(
+    public @ResponseBody
+    ChangedStatusResponsePojo setStatus(
         @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
         @RequestParam(name = Api.NEW_STATUS_PARAM) @ValidEnum(clazz = Status.class) String newStatusStr
     ) {

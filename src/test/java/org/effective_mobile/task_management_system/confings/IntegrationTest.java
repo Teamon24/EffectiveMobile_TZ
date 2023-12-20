@@ -10,7 +10,7 @@ import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.effective_mobile.task_management_system.repository.UserRepository;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
-import org.effective_mobile.task_management_system.security.JwtTokenComponent;
+import org.effective_mobile.task_management_system.security.JwtAuthTokenComponent;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,8 +35,8 @@ import java.util.function.BiFunction;
 @AutoConfigureMockMvc
 public abstract class IntegrationTest {
 
-    @Value("${app.jwt.cookieName}")
-    private String jwtCookie;
+    @Value("${app.auth.cookieName}")
+    protected String cookieName;
 
     protected final String username = "teamon24";
     protected final String email = username + "@gmail.com";
@@ -48,7 +48,7 @@ public abstract class IntegrationTest {
     @Autowired protected TaskRepository taskRepository;
     @Autowired protected UserRepository userRepository;
     @Autowired protected ObjectMapper objectMapper;
-    @Autowired private JwtTokenComponent jwtTokenComponent;
+    @Autowired private JwtAuthTokenComponent jwtTokenComponent;
 
     protected User user;
 
@@ -81,7 +81,7 @@ public abstract class IntegrationTest {
             method.apply(path, new Object[]{})
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload == null ? "" : asString(payload))
-                .cookie(new Cookie(jwtCookie, jwtTokenComponent.generateTokenCookie(customUserDetails).getValue()))
+                .cookie(new Cookie(cookieName, jwtTokenComponent.generateTokenCookie(customUserDetails).getValue()))
         );
     }
 

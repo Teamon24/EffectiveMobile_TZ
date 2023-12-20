@@ -5,10 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.effective_mobile.task_management_system.enums.Status;
+import org.effective_mobile.task_management_system.pojo.ResponsePojo;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangedStatusResponse {
+public class ChangedStatusResponsePojo implements ResponsePojo {
     @Getter
     @JsonProperty
     private Long taskId;

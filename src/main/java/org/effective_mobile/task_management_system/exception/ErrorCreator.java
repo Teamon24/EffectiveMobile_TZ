@@ -1,6 +1,8 @@
 package org.effective_mobile.task_management_system.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,7 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
-public class ErrorCreator {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ErrorCreator {
 
     private interface ExMessageHandler extends Function<Exception, String> {}
 

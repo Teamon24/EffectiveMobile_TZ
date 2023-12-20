@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.logging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.effective_mobile.task_management_system.security.TokenComponent;
+import org.effective_mobile.task_management_system.security.AuthTokenComponent;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
@@ -21,14 +20,14 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LogManager.getLogger(HttpExchangeLoggingInterceptor.class);
 
-    private final TokenComponent tokenComponent;
+    private final AuthTokenComponent authTokenComponent;
     private final ObjectMapper objectMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (logger.isDebugEnabled() || logger.isInfoEnabled()) {
             setStartTime(request);
-            HttpRequestInfo httpRequestInfo = HttpRequestInfo.builder()
+            HttpRequestLogPojo httpRequestLogPojo = HttpRequestLogPojo.builder()
                 .httpMethod(request.getMethod())
                 .path(request.getRequestURI())
                 .requestBody(HttpExchangeLoggingUtils.getPayload(request))
@@ -38,9 +37,10 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
                     HttpRequestAuthInfo.builder()
                         .headers(getHeaders(request))
                         .cookies(request.getCookies())
-                        .token(tokenComponent.getTokenFromCookies(request))
+                        .token(authTokenComponent.getTokenFromCookies(request))
                         .build()).build();
-            log(httpRequestInfo);
+
+            logger.debug(httpRequestLogPojo.toPrettyJson(objectMapper));
         }
         return true;
     }
@@ -56,14 +56,14 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
 
         if (logger.isDebugEnabled() || logger.isInfoEnabled()) {
             try {
-                final HttpResponseInfo httpResponseInfo = HttpResponseInfo.builder()
+                final HttpResponseLogPojo httpResponseLogPojo = HttpResponseLogPojo.builder()
                     .status(response.getStatus())
                     .responseBody(getPayload(response))
                     .headers(getHeaders(response))
                     .executionTime(endTime - startTime)
                     .build();
 
-                log(httpResponseInfo);
+                logger.debug(httpResponseLogPojo.toPrettyJson(objectMapper));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -77,13 +77,5 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
 
     private Long getStartTime(HttpServletRequest request) {
         return (Long) request.getAttribute(Headers.START_TIME_HEADER);
-    }
-
-    private void log(Object object)  {
-        try {
-            logger.debug(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
-        } catch (JsonProcessingException e) {
-            logger.error("ObjectMapper can't serialize object: %s".formatted(object), e);
-        }
     }
 }

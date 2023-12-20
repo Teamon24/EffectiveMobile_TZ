@@ -12,8 +12,8 @@ import org.effective_mobile.task_management_system.enums.Status;
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
+import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.repository.FilteredAndPagedTaskRepositoryImpl;
 import org.effective_mobile.task_management_system.repository.TaskRepository;
 import org.junit.jupiter.api.Assertions;
@@ -53,11 +53,11 @@ class TaskComponentTest {
     }
 
     /**
-     * Test for {@link TaskComponent#createTask(User, TaskCreationPayload)}.
+     * Test for {@link TaskComponent#createTask(User, TaskCreationRequestPojo)}.
      */
     @ParameterizedTest
-    @MethodSource("creatorAndTaskCreationPayload")
-    public void createTaskTest(User creator, TaskCreationPayload taskCreationPayload) {
+    @MethodSource("creatorAndTaskCreationRequestPojo")
+    public void createTaskTest(User creator, TaskCreationRequestPojo taskCreationPayload) {
         ArgumentCaptor<Task> taskCaptor = ArgumentCaptor.forClass(Task.class);
         component.createTask(creator, taskCreationPayload);
         Mockito.verify(taskRepository).save(taskCaptor.capture());
@@ -120,11 +120,11 @@ class TaskComponentTest {
     }
 
     /**
-    * Test for {@link TaskComponent#editTask(Long, TaskEditionPayload)}.
+    * Test for {@link TaskComponent#editTask(Long, TaskEditionRequestPojo)}.
     */
     @ParameterizedTest
     @MethodSource("editTaskWhenChangesData")
-    public void editTask_WhenAtLeastOneFieldIsNewTest(Long id, TaskEditionPayload payload, Task task) {
+    public void editTask_WhenAtLeastOneFieldIsNewTest(Long id, TaskEditionRequestPojo payload, Task task) {
         Mockito.when(taskRepository.findOrThrow(Task.class, id)).thenReturn(task);
         Assertions.assertDoesNotThrow(() -> component.editTask(id, payload));
         Mockito.verify(taskRepository).save(task);
@@ -135,13 +135,13 @@ class TaskComponentTest {
     }
 
     /**
-     * Test for {@link TaskComponent#editTask(Long, TaskEditionPayload)}.
+     * Test for {@link TaskComponent#editTask(Long, TaskEditionRequestPojo)}.
      */
     @ParameterizedTest
     @MethodSource("editTaskWhenNoChangesData")
     public void editTask_WhenNothingToChangeTest(
         Long id,
-        TaskEditionPayload payload,
+        TaskEditionRequestPojo payload,
         Task task
     ) {
         Task taskSpy = Mockito.spy(task);
@@ -165,10 +165,10 @@ class TaskComponentTest {
         Priority taskPriority = Priority.HIGH;
         String taskContent = randomContent();
 
-        TaskEditionPayload payload  = new TaskEditionPayload(null,        "LOW");
-        TaskEditionPayload payload2  = new TaskEditionPayload(taskContent, "LOW");
-        TaskEditionPayload payload3 = new TaskEditionPayload(randomContent(), taskPriority.name());
-        TaskEditionPayload payload4 = new TaskEditionPayload(randomContent(), null);
+        TaskEditionRequestPojo payload  = new TaskEditionRequestPojo(null,        "LOW");
+        TaskEditionRequestPojo payload2  = new TaskEditionRequestPojo(taskContent, "LOW");
+        TaskEditionRequestPojo payload3 = new TaskEditionRequestPojo(randomContent(), taskPriority.name());
+        TaskEditionRequestPojo payload4 = new TaskEditionRequestPojo(randomContent(), null);
 
         return Stream.of(
             Arguments.of(1L, payload, getTask(taskPriority, taskContent)),
@@ -182,10 +182,10 @@ class TaskComponentTest {
         Priority taskPriority = Priority.HIGH;
         String taskContent = randomContent();
 
-        TaskEditionPayload payload  = new TaskEditionPayload(null,        null);
-        TaskEditionPayload payload3 = new TaskEditionPayload(null,        taskPriority.name());
-        TaskEditionPayload payload2 = new TaskEditionPayload(taskContent, taskPriority.name());
-        TaskEditionPayload payload4 = new TaskEditionPayload(taskContent, null);
+        TaskEditionRequestPojo payload  = new TaskEditionRequestPojo(null,        null);
+        TaskEditionRequestPojo payload3 = new TaskEditionRequestPojo(null,        taskPriority.name());
+        TaskEditionRequestPojo payload2 = new TaskEditionRequestPojo(taskContent, taskPriority.name());
+        TaskEditionRequestPojo payload4 = new TaskEditionRequestPojo(taskContent, null);
 
         return Stream.of(
             Arguments.of(1L, payload, getTask(taskPriority, taskContent)),
@@ -235,8 +235,8 @@ class TaskComponentTest {
         );
     }
 
-    public static Stream<Arguments> creatorAndTaskCreationPayload() {
-        TaskCreationPayload taskCreationPayload = new TaskCreationPayload();
+    public static Stream<Arguments> creatorAndTaskCreationRequestPojo() {
+        TaskCreationRequestPojo taskCreationPayload = new TaskCreationRequestPojo();
         taskCreationPayload.setContent(faker.text().text());
         taskCreationPayload.setPriority(Priority.HIGH.name());
         User user = User.builder()

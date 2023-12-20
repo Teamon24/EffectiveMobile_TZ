@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.pojo;
+package org.effective_mobile.task_management_system.pojo.task;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import org.effective_mobile.task_management_system.validator.ValidEnum;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewStatusPayload {
+public class NewStatusRequest {
 
     @Getter
     @ValidEnum(clazz = Status.class)

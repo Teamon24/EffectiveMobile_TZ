@@ -10,17 +10,14 @@ import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.converter.UserConverter;
 import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.pojo.UserCreationResponse;
-import org.effective_mobile.task_management_system.pojo.auth.SigninPayload;
-import org.effective_mobile.task_management_system.pojo.auth.SigninResponse;
-import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
-import org.effective_mobile.task_management_system.security.JwtTokenComponent;
+import org.effective_mobile.task_management_system.pojo.UserCreationResponsePojo;
+import org.effective_mobile.task_management_system.pojo.auth.SigninRequestPojo;
+import org.effective_mobile.task_management_system.pojo.auth.SigninResponsePojo;
+import org.effective_mobile.task_management_system.pojo.auth.SignupRequestPojo;
+import org.effective_mobile.task_management_system.security.AuthTokenComponent;
 import org.effective_mobile.task_management_system.security.CustomUserDetailsService;
 import org.effective_mobile.task_management_system.service.UserService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +35,7 @@ public class AuthenticationResource {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
     private final ContextComponent contextComponent;
-    private final JwtTokenComponent tokenComponent;
+    private final AuthTokenComponent authTokenComponent;
     private final UserService userService;
 
     @Tag(name = "Регистрация")
@@ -47,7 +44,7 @@ public class AuthenticationResource {
         @ApiResponse(responseCode = "404", description = "Пользователя не существует")
     })
     @PostMapping(Api.SIGN_UP)
-    public UserCreationResponse signup(@RequestBody @Valid SignupPayload signUpPayload) {
+    public UserCreationResponsePojo signup(@RequestBody @Valid SignupRequestPojo signUpPayload) {
         userService.checkUserDoesNotExists(signUpPayload);
         User newUser = userService.createNewUser(signUpPayload);
         return UserConverter.userCreationResponse(newUser);
@@ -55,31 +52,31 @@ public class AuthenticationResource {
 
     @Tag(name = "Вход в систему")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = SigninResponse.class), mediaType = "application/json") }),
+        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = SigninResponsePojo.class), mediaType = "application/json") }),
         @ApiResponse(responseCode = "404", description = "Пользователя не существует")
     })
     @PostMapping(Api.SIGN_IN)
-    public SigninResponse signin(
-        @RequestBody @Valid final SigninPayload signinPayload
+    public SigninResponsePojo signin(
+        @RequestBody @Valid final SigninRequestPojo signinRequestPojo
     ) {
         try {
-            UsernamePasswordAuthenticationToken authentication = createNamePassToken(signinPayload);
+            UsernamePasswordAuthenticationToken authentication = createNamePassToken(signinRequestPojo);
             authenticationManager.authenticate(authentication);
             contextComponent.setAuthentication(authentication);
         } catch (final BadCredentialsException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(signinPayload.getEmail());
-        final String token = tokenComponent.generateToken(userDetails);
+        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(signinRequestPojo.getEmail());
+        final String token = authTokenComponent.generateToken(userDetails);
 
-        return new SigninResponse(token);
+        return new SigninResponsePojo(token);
     }
 
-    private UsernamePasswordAuthenticationToken createNamePassToken(SigninPayload signinPayload) {
+    private UsernamePasswordAuthenticationToken createNamePassToken(SigninRequestPojo signinRequestPojo) {
         return new UsernamePasswordAuthenticationToken(
-            signinPayload.getEmail(),
-            signinPayload.getPassword()
+            signinRequestPojo.getEmail(),
+            signinRequestPojo.getPassword()
         );
     }
 }

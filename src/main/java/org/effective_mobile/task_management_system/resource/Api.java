@@ -12,12 +12,8 @@ public final class Api {
     public static final String UNASSIGN = "/unassign";
     public static final String NEW_STATUS_PARAM = "value";
     public static final String STATUS = "/status";
-    public static final String STATUSES = "/statuses";
     public static final String PRIORITIES = "/priorities";
-    public static final String TASK_INFO = TASK + "/info";
 
     public static final String COMMENT_TASK_ID = "task_id";
     public static final String COMMENT = TASK + "/{" + COMMENT_TASK_ID + "}/comment";
-
-    public static final String TOKEN_NAME = "token";
 }

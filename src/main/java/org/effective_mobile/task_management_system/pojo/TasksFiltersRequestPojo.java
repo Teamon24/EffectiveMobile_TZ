@@ -10,7 +10,7 @@ import org.effective_mobile.task_management_system.validator.NullOrNotBlank;
 @NoArgsConstructor
 @Getter
 public
-class TasksFiltersPayload {
+class TasksFiltersRequestPojo {
 
     @JsonProperty
     @NullOrNotBlank

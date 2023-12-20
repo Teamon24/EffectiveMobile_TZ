@@ -17,13 +17,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     },
     encoding = "UTF-8"
 )
-@SpringBootApplication
-@EntityScan(basePackages = "org.effective_mobile.task_management_system.entity")
-@EnableJpaRepositories(
-    basePackages = "org.effective_mobile.task_management_system.repository",
-    basePackageClasses = TaskRepository.class
-)
 @Log4j2
+@SpringBootApplication
 public class TaskManagementSystemApp {
     public static void main(String[] args) {
         SpringApplication.run(TaskManagementSystemApp.class, args);

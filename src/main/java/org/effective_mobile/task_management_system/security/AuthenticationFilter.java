@@ -1,7 +1,6 @@
 package org.effective_mobile.task_management_system.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +27,7 @@ import java.io.IOException;
 @AllArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
-    private final TokenComponent tokenComponent;
+    private final AuthTokenComponent authTokenComponent;
 
     @Override
     protected void doFilterInternal(
@@ -38,10 +37,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     )
         throws ServletException, IOException
     {
-        String token = tokenComponent.getTokenFromCookies(request);
+        String token = authTokenComponent.getTokenFromCookies(request);
         if (token != null) {
             try {
-                String username = tokenComponent.validateToken(token);
+                String username = authTokenComponent.validateTokenAndGetSubject(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities());

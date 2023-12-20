@@ -8,12 +8,12 @@ import org.effective_mobile.task_management_system.converter.TaskConverter;
 import org.effective_mobile.task_management_system.entity.Task;
 import org.effective_mobile.task_management_system.entity.User;
 import org.effective_mobile.task_management_system.enums.Status;
-import org.effective_mobile.task_management_system.pojo.TasksFiltersPayload;
+import org.effective_mobile.task_management_system.pojo.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.pojo.assignment.AssignmentResponse;
-import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponse;
-import org.effective_mobile.task_management_system.pojo.task.TaskCreationPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskEditionPayload;
-import org.effective_mobile.task_management_system.pojo.task.TaskJsonPojo;
+import org.effective_mobile.task_management_system.pojo.task.ChangedStatusResponsePojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskCreationRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskEditionRequestPojo;
+import org.effective_mobile.task_management_system.pojo.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,13 +31,13 @@ public class TaskService {
     private TaskComponent taskComponent;
 
     @Transactional
-    public TaskJsonPojo createTask(Long userId, TaskCreationPayload taskCreationPayload) {
+    public TaskResponsePojo createTask(Long userId, TaskCreationRequestPojo taskCreationRequestPojo) {
         User creator = userComponent.getById(userId);
-        Task task = taskComponent.createTask(creator, taskCreationPayload);
+        Task task = taskComponent.createTask(creator, taskCreationRequestPojo);
         return TaskConverter.convert(task, false);
     }
 
-    public TaskJsonPojo getTask(Long id) {
+    public TaskResponsePojo getTask(Long id) {
         return taskComponent.getJsonPojo(id);
     }
 
@@ -68,33 +68,33 @@ public class TaskService {
 
     @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
-    public TaskJsonPojo editTask(@NotNull Long id, TaskEditionPayload payload) {
-        Task task = taskComponent.editTask(id, payload);
+    public TaskResponsePojo editTask(@NotNull Long id, TaskEditionRequestPojo requestPojo) {
+        Task task = taskComponent.editTask(id, requestPojo);
         return TaskConverter.convert(task, false);
     }
 
     @Transactional
-    public ChangedStatusResponse setStatus(Long taskId, Status newStatus) {
+    public ChangedStatusResponsePojo setStatus(Long taskId, Status newStatus) {
         taskComponent.validateStatusChange(taskId, newStatus);
         Status oldStatus = taskComponent.getStatus(taskId);
         taskComponent.changeStatus(taskId, newStatus);
-        return new ChangedStatusResponse(taskId, oldStatus, newStatus);
+        return new ChangedStatusResponsePojo(taskId, oldStatus, newStatus);
     }
 
-    public Page<TaskJsonPojo> getByCreatorOrExecutor(
-        TasksFiltersPayload tasksFiltersPayload,
+    public Page<TaskResponsePojo> getByCreatorOrExecutor(
+        TasksFiltersRequestPojo tasksFiltersRequestPojo,
         Pageable pageable
     ) {
-        String creatorUsername = tasksFiltersPayload.getCreatorUsername();
-        String executorUsername = tasksFiltersPayload.getExecutorUsername();
+        String creatorUsername = tasksFiltersRequestPojo.getCreatorUsername();
+        String executorUsername = tasksFiltersRequestPojo.getExecutorUsername();
 
         evalIfNotNull(creatorUsername, (s) -> { userComponent.checkUsernameExists(s); });
         evalIfNotNull(executorUsername, (s) -> { userComponent.checkUsernameExists(s); });
 
         return taskComponent
-            .findByCreatorAndExecutor(tasksFiltersPayload, pageable)
+            .findByCreatorAndExecutor(tasksFiltersRequestPojo, pageable)
             .map(task -> {
-                Boolean withComments = tasksFiltersPayload.getWithComments();
+                Boolean withComments = tasksFiltersRequestPojo.getWithComments();
                 return TaskConverter.convert(task, withComments);
             });
     }

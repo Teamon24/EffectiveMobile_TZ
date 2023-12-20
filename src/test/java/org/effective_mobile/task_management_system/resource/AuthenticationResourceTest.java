@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.effective_mobile.task_management_system.confings.IntegrationTest;
 import org.effective_mobile.task_management_system.entity.User;
-import org.effective_mobile.task_management_system.pojo.auth.SigninPayload;
-import org.effective_mobile.task_management_system.pojo.auth.SignupPayload;
+import org.effective_mobile.task_management_system.pojo.UserCreationResponsePojo;
+import org.effective_mobile.task_management_system.pojo.auth.SigninRequestPojo;
+import org.effective_mobile.task_management_system.pojo.auth.SignupRequestPojo;
+import org.effective_mobile.task_management_system.security.AuthTokenComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
@@ -18,7 +20,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.effective_mobile.task_management_system.resource.Api.TOKEN_NAME;
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +34,9 @@ public class AuthenticationResourceTest extends IntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private AuthTokenComponent authTokenComponent;
+
     /**
      * Test for {@link AuthenticationResource#signin} и {@link AuthenticationResource#signup}.
      */
@@ -41,12 +47,12 @@ public class AuthenticationResourceTest extends IntegrationTest {
     }
 
     private void testSignUp() throws Exception {
-        SignupPayload signupPayload = new SignupPayload(email, username, password);
-        MvcResult mvcResult = post(Api.SIGN_UP, signupPayload).andReturn();
+        SignupRequestPojo signupRequestPojo = new SignupRequestPojo(email, username, password);
+        MvcResult mvcResult = post(Api.SIGN_UP, signupRequestPojo).andReturn();
 
-        Long id = Long.valueOf(mvcResult.getResponse().getContentAsString());
+        UserCreationResponsePojo userCreationResponsePojo = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserCreationResponsePojo.class);
 
-        User user = userRepository.findOrThrow(User.class, id);
+        User user = userRepository.findOrThrow(User.class, userCreationResponsePojo.getId());
 
         Assertions.assertTrue(passwordEncoder.matches(password, user.getPassword()));
         Assertions.assertEquals(user.getEmail(), email);
@@ -54,17 +60,25 @@ public class AuthenticationResourceTest extends IntegrationTest {
     }
 
     private void testSignIn() throws Exception {
-        SigninPayload signinPayload = new SigninPayload(email, password);
+        SigninRequestPojo signinRequestPojo = new SigninRequestPojo(email, password);
         MvcResult resultActions =
-            post(Api.SIGN_IN, signinPayload)
+            post(Api.SIGN_IN, signinRequestPojo)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn();
 
         final JsonNode node = objectMapper.readTree(resultActions.getResponse().getContentAsString());
 
-        Assertions.assertTrue(
-            StringUtils.isNotBlank(node.get(TOKEN_NAME).asText())
-        );
+        JsonNode authTokenJsonNode = node.get(cookieName);
+        Assertions.assertNotNull(authTokenJsonNode);
+        String token = authTokenJsonNode.asText();
+        Assertions.assertTrue(StringUtils.isNotBlank(token));
+
+        Optional<User> user = userRepository.findByEmail(email);
+        Assertions.assertTrue(user.isPresent());
+
+        String subject = authTokenComponent.validateTokenAndGetSubject(token);
+        Assertions.assertEquals(user.get().getEmail(), subject);
+        Assertions.assertTrue(passwordEncoder.matches(password, user.get().getPassword()));
     }
 
     private ResultActions post(String signin, Object body) throws Exception {
