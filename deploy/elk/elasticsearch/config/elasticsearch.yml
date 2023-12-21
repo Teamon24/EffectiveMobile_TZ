@@ -13,8 +13,9 @@ xpack.security.enabled: false
 
 ## Search Guard
 #
-searchguard.enterprise_modules_enabled: true
+searchguard.allow_default_init_sgindex: true
 
+searchguard.enterprise_modules_enabled: true
 searchguard.ssl.transport.keystore_filepath: sg/node-0-keystore.jks
 searchguard.ssl.transport.truststore_filepath: sg/truststore.jks
 searchguard.ssl.transport.enforce_hostname_verification: false
