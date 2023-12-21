@@ -6,6 +6,7 @@ services:
       context: extensions/filebeat/
       args:
         ELK_VERSION: $ELK_VERSION
+        EXT_IMAGE_PATH: $EXT_IMAGE_PATH
     # Run as 'root' instead of 'filebeat' (uid 1000) to allow reading
     # 'docker.sock' and the host's filesystem.
     user: root

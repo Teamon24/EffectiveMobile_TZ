@@ -1,1 +1,0 @@
-./build-compose-up.sh "-x test" ""

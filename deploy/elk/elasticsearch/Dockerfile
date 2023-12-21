@@ -3,8 +3,8 @@ ARG ELK_IMAGE_PATH
 
 FROM ${ELK_IMAGE_PATH}elasticsearch:${ELK_VERSION}
 
-COPY config/sg/ config/sg/
-COPY bin/ bin/
+COPY config/sg config/sg/
+COPY bin bin/
 
 # Search Guard plugin
 ARG ELK_VERSION

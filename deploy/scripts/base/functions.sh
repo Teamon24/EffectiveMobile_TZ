@@ -58,8 +58,19 @@ function checkProfileArg() {
     args=("dev" "default" "")
     checkArg "$1" 2 args
 }
+
 function checkRmiArg() {
     args=("rmi" "")
     checkArg "$1" 1 args
+}
+
+function containersIdsOf() {
+  CONTAINER_NAME_PART=$1
+  docker container ls -a | awk "\$2 ~ /$CONTAINER_NAME_PART/ {printf \"%s \",\$1} END {print \"\"}"
+}
+
+function imagesIdsOf() {
+  IMAGE_NAME_PART=$1
+  docker images -a | awk "\$1 ~ /$IMAGE_NAME_PART/ {printf \"%s \",\$3} END {print \"\"}"
 }
 

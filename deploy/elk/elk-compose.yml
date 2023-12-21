@@ -16,6 +16,7 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      xpack.security.enabled: false
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
@@ -31,9 +32,10 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,z
+      - ./logstash/logs:/usr/share/logstash/logs:ro,z
     ports:
       - "5044:5044"
-      - "5000:5000/tcp"
+      - "${LOGSTASH_PORT}:${LOGSTASH_PORT}/tcp"
       - "5000:5000/udp"
       - "9600:9600"
     environment:

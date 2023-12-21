@@ -25,8 +25,8 @@
         </RollingFile>
 
         <RollingFile name="debugLog"
-                     fileName="${LOG_DIR}/app.debug.log"
-                     filePattern="${LOG_DIR}/app.debug-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.debug.log"
+                     filePattern="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.debug-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="DEBUG"
                               maxLevel="DEBUG"
                               onMatch="ACCEPT"
@@ -37,8 +37,8 @@
         </RollingFile>
 
         <RollingFile name="infoLog"
-                     fileName="${LOG_DIR}/app.info.log"
-                     filePattern="${LOG_DIR}/app.info-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.info.log"
+                     filePattern="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.info-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="WARN" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
@@ -46,8 +46,8 @@
         </RollingFile>
 
         <RollingFile name="errorLog"
-                     fileName="${LOG_DIR}/app.error.log"
-                     filePattern="${LOG_DIR}/app.error-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.error.log"
+                     filePattern="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.error-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
@@ -57,8 +57,8 @@
         </RollingFile>
 
         <RollingFile name="apiLog"
-                     fileName="${LOG_DIR}/app.api.log"
-                     filePattern="${LOG_DIR}/app.api-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.api.log"
+                     filePattern="${LOG_DIR}/${APPLICATION_LOG_PREFIX}.api-${FILE_NAME_PATTERN}.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="1"/>
@@ -72,6 +72,21 @@
             <DefaultRolloverStrategy max="1"/>
         </RollingFile>
 
+        <Socket name="logstash" host="localhost" port="5000">
+            <JsonLayout properties="true"/>
+        </Socket>
+
+        <Failover name="logstashFailover" primary="logstash" ignoreExceptions="false">
+            <Failovers><AppenderRef ref="logstashFailoverFile" /></Failovers>
+        </Failover>
+
+        <RollingFile name="logstashFailoverFile"
+                     fileName="${LOG_DIR}/logstashFailoverFile.log"
+                     filePattern="${LOG_DIR}/logstashFailoverFile-${FILE_NAME_PATTERN}.log.gz"
+                     bufferedIO="true" ignoreExceptions="false">
+            <PatternLayout charset="UTF-8" pattern="${LOG_PATTERN}"/>
+            <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}" /></Policies>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
@@ -89,7 +104,11 @@
             <AppenderRef ref="errorLog"/>
         </AsyncLogger>
 
-        <Root level="ALL">
+        <AsyncLogger name="logstashLogger" level="ALL" additivity="false">
+            <AppenderRef ref="logstash"/>
+        </AsyncLogger>
+
+        <Root level="DEBUG">
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="stdoutFile"/>
         </Root>

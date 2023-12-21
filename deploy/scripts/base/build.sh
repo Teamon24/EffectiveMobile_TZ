@@ -1,7 +1,10 @@
-. ./vars.sh
-. ./functions.sh
+. ./deploy/path-vars.sh
+. ./deploy/path-functions.sh
 
-CUR_DIR=$(pwd)
+. ./deploy/scripts/base/vars.sh
+. ./deploy/scripts/base/functions.sh
+
+echo "srcdir=$SRC_DIR"
 echo "build.sh: expects 1[$TEST_ARG]; actual: $@"
 
 checkTestArg $1
@@ -15,10 +18,7 @@ if [ -n "$1" ];then
   tests=""
 fi
 
-cd ..
 ./gradlew deleteJar
-echo "./gradlew clean build $tests"
 ./gradlew clean build $tests
 ./gradlew bootJar
 ./gradlew copyJar
-cd "$CUR_DIR"

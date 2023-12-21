@@ -1,9 +1,9 @@
 version: '3.3'
 services:
-  task_management_system:
+  task_management_system_api:
     profiles: ["default"]
-    image: 'task-management-system-image'
-    container_name: task-management-system-container
+    image: 'task-management-system-api-image'
+    container_name: task-management-system-api-container
     environment:
       SPRING_PROFILES_ACTIVE: ${PROFILE}
     command: -Dspring.profiles.active=${PROFILE}

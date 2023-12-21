@@ -1,32 +1,38 @@
 # Запуск API "Система управления задачами"
-
-### ./run/default.sh
+    Запуск скриптоа произовдится из коренной папки проекта (папка, которая содержит папку /deploy)
+ 
+### ./deploy/default.sh
     Запуск проекта в default-профиле: 
     - запускается при помощи docker-compose
     - api и база данных запускается при помощи gradle-задачи
 
-### ./run/dev.sh
+### ./deploy/dev.sh
     Запуск проекта в dev-профиле: 
     - база данных запускается при помощи docker-compose
     - проект запускается при помощи gradle-задачи
 
-### ./entrypoints/elk.sh
+### ./deploy/elk/elk.sh
     Запуск elk: 
+    - аргумент: rm/<empty> - удаление контейнеров, которые относятся к elk.
     - аргумент: rmi/<empty> - пересборка docker-образов, которые относятся к elk.
+    - аргумент: filebeat - запуска расширения filebeat.
+    - аргумент: metricbeat - запуска расширения metricbeat.
 
-### build.sh
+
+### ./deploy/scripts/base/build.sh
     Сборка проекта (собирается исполняемый jar):
     - аргумент "tests": - запуск с прогонкой тестов
 
-### compose-up.sh
+### ./deploy/scripts/base/compose-up.sh
     Запуск проекта при помощи docker-compose:
     - аргумент: rmi/<empty> - пересборка docker-образа
     - аргумент: dev/default/<empty> - запуск кон
 
-### build-compose-up.sh
+### ./deploy/scripts/base/build-compose-up.sh
     Сборка и запуск проекта в docker-контейнере при помощи docker-compose:
-    - аргумент "-x test": запуск без прогонки тестов 
+    - аргумент "tests": - запуск с прогонкой тестов
     - аргумент dev/default/<empty>=default: профиль приложения  
+
 
 ### Документация
 [swagger ui](http://localhost:9000/swagger-ui/index.html)
