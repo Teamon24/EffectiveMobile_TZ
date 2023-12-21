@@ -10,14 +10,18 @@
     - база данных запускается при помощи docker-compose
     - проект запускается при помощи gradle-задачи
 
+### ./entrypoints/elk.sh
+    Запуск elk: 
+    - аргумент: rmi/<empty> - пересборка docker-образов, которые относятся к elk.
+
 ### build.sh
     Сборка проекта (собирается исполняемый jar):
     - аргумент "tests": - запуск с прогонкой тестов
 
 ### compose-up.sh
-    Сборка docker-образа, запуск проекта при помощи docker-compose:
-    - аргумент rmi: пересборка docker-образов
-    - аргумент dev/default/<empty>=default: профиль приложения
+    Запуск проекта при помощи docker-compose:
+    - аргумент: rmi/<empty> - пересборка docker-образа
+    - аргумент: dev/default/<empty> - запуск кон
 
 ### build-compose-up.sh
     Сборка и запуск проекта в docker-контейнере при помощи docker-compose:
