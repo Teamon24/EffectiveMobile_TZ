@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.component;
 
-import lombok.NonNull;
 import net.datafaker.Faker;
 import net.datafaker.providers.base.Internet;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -18,37 +17,36 @@ import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.stream.Stream;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
+@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 class TaskComponentTest {
 
+    @Mock
     private TaskRepository taskRepository;
-    private FilteredAndPagedTaskRepositoryImpl filteredAndPagedTaskRepositoryImpl;
-    private UserComponent userComponent;
-
     private TaskComponent component;
     private static final Faker faker = new Faker();
     private static final Internet internet = faker.internet();
 
-
     @BeforeEach
     public void setUp() {
-        taskRepository = Mockito.mock(TaskRepository.class);
-        userComponent = Mockito.mock(UserComponent.class);
-        filteredAndPagedTaskRepositoryImpl = Mockito.mock(FilteredAndPagedTaskRepositoryImpl.class);
-
         component = new TaskComponent(
             taskRepository,
-            filteredAndPagedTaskRepositoryImpl,
-            userComponent
+            Mockito.mock(FilteredAndPagedTaskRepositoryImpl.class)
         );
     }
 
@@ -77,85 +75,73 @@ class TaskComponentTest {
     }
 
     /**
-    * Test for {@link TaskComponent#setExecutor(Long, User)}.
+    * Test for {@link TaskComponent#setExecutor(Task, User)}.
     */
     @ParameterizedTest
     @MethodSource("setDistinctExecutorTestData")
-    public void setExecutorThatNotSameAsPreviousTest(Long taskId, User newExecutor, Task task) {
-        Task taskSpy = Mockito.spy(task);
-        Mockito.when(taskRepository.findOrThrow(Task.class, taskId)).thenReturn(taskSpy);
-        component.setExecutor(taskId, newExecutor);
+    public void setExecutorThatNotSameAsPreviousTest(User newExecutor, Task task) {
+        component.setExecutor(task, newExecutor);
 
-        Mockito.verify(taskRepository).findOrThrow(Task.class, taskId);
-        Mockito.verify(taskRepository).save(taskSpy);
+        Mockito.verify(taskRepository).save(task);
+        Mockito.verifyNoMoreInteractions(taskRepository);
 
-        Assertions.assertEquals(Status.ASSIGNED, taskSpy.getStatus());
-        Assertions.assertEquals(newExecutor, taskSpy.getExecutor());
+        Assertions.assertEquals(Status.ASSIGNED, task.getStatus());
+        Assertions.assertEquals(newExecutor, task.getExecutor());
     }
 
     /**
-     * Test for {@link TaskComponent#setExecutor(Long, User)}.
+     * Test for {@link TaskComponent#setExecutor(Task, User)}.
      */
     @ParameterizedTest
     @MethodSource("setSameExecutorTestData")
-    public void setExecutorThatSameAsPreviousTest(Long taskId, User newExecutor, Task task) {
-        Task taskSpy = Mockito.spy(task);
-        Status status = taskSpy.getStatus();
-        User oldExecutor = taskSpy.getExecutor();
-        Mockito.when(taskRepository.findOrThrow(Task.class, taskId)).thenReturn(taskSpy);
+    public void setExecutorThatSameAsPreviousTest(User newExecutor, Task task) {
+        User oldExecutor = task.getExecutor();
 
         AssignmentException assignmentException = Assertions.assertThrows(
             AssignmentException.class,
-            () -> component.setExecutor(taskId, newExecutor)
+            () -> component.setExecutor(task, newExecutor)
         );
 
         String message = getMessage("exception.task.executor.same", oldExecutor);
         Assertions.assertEquals(message, assignmentException.getMessage());
 
-        Mockito.verify(taskRepository).findOrThrow(Task.class, taskId);
-        Mockito.verify(taskRepository, Mockito.times(0)).save(taskSpy);
-
-        Assertions.assertEquals(status, taskSpy.getStatus());
-        Assertions.assertEquals(oldExecutor, taskSpy.getExecutor());
+        Mockito.verifyNoInteractions(taskRepository);
     }
 
     /**
-    * Test for {@link TaskComponent#editTask(Long, TaskEditionRequestPojo)}.
+    * Test for {@link TaskComponent#editTask(Task, TaskEditionRequestPojo)}.
     */
     @ParameterizedTest
     @MethodSource("editTaskWhenChangesData")
-    public void editTask_WhenAtLeastOneFieldIsNewTest(Long id, TaskEditionRequestPojo payload, Task task) {
-        Mockito.when(taskRepository.findOrThrow(Task.class, id)).thenReturn(task);
-        Assertions.assertDoesNotThrow(() -> component.editTask(id, payload));
-        Mockito.verify(taskRepository).save(task);
+    public void editTask_WhenAtLeastOneFieldIsNewTest(TaskEditionRequestPojo payload, Task task) {
+        Assertions.assertDoesNotThrow(() -> component.editTask(task, payload));
         if (payload.getContent() != null)
             Assertions.assertEquals(task.getContent(), payload.getContent());
         if (payload.getPriority() != null)
             Assertions.assertEquals(task.getPriority().name(), payload.getPriority());
+
+        Mockito.verify(taskRepository).save(task);
+        Mockito.verifyNoMoreInteractions(taskRepository);
     }
 
     /**
-     * Test for {@link TaskComponent#editTask(Long, TaskEditionRequestPojo)}.
+     * Test for {@link TaskComponent#editTask(Task, TaskEditionRequestPojo)}.
      */
     @ParameterizedTest
     @MethodSource("editTaskWhenNoChangesData")
     public void editTask_WhenNothingToChangeTest(
-        Long id,
         TaskEditionRequestPojo payload,
         Task task
     ) {
-        Task taskSpy = Mockito.spy(task);
-        Mockito.doReturn(id).when(taskSpy).getId();
-        Mockito.when(taskRepository.findOrThrow(Task.class, id)).thenReturn(taskSpy);
         NothingToUpdateInTaskException ex = Assertions.assertThrows(
             NothingToUpdateInTaskException.class,
-            () -> component.editTask(id, payload)
+            () -> component.editTask(task, payload)
         );
 
-        Mockito.verify(taskRepository, Mockito.times(0)).save(taskSpy);
+        Mockito.verifyNoInteractions(taskRepository);
 
         Assertions.assertEquals(
-            ExceptionMessages.getMessage("exception.task.update.nothing", Task.class.getSimpleName(), id),
+            ExceptionMessages.getMessage("exception.task.update.nothing", Task.class.getSimpleName(), task.getId()),
             ex.getMessage()
         );
     }
@@ -171,10 +157,10 @@ class TaskComponentTest {
         TaskEditionRequestPojo payload4 = new TaskEditionRequestPojo(randomContent(), null);
 
         return Stream.of(
-            Arguments.of(1L, payload, getTask(taskPriority, taskContent)),
-            Arguments.of(1L, payload2, getTask(taskPriority, taskContent)),
-            Arguments.of(1L, payload3, getTask(taskPriority, taskContent)),
-            Arguments.of(1L, payload4, getTask(taskPriority, taskContent))
+            Arguments.of(payload, getTaskSpy(randomId(), taskContent, taskPriority)),
+            Arguments.of(payload2, getTaskSpy(randomId(), taskContent, taskPriority)),
+            Arguments.of(payload3, getTaskSpy(randomId(), taskContent, taskPriority)),
+            Arguments.of(payload4, getTaskSpy(randomId(), taskContent, taskPriority))
         );
     }
 
@@ -188,50 +174,27 @@ class TaskComponentTest {
         TaskEditionRequestPojo payload4 = new TaskEditionRequestPojo(taskContent, null);
 
         return Stream.of(
-            Arguments.of(1L, payload, getTask(taskPriority, taskContent)),
-            Arguments.of(1L, payload2, getTask(taskPriority, taskContent)),
-            Arguments.of(1L, payload3, getTask(taskPriority, taskContent)),
-            Arguments.of(1L, payload4, getTask(taskPriority, taskContent))
+            Arguments.of(payload, getTaskSpy(randomId(), taskContent, taskPriority)),
+            Arguments.of(payload2, getTaskSpy(randomId(), taskContent, taskPriority)),
+            Arguments.of(payload3, getTaskSpy(randomId(), taskContent, taskPriority)),
+            Arguments.of(payload4, getTaskSpy(randomId(), taskContent, taskPriority))
         );
-    }
-
-
-    @NonNull
-    private static String randomContent() {
-        return RandomStringUtils.randomAlphabetic(10);
-    }
-
-    private static Task getTask(Priority taskPriority, String taskContent) {
-        return Task.builder()
-            .creator(User.builder().username(internet.username()).build())
-            .content(taskContent)
-            .priority(taskPriority).build();
     }
 
     public static Stream<Arguments> setDistinctExecutorTestData() {
         User newExecutor = User.builder().username(faker.internet().username()).build();
         User oldExecutor = User.builder().username(faker.internet().username()).build();
         User creator     = User.builder().username(faker.internet().username()).build();
-
-        Task taskToChange = Task.builder()
-            .creator(creator)
-            .executor(oldExecutor)
-            .status(Status.NEW).build();
         return Stream.of(
-            Arguments.of(1L, newExecutor, taskToChange)
+            Arguments.of(newExecutor, getTaskSpy(randomId(), creator, oldExecutor))
         );
     }
 
     public static Stream<Arguments> setSameExecutorTestData() {
         User oldExecutor = User.builder().username(faker.internet().username()).build();
         User creator     = User.builder().username(faker.internet().username()).build();
-
-        Task taskToChange = Task.builder()
-            .creator(creator)
-            .executor(oldExecutor)
-            .status(Status.NEW).build();
         return Stream.of(
-            Arguments.of(1L, oldExecutor, taskToChange)
+            Arguments.of(oldExecutor, getTaskSpy(randomId(), creator, oldExecutor))
         );
     }
 
@@ -247,5 +210,36 @@ class TaskComponentTest {
         return Stream.of(
             Arguments.of(user, taskCreationPayload)
         );
+    }
+
+    private static Task getTaskSpy(long id, String taskContent, Priority taskPriority) {
+        Task task = Mockito.spy(getTask(taskPriority, taskContent));
+        Mockito.doReturn(id).when(task).getId();
+        return task;
+    }
+
+    private static Task getTaskSpy(long id, User creator, User oldExecutor) {
+        Task task = Mockito.spy(Task.builder()
+            .creator(User.builder().username(internet.username()).build())
+            .creator(creator)
+            .executor(oldExecutor).build());
+        Mockito.doReturn(id).when(task).getId();
+        return task;
+    }
+
+
+    private static String randomContent() {
+        return RandomStringUtils.randomAlphabetic(10);
+    }
+
+    private static Long randomId() {
+        return Long.valueOf(RandomStringUtils.randomNumeric(3));
+    }
+
+    private static Task getTask(Priority taskPriority, String taskContent) {
+        return Task.builder()
+            .creator(User.builder().username(internet.username()).build())
+            .content(taskContent)
+            .priority(taskPriority).build();
     }
 }

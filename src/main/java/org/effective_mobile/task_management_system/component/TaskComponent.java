@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.component;
 
-import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.database.entity.Task;
@@ -11,10 +10,9 @@ import org.effective_mobile.task_management_system.exception.AssignmentException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
-import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
-import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
@@ -33,8 +31,6 @@ import java.util.function.Function;
 
 import static org.effective_mobile.task_management_system.confing.CacheConfigurations.TASKS_CACHE;
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
-import static org.effective_mobile.task_management_system.utils.enums.Status.ASSIGNED;
-import static org.effective_mobile.task_management_system.utils.enums.Status.NEW;
 
 @Component
 @AllArgsConstructor
@@ -42,22 +38,10 @@ public class TaskComponent {
 
     private final TaskRepository taskRepository;
     private final FilteredAndPagedTaskRepository filteredAndPagedTaskRepository;
-    private final UserComponent userComponent;
 
-    /**
-     * Метод исключает циклическую зависимость. */
-    @PostConstruct
-    public void init() {
-        userComponent.setTaskComponent(this);
-    }
-
-    @Cacheable(value = TASKS_CACHE, key = "#taskId")
+    @Cacheable(value = TASKS_CACHE, key = "#result.id")
     public Task getTask(Long taskId) {
         return taskRepository.findOrThrow(Task.class, taskId);
-    }
-
-    public Status getStatus(Long taskId) {
-        return getTask(taskId).getStatus();
     }
 
     @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
@@ -67,40 +51,31 @@ public class TaskComponent {
         return save;
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#taskId")
-    public Task changeStatus(Long taskId, Status newStatus) {
-        Task task = getTask(taskId);
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    public Task changeStatus(Task task, Status newStatus) {
         Status oldStatus = task.getStatus();
         if (Objects.equals(oldStatus, newStatus)) {
-            String message = TaskExceptionMessages.sameStatusChange(taskId, newStatus);
+            String message = TaskExceptionMessages.sameStatusChange(task.getId(), newStatus);
             throw new IllegalStatusChangeException(message);
         }
         task.setStatus(newStatus);
         return taskRepository.save(task);
     }
 
-    public TaskResponsePojo getJsonPojo(Long id) {
-        Task task = taskRepository.findOrThrow(Task.class, id);
-        return TaskConverter.convert(task, true);
-    }
-
-    @CachePut(cacheNames = TASKS_CACHE, key = "#taskId")
-    public Task setExecutor(Long taskId, User user) {
-        Task task = taskRepository.findOrThrow(Task.class, taskId);
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    public Task setExecutor(Task task, User user) {
         User oldExecutor = task.getExecutor();
         throwIfSameExecutor(user, oldExecutor);
         return setExecutorAndSave(task, user, Status.ASSIGNED);
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#taskId")
-    public Task removeExecutor(Long taskId) {
-        Task task = taskRepository.findOrThrow(Task.class, taskId);
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    public Task removeExecutor(Task task) {
         return setExecutorAndSave(task, null, Status.PENDING);
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#id")
-    public Task editTask(Long id, TaskEditionRequestPojo payload) {
-        Task task = taskRepository.findOrThrow(Task.class, id);
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    public Task editTask(Task task, TaskEditionRequestPojo payload) {
         String newPriority = payload.getPriority();
         String newContent = payload.getContent();
 
@@ -137,20 +112,6 @@ public class TaskComponent {
             );
     }
 
-    public void validateStatusChange(Long taskId, Status newStatus) {
-        switch (newStatus) {
-            case ASSIGNED -> {
-                String message = getMessage("exception.task.status.assign", ASSIGNED);
-                throw new IllegalStatusChangeException(message);
-            }
-            case EXECUTING, DONE, PENDING -> userComponent.checkCurrentUserIsExecutor(taskId);
-            case NEW -> {
-                String message = getMessage("exception.task.status.initial", NEW);
-                throw new IllegalStatusChangeException(message);
-            }
-        };
-    }
-
     private <V> boolean setIfNew(
         Task task,
         V newValue,
@@ -167,9 +128,9 @@ public class TaskComponent {
         return false;
     }
 
-    private Task setExecutorAndSave(Task task, User user, Status assigned) {
+    private Task setExecutorAndSave(Task task, User user, Status status) {
         task.setExecutor(user);
-        task.setStatus(assigned);
+        task.setStatus(status);
         return taskRepository.save(task);
     }
 

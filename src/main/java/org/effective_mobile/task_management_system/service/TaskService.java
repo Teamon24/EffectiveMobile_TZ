@@ -38,7 +38,8 @@ public class TaskService {
     }
 
     public TaskResponsePojo getTask(Long id) {
-        return taskComponent.getJsonPojo(id);
+        Task task = taskComponent.getTask(id);
+        return TaskConverter.convert(task, true);
     }
 
     @Transactional
@@ -54,8 +55,9 @@ public class TaskService {
         @NotNull String newExecutorUsername
     ) {
         User newExecutor = userComponent.getByUsername(newExecutorUsername);
-        User oldExecutor = taskComponent.getTask(taskId).getExecutor();
-        taskComponent.setExecutor(taskId, newExecutor);
+        Task task = taskComponent.getTask(taskId);
+        User oldExecutor = task.getExecutor();
+        taskComponent.setExecutor(task, newExecutor);
         String oldExecutorUsername = nullOrApply(oldExecutor, User::getUsername);
         return new AssignmentResponsePojo(taskId, newExecutor.getUsername(), oldExecutorUsername);
     }
@@ -63,21 +65,24 @@ public class TaskService {
     @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#taskId)")
     public Long unassign(@NotNull Long taskId) {
-        return taskComponent.removeExecutor(taskId).getId();
+        Task task = taskComponent.getTask(taskId);
+        return taskComponent.removeExecutor(task).getId();
     }
 
     @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
     public TaskResponsePojo editTask(@NotNull Long id, TaskEditionRequestPojo requestPojo) {
-        Task task = taskComponent.editTask(id, requestPojo);
-        return TaskConverter.convert(task, false);
+        Task task = taskComponent.getTask(id);
+        Task editedTask = taskComponent.editTask(task, requestPojo);
+        return TaskConverter.convert(editedTask, false);
     }
 
     @Transactional
     public ChangedStatusResponsePojo setStatus(Long taskId, Status newStatus) {
-        taskComponent.validateStatusChange(taskId, newStatus);
-        Status oldStatus = taskComponent.getStatus(taskId);
-        taskComponent.changeStatus(taskId, newStatus);
+        Task task = taskComponent.getTask(taskId);
+        userComponent.validateStatusChange(task, newStatus);
+        Status oldStatus = task.getStatus();
+        taskComponent.changeStatus(task, newStatus);
         return new ChangedStatusResponsePojo(taskId, oldStatus, newStatus);
     }
 

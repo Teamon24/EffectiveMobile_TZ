@@ -1,16 +1,19 @@
 package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.UserRepository;
 import org.effective_mobile.task_management_system.exception.DeniedOperationException;
+import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
 import org.effective_mobile.task_management_system.exception.TaskHasNoExecutorException;
 import org.effective_mobile.task_management_system.exception.UserAlreadyExistsException;
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
+import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -18,33 +21,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
+import static org.effective_mobile.task_management_system.utils.enums.Status.ASSIGNED;
+import static org.effective_mobile.task_management_system.utils.enums.Status.NEW;
 
 @Component
+@AllArgsConstructor
 public class UserComponent {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ContextComponent contextComponent;
-
-    private TaskComponent taskComponent;
-
-    public UserComponent(
-        UserRepository userRepository,
-        PasswordEncoder passwordEncoder,
-        ContextComponent contextComponent
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.contextComponent = contextComponent;
-    }
-
-    /**
-     * Сеттер для устранения циклической зависимости.
-     * @param taskComponent - экземпляр класса {@link TaskComponent}.
-     */
-    public void setTaskComponent(TaskComponent taskComponent) {
-        this.taskComponent = taskComponent;
-    }
 
     public Boolean usernameExists(String username) {
         return userRepository.existsByUsername(username);
@@ -92,21 +78,33 @@ public class UserComponent {
         return userRepository.findOrThrow(User.class, id);
     }
 
-    public void checkCurrentUserIsCreator(Long taskId) {
-        Task task = taskComponent.getTask(taskId);
+    public void checkCurrentUserIsCreator(Task task) {
         CustomUserDetails principal = contextComponent.getPrincipal();
         if (!Objects.equals(task.getCreator().getId(), principal.getUserId())) {
             throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notCreator");
         }
     }
 
-    public void checkCurrentUserIsExecutor(Long taskId) {
-        Task task = taskComponent.getTask(taskId);
+    public void validateStatusChange(Task task, Status newStatus) {
+        switch (newStatus) {
+            case ASSIGNED -> {
+                String message = getMessage("exception.task.status.assign", ASSIGNED);
+                throw new IllegalStatusChangeException(message);
+            }
+            case EXECUTING, DONE, PENDING -> checkCurrentUserIsExecutor(task);
+            case NEW -> {
+                String message = getMessage("exception.task.status.initial", NEW);
+                throw new IllegalStatusChangeException(message);
+            }
+        };
+    }
+
+    private void checkCurrentUserIsExecutor(Task task) {
         CustomUserDetails principal = contextComponent.getPrincipal();
         User executor = task.getExecutor();
 
         if (executor == null) {
-            String message = TaskExceptionMessages.hasNoExecutor(taskId);
+            String message = TaskExceptionMessages.hasNoExecutor(task.getId());
             throw new TaskHasNoExecutorException(message);
         }
 
