@@ -16,38 +16,52 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskEditio
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.stream.Stream;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
+import static org.effective_mobile.task_management_system.utils.enums.Priority.LOW;
 
-@RunWith(MockitoJUnitRunner.class)
-@ExtendWith(MockitoExtension.class)
-class TaskComponentTest {
+class TaskComponentTest extends CachableComponentTest<Task, TaskRepository> {
 
-    @Mock
-    private TaskRepository taskRepository;
     private TaskComponent component;
     private static final Faker faker = new Faker();
     private static final Internet internet = faker.internet();
 
-    @BeforeEach
-    public void setUp() {
+    TaskComponentTest() {
+        super(Task.class, TaskRepository.class);
+    }
+
+    @Override
+    public void beforeEach() {
         component = new TaskComponent(
-            taskRepository,
+            repository,
             Mockito.mock(FilteredAndPagedTaskRepositoryImpl.class)
         );
+    }
+
+    @Override
+    public void afterEach() {}
+
+    /**
+     * Test for {@link TaskComponent#getTask}.
+     */
+    @Test
+    public void getEntityTestLogic() {
+        findOrThrowInteractionDisabled((ignored) -> {
+            long id = randomId();
+            Task task = getTask(randomContent(), LOW);
+            Mockito.when(repository.findOrThrow(Task.class, id)).thenReturn(task);
+            Task foundTask = component.getTask(id);
+            AssertionsUtils.assertEquals(task, foundTask, Task::getContent);
+            AssertionsUtils.assertEquals(task, foundTask, Task::getPriority);
+        });
     }
 
     /**
@@ -58,7 +72,7 @@ class TaskComponentTest {
     public void createTaskTest(User creator, TaskCreationRequestPojo taskCreationPayload) {
         ArgumentCaptor<Task> taskCaptor = ArgumentCaptor.forClass(Task.class);
         component.createTask(creator, taskCreationPayload);
-        Mockito.verify(taskRepository).save(taskCaptor.capture());
+        Mockito.verify(repository).save(taskCaptor.capture());
         Task task = taskCaptor.getValue();
 
         Assertions.assertNull(task.getExecutor());
@@ -81,10 +95,7 @@ class TaskComponentTest {
     @MethodSource("setDistinctExecutorTestData")
     public void setExecutorThatNotSameAsPreviousTest(User newExecutor, Task task) {
         component.setExecutor(task, newExecutor);
-
-        Mockito.verify(taskRepository).save(task);
-        Mockito.verifyNoMoreInteractions(taskRepository);
-
+        Mockito.verify(repository).save(task);
         Assertions.assertEquals(Status.ASSIGNED, task.getStatus());
         Assertions.assertEquals(newExecutor, task.getExecutor());
     }
@@ -105,7 +116,7 @@ class TaskComponentTest {
         String message = getMessage("exception.task.executor.same", oldExecutor);
         Assertions.assertEquals(message, assignmentException.getMessage());
 
-        Mockito.verifyNoInteractions(taskRepository);
+        Mockito.verifyNoInteractions(repository);
     }
 
     /**
@@ -119,9 +130,7 @@ class TaskComponentTest {
             Assertions.assertEquals(task.getContent(), payload.getContent());
         if (payload.getPriority() != null)
             Assertions.assertEquals(task.getPriority().name(), payload.getPriority());
-
-        Mockito.verify(taskRepository).save(task);
-        Mockito.verifyNoMoreInteractions(taskRepository);
+        Mockito.verify(repository).save(task);
     }
 
     /**
@@ -138,7 +147,7 @@ class TaskComponentTest {
             () -> component.editTask(task, payload)
         );
 
-        Mockito.verifyNoInteractions(taskRepository);
+        Mockito.verifyNoInteractions(repository);
 
         Assertions.assertEquals(
             ExceptionMessages.getMessage("exception.task.update.nothing", Task.class.getSimpleName(), task.getId()),
@@ -213,7 +222,7 @@ class TaskComponentTest {
     }
 
     private static Task getTaskSpy(long id, String taskContent, Priority taskPriority) {
-        Task task = Mockito.spy(getTask(taskPriority, taskContent));
+        Task task = Mockito.spy(getTask(taskContent, taskPriority));
         Mockito.doReturn(id).when(task).getId();
         return task;
     }
@@ -236,10 +245,12 @@ class TaskComponentTest {
         return Long.valueOf(RandomStringUtils.randomNumeric(3));
     }
 
-    private static Task getTask(Priority taskPriority, String taskContent) {
+    private static Task getTask(String taskContent, Priority taskPriority) {
         return Task.builder()
             .creator(User.builder().username(internet.username()).build())
             .content(taskContent)
             .priority(taskPriority).build();
     }
+
+
 }

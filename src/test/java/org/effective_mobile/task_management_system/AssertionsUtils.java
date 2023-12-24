@@ -8,19 +8,19 @@ import java.util.function.Function;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AssertionsUtils {
-    public static <O, V> void assertEquals(O object, O other, Function<O, V> getter) {
-        Assertions.assertEquals(getter.apply(object), getter.apply(other));
+    public static <O, V> void assertEquals(O expected, O actual, Function<O, V> getter) {
+        Assertions.assertEquals(getter.apply(expected), getter.apply(actual));
     }
 
-    public static void assertCaselessEquals(String first, String second) {
-        Assertions.assertEquals(first.toLowerCase(), second.toLowerCase());
+    public static void assertCaselessEquals(String expected, String actual) {
+        Assertions.assertEquals(expected.toLowerCase(), actual.toLowerCase());
     }
 
-    public static <E extends Enum<E>> void assertEnumEquals(String first, E second) {
-        Assertions.assertEquals(first.toLowerCase(), second.name().toLowerCase());
+    public static <E extends Enum<E>> void assertEnumEquals(String expected, E actual) {
+        Assertions.assertEquals(expected.toLowerCase(), actual.name().toLowerCase());
     }
 
-    public static <E extends Enum<E>> void assertEnumEquals(E first, String second) {
-        Assertions.assertEquals(first.name().toLowerCase(), second.toLowerCase());
+    public static <E extends Enum<E>> void assertEnumEquals(E expected, String actual) {
+        Assertions.assertEquals(expected.name().toLowerCase(), actual.toLowerCase());
     }
 }

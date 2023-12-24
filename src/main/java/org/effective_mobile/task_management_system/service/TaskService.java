@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.service;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.database.entity.Task;
@@ -35,6 +36,11 @@ public class TaskService {
         User creator = userComponent.getById(userId);
         Task task = taskComponent.createTask(creator, taskCreationRequestPojo);
         return TaskConverter.convert(task, false);
+    }
+
+    public TaskResponsePojoWithCacheInfo getTaskCachedInfo(Long id) {
+        Task task = taskComponent.getTask(id);
+        return new TaskResponsePojoWithCacheInfo(ObjectUtils.identityToString(task), TaskConverter.convert(task, true));
     }
 
     public TaskResponsePojo getTask(Long id) {

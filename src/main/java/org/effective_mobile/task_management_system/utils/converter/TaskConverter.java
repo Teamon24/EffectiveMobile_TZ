@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.utils.converter;
 
+import org.effective_mobile.task_management_system.database.entity.Comment;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.resource.json.CommentJsonPojo;
@@ -42,6 +43,7 @@ public class TaskConverter {
     }
 
     private static List<CommentJsonPojo> convertComments(Task task, Boolean withComments) {
-        return withComments ? CommentConverter.convert(task.getComments()) : List.of();
+        List<Comment> comments = task.getComments();
+        return withComments && comments != null ? CommentConverter.convert(comments) : List.of();
     }
 }

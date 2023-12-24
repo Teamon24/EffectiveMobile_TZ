@@ -39,19 +39,19 @@ public class TaskComponent {
     private final TaskRepository taskRepository;
     private final FilteredAndPagedTaskRepository filteredAndPagedTaskRepository;
 
-    @Cacheable(value = TASKS_CACHE, key = "#result.id")
+    @Cacheable(value = TASKS_CACHE, key = "#taskId")
     public Task getTask(Long taskId) {
         return taskRepository.findOrThrow(Task.class, taskId);
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.getId()")
     public Task createTask(User user, TaskCreationRequestPojo taskCreationPayload) {
         Task newTask = TaskConverter.convert(taskCreationPayload, user);
         Task save = taskRepository.save(newTask);
         return save;
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.getId()")
     public Task changeStatus(Task task, Status newStatus) {
         Status oldStatus = task.getStatus();
         if (Objects.equals(oldStatus, newStatus)) {
@@ -62,19 +62,19 @@ public class TaskComponent {
         return taskRepository.save(task);
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.getId()")
     public Task setExecutor(Task task, User user) {
         User oldExecutor = task.getExecutor();
         throwIfSameExecutor(user, oldExecutor);
         return setExecutorAndSave(task, user, Status.ASSIGNED);
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.getId()")
     public Task removeExecutor(Task task) {
         return setExecutorAndSave(task, null, Status.PENDING);
     }
 
-    @CachePut(cacheNames = TASKS_CACHE, key = "#result.id")
+    @CachePut(cacheNames = TASKS_CACHE, key = "#result.getId()")
     public Task editTask(Task task, TaskEditionRequestPojo payload) {
         String newPriority = payload.getPriority();
         String newContent = payload.getContent();

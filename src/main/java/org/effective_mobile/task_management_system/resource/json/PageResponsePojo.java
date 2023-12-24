@@ -13,6 +13,7 @@ public class PageResponsePojo<E> implements ResponsePojo {
 
     public PageResponsePojo(Page<E> page) {
         this.page = new LinkedHashMap<>();
+        this.page.put("pages", page.getTotalPages());
         this.page.put("total items", page.getTotalElements());
         this.page.put("page size", page.getSize());
         this.page.put("page", pageNumber(page));
@@ -21,10 +22,10 @@ public class PageResponsePojo<E> implements ResponsePojo {
     }
 
     private String pageNumber(Page<E> page) {
-        return page.getNumber() + "/" + totalPagesNumber(page);
+        return page.getNumber() + "/" + lastPageNumber(page);
     }
 
-    private int totalPagesNumber(Page<E> page) {
+    private int lastPageNumber(Page<E> page) {
         return page.getTotalPages() == 0 ? 0 : page.getTotalPages() - 1;
     }
 }

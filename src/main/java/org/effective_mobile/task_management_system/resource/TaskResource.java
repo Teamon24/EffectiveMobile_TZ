@@ -18,6 +18,7 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskCreati
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
+import org.effective_mobile.task_management_system.service.TaskResponsePojoWithCacheInfo;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
@@ -67,6 +68,16 @@ public class TaskResource {
         @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
     ) {
         return taskService.getTask(id);
+    }
+
+    @Tag(name = "Получение")
+    @GetMapping("/{id}/cached")
+    @PreAuthorize("@authenticationComponent.isAuthenticated()")
+    public @ResponseBody
+    TaskResponsePojoWithCacheInfo getTaskCachedInfo(
+        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
+    ) {
+        return taskService.getTaskCachedInfo(id);
     }
 
     @Tag(name = "Пагинация и фильтрация")
