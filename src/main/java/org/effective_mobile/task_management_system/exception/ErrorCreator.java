@@ -45,11 +45,7 @@ public final class ErrorCreator {
         );
     }
 
-    public static ErrorInfo createErrorInfo(
-        HttpServletRequest req,
-        Exception ex,
-        HttpStatus httpStatus
-    ) {
+    public static ErrorInfo createErrorInfo(HttpServletRequest req, Exception ex, HttpStatus httpStatus) {
         return getErrorInfo(req, ex, httpStatus, getLocalizedMessage);
     }
 
@@ -63,8 +59,10 @@ public final class ErrorCreator {
         HttpServletRequest req,
         MethodArgumentNotValidException ex
     ) {
-        ErrorInfo errorInfo1 = getErrorInfo(req, ex, HttpStatus.BAD_REQUEST, ignoreMessage);
-        return new ValidationErrorInfo(errorInfo1);
+        ErrorInfo errorInfo = getErrorInfo(req, ex, HttpStatus.BAD_REQUEST, ignoreMessage);
+        ValidationErrorInfo validationErrorInfo = new ValidationErrorInfo(errorInfo);
+        validationErrorInfo.setErrors(validationErrors(ex));
+        return validationErrorInfo;
     }
 
     public static List<ValidationErrorInfo.ValidationError> validationErrors(MethodArgumentNotValidException ex) {

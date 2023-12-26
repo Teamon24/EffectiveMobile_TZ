@@ -8,7 +8,10 @@ import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 
 @Builder
 @ToString
-public class HttpResponseLogPojo implements JsonPojo {
+public class HttpResponseLogPojo implements HttpExchangeLogPojo {
+
+    @JsonProperty(index = 0)
+    private String path;
 
     /**
      * статус http-ответа (GET, POST, ...). */

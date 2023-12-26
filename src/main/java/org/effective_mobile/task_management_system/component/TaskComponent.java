@@ -137,7 +137,7 @@ public class TaskComponent {
     private void throwIfSameExecutor(User user, User oldExecutor) {
         String oldUsername = MiscUtils.nullOrApply(oldExecutor, User::getUsername);
         if (Objects.equals(oldUsername, user.getUsername())) {
-            String message = getMessage("exception.task.executor.same", oldExecutor);
+            String message = getMessage("exception.task.executor.same", user.getUsername());
             throw new AssignmentException(message);
         }
     }

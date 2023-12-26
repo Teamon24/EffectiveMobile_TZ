@@ -2,7 +2,9 @@ package org.effective_mobile.task_management_system.utils.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {
 
     /**
@@ -15,8 +17,14 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
      */
     public static final String STRONG_PASSWORD_REGEX = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!*()]).{8,}$";
 
+    private FieldAndValueValidationComponent validationComponent;
+
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (value == null) {
+            validationComponent.invalidValueMessage(context);
+            return false;
+        }
         return value.matches(STRONG_PASSWORD_REGEX);
     }
 }

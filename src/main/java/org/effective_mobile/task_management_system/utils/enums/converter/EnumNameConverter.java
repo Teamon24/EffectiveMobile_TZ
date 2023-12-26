@@ -38,8 +38,8 @@ public abstract class EnumNameConverter<Enam extends Enum<Enam> & ValuableEnum<S
 
         String message = ExceptionMessages.getMessage(
             "exception.enum.conversion",
-            StringUtils.defaultIfEmpty(value, "<empty>"),
-            Priority.class.getSimpleName(),
+            value,
+            enumClass().getSimpleName(),
             StringUtils.join(EnumNameConverter.names(enumClass()), ", ")
         );
 

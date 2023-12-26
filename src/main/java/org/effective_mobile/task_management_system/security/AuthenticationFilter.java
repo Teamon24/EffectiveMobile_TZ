@@ -1,6 +1,7 @@
 package org.effective_mobile.task_management_system.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.effective_mobile.task_management_system.confing.JacksonConfig;
 import org.effective_mobile.task_management_system.exception.ErrorCreator;
 import org.effective_mobile.task_management_system.exception.ErrorInfo;
 import org.effective_mobile.task_management_system.exception.InvalidAuthTokenException;
@@ -28,6 +28,7 @@ import java.io.IOException;
 public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final AuthTokenComponent authTokenComponent;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
@@ -73,6 +74,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (object == null) {
             return null;
         }
-        return JacksonConfig.getObjectMapperInstance().writeValueAsString(object);
+        return objectMapper.writeValueAsString(object);
     }
 }

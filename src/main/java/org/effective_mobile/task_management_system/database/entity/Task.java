@@ -53,7 +53,7 @@ public class Task extends AbstractEntity {
     private String content;
 
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "executor_id")
     private User executor;
 
@@ -63,7 +63,7 @@ public class Task extends AbstractEntity {
     private User creator;
 
     @Setter
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany
     @JoinColumn(name = "task_id")
     private List<Comment> comments = new ArrayList<>();
 

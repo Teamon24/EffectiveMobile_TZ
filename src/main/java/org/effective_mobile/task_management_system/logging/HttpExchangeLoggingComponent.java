@@ -3,12 +3,10 @@ package org.effective_mobile.task_management_system.logging;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.apache.commons.lang3.tuple.Pair;
-import org.effective_mobile.task_management_system.confing.JacksonConfig;
 import org.effective_mobile.task_management_system.logging.Headers.Header;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
@@ -16,25 +14,13 @@ import org.springframework.web.util.WebUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class HttpExchangeLoggingUtils {
+@Component
+@AllArgsConstructor
+public class HttpExchangeLoggingComponent {
 
-    public static Headers getHeaders(HttpServletRequest request) {
-        return Collections.list(request.getHeaderNames()).stream()
-            .map(getHeader(request))
-            .collect(Headers.pairsToHeaders);
-    }
-
-    public static Headers getHeaders(HttpServletResponse response) {
-        return response.getHeaderNames().stream()
-            .map(getHeader(response))
-            .collect(Headers.pairsToHeaders);
-    }
+    private ObjectMapper objectMapper;
 
     public static Function<String, Header> getHeader(HttpServletRequest request) {
         return headerName -> {
@@ -50,15 +36,23 @@ public final class HttpExchangeLoggingUtils {
         };
     }
 
-    public static Collector<Header, ?, Map<String, String>> toMap() {
-        return Collectors.toMap(Pair::getKey, Pair::getValue);
+    public Headers getHeaders(HttpServletRequest request) {
+        return Collections.list(request.getHeaderNames()).stream()
+            .map(getHeader(request))
+            .collect(Headers.pairsToHeaders);
+    }
+
+    public Headers getHeaders(HttpServletResponse response) {
+        return response.getHeaderNames().stream()
+            .map(getHeader(response))
+            .collect(Headers.pairsToHeaders);
     }
 
     /**
      * @param request http запрос.
      * @return данные, передаваемые в теле запроса.
      */
-    public static Object getPayload(@NonNull final HttpServletRequest request) {
+    public Object getPayload(@NonNull final HttpServletRequest request) {
         ContentCachingRequestWrapper requestWrapper = WebUtils
             .getNativeRequest(request, ContentCachingRequestWrapper.class);
 
@@ -75,7 +69,7 @@ public final class HttpExchangeLoggingUtils {
      * @param response http-ответ.
      * @return данные, передаваемые в теле ответа.
      */
-    public static Object getPayload(@NonNull final HttpServletResponse response) throws IOException {
+    public Object getPayload(@NonNull final HttpServletResponse response) throws IOException {
         ContentCachingResponseWrapper responseWrapper = WebUtils
             .getNativeResponse(response, ContentCachingResponseWrapper.class);
 
@@ -89,25 +83,7 @@ public final class HttpExchangeLoggingUtils {
         return payload;
     }
 
-    /**
-     * @param data строка с данными.
-     * @return если строка с данными является валидным json-ом, возвращает распарсенный объект по json-у,
-     * иначе возвращает заданную строку без изменения.
-     */
-    public static Object toObject(final String data) {
-        if (null != data && !data.equals("")) {
-            ObjectMapper mapper = JacksonConfig.getObjectMapperInstance();
-            try {
-                return mapper.readValue(data, Object.class);
-            } catch (IOException e) {
-                return data;
-            }
-        } else {
-            return data;
-        }
-    }
-
-    private static Object getPayload(byte[] buf, String characterEncoding, Object payload) {
+    private Object getPayload(byte[] buf, String characterEncoding, Object payload) {
         if (buf.length > 0) {
             String payloadStr;
             try {
@@ -118,5 +94,26 @@ public final class HttpExchangeLoggingUtils {
             payload = toObject(payloadStr);
         }
         return payload;
+    }
+
+    /**
+     * @param data строка с данными.
+     * @return если строка с данными является валидным json-ом, возвращает распарсенный объект по json-у,
+     * иначе возвращает заданную строку без изменения.
+     */
+    private Object toObject(final String data) {
+        if (null != data && !data.equals("")) {
+            try {
+                return objectMapper.readValue(data, Object.class);
+            } catch (IOException e) {
+                return data;
+            }
+        } else {
+            return data;
+        }
+    }
+
+    public String asPretty(HttpExchangeLogPojo httpExchangeLogPojo) {
+        return httpExchangeLogPojo.asPrettyJson(objectMapper);
     }
 }

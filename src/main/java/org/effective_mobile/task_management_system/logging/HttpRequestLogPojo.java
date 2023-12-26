@@ -12,7 +12,7 @@ import org.effective_mobile.task_management_system.resource.json.JsonPojo;
  */
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HttpRequestLogPojo implements JsonPojo {
+public class HttpRequestLogPojo implements HttpExchangeLogPojo {
 
     /**
      * http-метод (GET, POST, ...). */

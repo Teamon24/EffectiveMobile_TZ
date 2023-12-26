@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.logging;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -11,15 +10,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 
-import static org.effective_mobile.task_management_system.logging.HttpExchangeLoggingUtils.getHeaders;
-import static org.effective_mobile.task_management_system.logging.HttpExchangeLoggingUtils.getPayload;
-
 @Log4j2
 @AllArgsConstructor
 public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
 
     private final AuthTokenComponent authTokenComponent;
-    private final ObjectMapper objectMapper;
+    private final HttpExchangeLoggingComponent httpExchangeLoggingComponent;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -28,17 +24,17 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
             HttpRequestLogPojo httpRequestLogPojo = HttpRequestLogPojo.builder()
                 .httpMethod(request.getMethod())
                 .path(request.getRequestURI())
-                .requestBody(HttpExchangeLoggingUtils.getPayload(request))
+                .requestBody(httpExchangeLoggingComponent.getPayload(request))
                 .clientIp(request.getRemoteHost() + ":" + request.getRemotePort())
                 .queryString(request.getQueryString())
                 .httpRequestAuthInfo(
                     HttpRequestAuthInfo.builder()
-                        .headers(getHeaders(request))
+                        .headers(httpExchangeLoggingComponent.getHeaders(request))
                         .cookies(request.getCookies())
                         .token(authTokenComponent.getTokenFromCookies(request))
                         .build()).build();
 
-            log.debug(httpRequestLogPojo.asPrettyJson(objectMapper));
+            log.debug(httpExchangeLoggingComponent.asPretty(httpRequestLogPojo));
         }
         return true;
     }
@@ -55,13 +51,14 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
         if (log.isDebugEnabled() || log.isInfoEnabled()) {
             try {
                 final HttpResponseLogPojo httpResponseLogPojo = HttpResponseLogPojo.builder()
+                    .path(request.getRequestURI())
                     .status(response.getStatus())
-                    .responseBody(getPayload(response))
-                    .headers(getHeaders(response))
+                    .responseBody(httpExchangeLoggingComponent.getPayload(response))
+                    .headers(httpExchangeLoggingComponent.getHeaders(response))
                     .executionTime(endTime - startTime)
                     .build();
 
-                log.debug(httpResponseLogPojo.asPrettyJson(objectMapper));
+                log.debug(httpExchangeLoggingComponent.asPretty(httpResponseLogPojo));
 
             } catch (IOException e) {
                 e.printStackTrace();

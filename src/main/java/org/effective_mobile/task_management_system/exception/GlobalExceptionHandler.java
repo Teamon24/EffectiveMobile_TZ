@@ -4,18 +4,17 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import static org.effective_mobile.task_management_system.exception.ErrorCreator.createErrorInfo;
 import static org.effective_mobile.task_management_system.exception.ErrorCreator.createValidationErrorInfo;
-import static org.effective_mobile.task_management_system.exception.ErrorCreator.validationErrors;
 
 /**
  * Глобальный перехватчик исключений, формирует ответы с http-кодами ошибок для клиента.
@@ -24,13 +23,27 @@ import static org.effective_mobile.task_management_system.exception.ErrorCreator
 public class GlobalExceptionHandler {
 
     /**
+     * 400, Bad request, ошибки валидации.
+     * @param req информация о запросе.
+     * @param ex исключение.
+     * @return информация о возникшей ошибке.
+     */
+    @ResponseBody
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<ErrorInfo> toBadRequest(
+        final HttpServletRequest req,
+        final MethodArgumentNotValidException ex)
+    {
+        return createValidationErrorInfo(req, ex).responseEntity();
+    }
+
+    /**
      * 400, Bad request.
      * @param req информация о запросе.
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler({
         HttpMessageNotReadableException.class,
         ToEnumConvertException.class,
@@ -40,9 +53,8 @@ public class GlobalExceptionHandler {
         TaskHasNoExecutorException.class,
         NothingToUpdateInTaskException.class
     })
-    public ErrorInfo toBadRequest(HttpServletRequest req, Exception ex) {
-
-        return createErrorInfo(req, ex, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorInfo> toBadRequest(HttpServletRequest req, Exception ex) {
+        return createErrorInfo(req, ex, HttpStatus.BAD_REQUEST).responseEntity();
     }
 
     /**
@@ -52,27 +64,24 @@ public class GlobalExceptionHandler {
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler({ InvalidAuthTokenException.class })
-    public ErrorInfo toUnauthorized(HttpServletRequest req, InvalidAuthTokenException ex) {
-        return createErrorInfo(req, ex, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ErrorInfo> toUnauthorized(HttpServletRequest req, InvalidAuthTokenException ex) {
+        return createErrorInfo(req, ex, HttpStatus.UNAUTHORIZED).responseEntity();
     }
 
     /**
      * 403, Forbidden.
      * @param req информация о запросе.
      * @param ex исключение.
-     * @param userDetails информация об аутентифицированном пользователе.
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ExceptionHandler({
         AccessDeniedException.class,
         DeniedOperationException.class
     })
-    public ErrorInfo toForbidden(HttpServletRequest req, Exception ex) {
-        return createErrorInfo(req, ex, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorInfo> toForbidden(HttpServletRequest req, Exception ex) {
+        return createErrorInfo(req, ex, HttpStatus.FORBIDDEN).responseEntity();
     }
 
     /**
@@ -82,10 +91,9 @@ public class GlobalExceptionHandler {
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ExceptionHandler(EntityNotFoundException.class)
-    public ErrorInfo toNotFound(HttpServletRequest req, Exception ex) {
-        return createErrorInfo(req, ex, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorInfo> toNotFound(HttpServletRequest req, Exception ex) {
+        return createErrorInfo(req, ex, HttpStatus.NOT_FOUND).responseEntity();
     }
 
     /**
@@ -99,30 +107,27 @@ public class GlobalExceptionHandler {
         ConversionFailedException.class,
         MethodArgumentTypeMismatchException.class
     })
-    public ErrorInfo toUnprocessableEntity(HttpServletRequest req, Exception ex) {
+    public ResponseEntity<ErrorInfo> toUnprocessableEntity(HttpServletRequest req, Exception ex) {
         Exception exception = ex;
         if (ex instanceof MethodArgumentTypeMismatchException) {
             exception = (Exception) ex.getCause();
         }
 
-        return createErrorInfo(req, exception, HttpStatus.UNPROCESSABLE_ENTITY);
+        return createErrorInfo(req, exception, HttpStatus.UNPROCESSABLE_ENTITY).responseEntity();
     }
 
     /**
-     * 400, Bad request, ошибки валидации.
+     * 500, internal server error.
      * @param req информация о запросе.
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ValidationErrorInfo handleValidationErrors(
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<ErrorInfo> internalServerError(
         final HttpServletRequest req,
-        final MethodArgumentNotValidException ex)
+        final Exception ex)
     {
-        ValidationErrorInfo validationErrorInfo = createValidationErrorInfo(req, ex);
-        validationErrorInfo.setErrors(validationErrors(ex));
-        return validationErrorInfo;
+        return createErrorInfo(req, ex, HttpStatus.INTERNAL_SERVER_ERROR).responseEntity();
     }
 }

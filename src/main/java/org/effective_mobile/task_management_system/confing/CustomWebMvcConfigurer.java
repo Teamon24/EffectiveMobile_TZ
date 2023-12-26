@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.confing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.effective_mobile.task_management_system.logging.HttpExchangeLoggingComponent;
 import org.effective_mobile.task_management_system.logging.HttpExchangeLoggingInterceptor;
 import org.effective_mobile.task_management_system.security.AuthTokenComponent;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +18,13 @@ import java.util.List;
 public class CustomWebMvcConfigurer implements WebMvcConfigurer {
 
     private final AuthTokenComponent authTokenComponent;
+    private final HttpExchangeLoggingComponent httpExchangeLoggingComponent;
     private final ObjectMapper objectMapper;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new HttpExchangeLoggingInterceptor(authTokenComponent, objectMapper));
+        registry.addInterceptor(
+            new HttpExchangeLoggingInterceptor(authTokenComponent, httpExchangeLoggingComponent));
     }
 
     @Override

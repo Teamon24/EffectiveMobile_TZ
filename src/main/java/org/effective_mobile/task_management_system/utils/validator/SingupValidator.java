@@ -3,49 +3,42 @@ package org.effective_mobile.task_management_system.utils.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
-import org.springframework.beans.factory.annotation.Value;
 
 public class SingupValidator implements ConstraintValidator<Signup, String> {
 
     private final UserComponent userComponent;
+    private final FieldAndValueValidationComponent validationComponent;
 
-    @Value("${validation.error.signup.field}")
-    private String fieldName;
-
-    @Value("${validation.error.signup.value}")
-    private String valueName;
-
-    public SingupValidator(UserComponent userComponent) {
+    public SingupValidator(
+        UserComponent userComponent,
+        FieldAndValueValidationComponent validationComponent
+    ) {
         this.userComponent = userComponent;
+        this.validationComponent = validationComponent;
     }
 
-    private Signup.Type fieldType;
+    private Signup.Type fieldName;
 
     @Override
     public void initialize(Signup matching) {
-        fieldType = matching.field();
+        fieldName = matching.field();
     }
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        Boolean isValid = switch (fieldType) {
+        if (value == null) {
+            validationComponent.invalidValueMessage(context);
+            return false;
+        }
+
+        Boolean isValid = switch (fieldName) {
             case USERNAME -> !userComponent.usernameExists(value);
             case EMAIL -> !userComponent.emailExists(value);
         };
 
         if (!isValid) {
-            setUpMessage(value, context);
+            validationComponent.setUpMessage(fieldName.name(), value, context);
         }
         return isValid;
-    }
-    private HibernateConstraintValidatorContext setUpMessage(
-        String value,
-        ConstraintValidatorContext context
-    ) {
-        return ((ConstraintValidatorContextImpl) context)
-            .addMessageParameter(fieldName, fieldType)
-            .addMessageParameter(valueName, value);
     }
 }

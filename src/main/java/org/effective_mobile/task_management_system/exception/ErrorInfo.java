@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Объект с информацией об ошибке.
@@ -43,4 +45,8 @@ public class ErrorInfo {
      * URL упавшего запроса.
      */
     private String path;
+
+    public ResponseEntity<ErrorInfo> responseEntity() {
+        return new ResponseEntity<>(this, HttpStatusCode.valueOf(this.getStatus()));
+    }
 }

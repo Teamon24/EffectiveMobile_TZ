@@ -9,7 +9,7 @@ import lombok.Builder;
  * Информация для аутентификации из запроса.
  */
 @Builder
-public class HttpRequestAuthInfo {
+public class HttpRequestAuthInfo implements HttpExchangeLogPojo {
     /**
      * Токен аутентификации. */
     @JsonProperty

@@ -10,15 +10,13 @@
     <Appenders>
         <Console name="stdout" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
 
         <RollingFile name="stdoutFile"
                      fileName="${LOG_DIR}/stdout.log"
                      filePattern="${LOG_DIR}/stdout-${FILE_NAME_PATTERN}.log.gz">
-            <LevelRangeFilter minLevel="FATAL"
-                              maxLevel="ALL"
-                              onMatch="ACCEPT"
-                              onMismatch="DENY"/>
+            <LevelRangeFilter minLevel="FATAL" maxLevel="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="10"/>
@@ -27,10 +25,7 @@
         <RollingFile name="debugLog"
                      fileName="${LOG_DIR}/app.debug.log"
                      filePattern="${LOG_DIR}/app.debug-${FILE_NAME_PATTERN}.log.gz">
-            <LevelRangeFilter minLevel="DEBUG"
-                              maxLevel="DEBUG"
-                              onMatch="ACCEPT"
-                              onMismatch="DENY"/>
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="10"/>
@@ -59,6 +54,7 @@
         <RollingFile name="apiLog"
                      fileName="${LOG_DIR}/app.api.log"
                      filePattern="${LOG_DIR}/app.api-${FILE_NAME_PATTERN}.log.gz">
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="1"/>
@@ -75,15 +71,15 @@
     </Appenders>
 
     <Loggers>
-        <AsyncLogger name="org.effective_mobile.task_management_system.logging.HttpExchangeLoggingInterceptor" additivity="false">
+        <AsyncLogger level="ALL" name="org.effective_mobile.task_management_system.logging.HttpExchangeLoggingInterceptor" additivity="false">
             <AppenderRef ref="apiLog"/>
         </AsyncLogger>
 
-        <AsyncLogger name="org.hibernate" level="ALL" additivity="false">
+        <AsyncLogger level="ALL" name="org.hibernate" additivity="false">
             <AppenderRef ref="databaseLog"/>
         </AsyncLogger>
 
-        <AsyncLogger name="org.effective_mobile.task_management_system" additivity="false">
+        <AsyncLogger level="ALL" name="org.effective_mobile.task_management_system" additivity="false">
             <AppenderRef ref="debugLog"/>
             <AppenderRef ref="infoLog"/>
             <AppenderRef ref="errorLog"/>
