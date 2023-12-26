@@ -7,5 +7,6 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = {
     "classpath:messages.properties",
     "classpath:application.properties",
+    "classpath:custom.properties"
 }, encoding = "UTF-8")
 public class TestConfiguration {}

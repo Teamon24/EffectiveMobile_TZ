@@ -113,7 +113,7 @@ class TaskComponentTest extends CachableComponentTest<Task, TaskRepository> {
             () -> component.setExecutor(task, newExecutor)
         );
 
-        String message = getMessage("exception.task.executor.same", oldExecutor);
+        String message = getMessage("exception.task.executor.same", oldExecutor.getUsername());
         Assertions.assertEquals(message, assignmentException.getMessage());
 
         Mockito.verifyNoInteractions(repository);
