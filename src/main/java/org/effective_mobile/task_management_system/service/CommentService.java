@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static org.effective_mobile.task_management_system.confing.properties.AppCacheNames.TASKS;
+import static org.effective_mobile.task_management_system.maintain.cache.AppCacheNames.TASKS;
 
 @Service
 @AllArgsConstructor

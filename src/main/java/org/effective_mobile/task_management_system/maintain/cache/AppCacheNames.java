@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confing.properties;
+package org.effective_mobile.task_management_system.maintain.cache;
 
 public interface AppCacheNames {
     String TASKS = "tasks";

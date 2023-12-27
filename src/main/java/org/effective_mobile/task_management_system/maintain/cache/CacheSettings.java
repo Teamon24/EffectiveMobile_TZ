@@ -1,10 +1,9 @@
-package org.effective_mobile.task_management_system.confing.properties;
+package org.effective_mobile.task_management_system.maintain.cache;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.effective_mobile.task_management_system.utils.TimeToLiveInfoDeserializer;
 
 import java.util.concurrent.TimeUnit;
 

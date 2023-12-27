@@ -1,11 +1,11 @@
-package org.effective_mobile.task_management_system.logging;
+package org.effective_mobile.task_management_system.maintain.logging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.effective_mobile.task_management_system.logging.Headers.Header;
+import org.effective_mobile.task_management_system.maintain.logging.Headers.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;

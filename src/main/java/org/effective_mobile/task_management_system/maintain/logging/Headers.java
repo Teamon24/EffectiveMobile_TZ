@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.logging;
+package org.effective_mobile.task_management_system.maintain.logging;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -2,7 +2,7 @@ package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.confing.properties.AppCacheNames;
+import org.effective_mobile.task_management_system.maintain.cache.AppCacheNames;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.UserRepository;

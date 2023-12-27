@@ -70,7 +70,7 @@
     </Appenders>
 
     <Loggers>
-        <AsyncLogger level="ALL" name="org.effective_mobile.task_management_system.logging.HttpExchangeLoggingInterceptor" additivity="false">
+        <AsyncLogger level="ALL" name="org.effective_mobile.task_management_system.maintain.logging.HttpExchangeLoggingInterceptor" additivity="false">
             <AppenderRef ref="apiLog"/>
         </AsyncLogger>
 

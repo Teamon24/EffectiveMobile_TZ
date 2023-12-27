@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static org.effective_mobile.task_management_system.confing.properties.AppCacheNames.TASKS;
+import static org.effective_mobile.task_management_system.maintain.cache.AppCacheNames.TASKS;
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
 @Component

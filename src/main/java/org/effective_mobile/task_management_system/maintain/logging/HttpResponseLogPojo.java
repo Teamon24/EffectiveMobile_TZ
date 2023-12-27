@@ -1,10 +1,9 @@
-package org.effective_mobile.task_management_system.logging;
+package org.effective_mobile.task_management_system.maintain.logging;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.ToString;
-import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 
 @Builder
 @ToString

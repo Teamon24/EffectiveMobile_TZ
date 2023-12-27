@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.utils;
+package org.effective_mobile.task_management_system.maintain.cache;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
-import org.effective_mobile.task_management_system.confing.properties.CacheSettings;
+import org.effective_mobile.task_management_system.maintain.cache.CacheSettings;
 import org.effective_mobile.task_management_system.exception.ToEnumConvertException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
 import org.effective_mobile.task_management_system.utils.enums.converter.EnumNameConverter;

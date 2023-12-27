@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confing.properties;
+package org.effective_mobile.task_management_system.maintain.cache;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;

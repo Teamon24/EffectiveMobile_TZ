@@ -2,8 +2,8 @@ package org.effective_mobile.task_management_system.confing;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.effective_mobile.task_management_system.confing.properties.CacheProperties;
-import org.effective_mobile.task_management_system.confing.properties.CacheSettings;
+import org.effective_mobile.task_management_system.maintain.cache.CacheProperties;
+import org.effective_mobile.task_management_system.maintain.cache.CacheSettings;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;

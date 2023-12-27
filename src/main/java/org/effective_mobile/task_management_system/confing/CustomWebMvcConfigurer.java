@@ -2,8 +2,8 @@ package org.effective_mobile.task_management_system.confing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.logging.HttpExchangeLoggingComponent;
-import org.effective_mobile.task_management_system.logging.HttpExchangeLoggingInterceptor;
+import org.effective_mobile.task_management_system.maintain.logging.HttpExchangeLoggingComponent;
+import org.effective_mobile.task_management_system.maintain.logging.HttpExchangeLoggingInterceptor;
 import org.effective_mobile.task_management_system.security.AuthTokenComponent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
