@@ -70,16 +70,6 @@ public class TaskResource {
         return taskService.getTask(id);
     }
 
-    @Tag(name = "Получение")
-    @GetMapping("/{id}/cached")
-    @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody
-    TaskResponsePojoWithCacheInfo getTaskCachedInfo(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
-    ) {
-        return taskService.getTaskCachedInfo(id);
-    }
-
     @Tag(name = "Пагинация и фильтрация")
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")

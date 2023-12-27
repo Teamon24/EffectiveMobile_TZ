@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.effective_mobile.task_management_system.confing.properties.AppCacheNames;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.UserRepository;
@@ -14,6 +15,7 @@ import org.effective_mobile.task_management_system.exception.messages.UserExcept
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
+import static org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages.NotFoundBy.EMAIL;
 import static org.effective_mobile.task_management_system.utils.enums.Status.ASSIGNED;
 import static org.effective_mobile.task_management_system.utils.enums.Status.NEW;
 
@@ -30,7 +33,6 @@ public class UserComponent {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ContextComponent contextComponent;
 
     public Boolean usernameExists(String username) {
         return userRepository.existsByUsername(username);
@@ -74,24 +76,34 @@ public class UserComponent {
         return user.get();
     }
 
+    @Cacheable(cacheNames = AppCacheNames.USERS_AUTH, key = "#email")
+    public User getByEmail(String email) {
+        return userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException(UserExceptionMessages.notFoundBy(EMAIL, email)));
+    }
+
     public User getById(Long id) {
         return userRepository.findOrThrow(User.class, id);
     }
 
-    public void checkCurrentUserIsCreator(Task task) {
-        CustomUserDetails principal = contextComponent.getPrincipal();
-        if (!Objects.equals(task.getCreator().getId(), principal.getUserId())) {
+    public void checkCurrentUserIsCreator(CustomUserDetails principal, Task task) {
+        Long creatorId = task.getCreator().getId();
+        Long currentUserId = principal.getUserId();
+        if (!Objects.equals(creatorId, currentUserId)) {
             throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notCreator");
         }
     }
 
-    public void validateStatusChange(Task task, Status newStatus) {
+    public void validateStatusChange(Task task, Status newStatus, CustomUserDetails principal) {
         switch (newStatus) {
             case ASSIGNED -> {
                 String message = getMessage("exception.task.status.assign", ASSIGNED);
                 throw new IllegalStatusChangeException(message);
             }
-            case EXECUTING, DONE, PENDING -> checkCurrentUserIsExecutor(task);
+            case EXECUTING, DONE, PENDING -> {
+                checkCurrentUserIsExecutor(task, principal);
+            }
             case NEW -> {
                 String message = getMessage("exception.task.status.initial", NEW);
                 throw new IllegalStatusChangeException(message);
@@ -99,8 +111,7 @@ public class UserComponent {
         };
     }
 
-    private void checkCurrentUserIsExecutor(Task task) {
-        CustomUserDetails principal = contextComponent.getPrincipal();
+    private void checkCurrentUserIsExecutor(Task task, CustomUserDetails principal) {
         User executor = task.getExecutor();
 
         if (executor == null) {

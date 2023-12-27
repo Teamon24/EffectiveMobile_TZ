@@ -18,11 +18,11 @@ import java.time.Instant;
 @Component
 public class JwtAuthTokenComponent implements AuthTokenComponent {
 
-    @Value("${app.auth.expirationMs}")
+    @Value("#{${app.auth.expirationMs}}")
     private Long jwtTokenExpirationTimeMillis;
 
     @Value("${app.auth.cookieName}")
-    private String tokenName;
+    private String authTokenName;
 
     private final Algorithm hmac512;
     private final JWTVerifier verifier;
@@ -34,12 +34,12 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
 
     @Override
     public ResponseCookie getCleanTokenCookie() {
-        return ResponseCookie.from(tokenName, "").path("/").maxAge(0).build();
+        return ResponseCookie.from(authTokenName, "").path("/").maxAge(0).build();
     }
 
     @Override
     public String getTokenFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, tokenName);
+        Cookie cookie = WebUtils.getCookie(request, authTokenName);
         return getToken(cookie);
     }
 
@@ -55,7 +55,7 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
     @Override
     public ResponseCookie generateTokenCookie(UserDetails userDetails) {
         String token = generateToken(userDetails);
-        return ResponseCookie.from(tokenName, token).maxAge(24 * 60 * 60).httpOnly(true).build();
+        return ResponseCookie.from(authTokenName, token).maxAge(24 * 60 * 60).httpOnly(true).build();
     }
 
     @Override

@@ -42,7 +42,7 @@ public class User extends AbstractEntity {
     private String password;
 
     @Setter
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.DETACH} )
     @JoinColumn(name = "creator_id")
     @ToString.Exclude
     private List<Task> tasks = new ArrayList<>();

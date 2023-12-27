@@ -2,17 +2,18 @@ package org.effective_mobile.task_management_system.service;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.ObjectUtils;
+import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
-import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
+import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import static org.effective_mobile.task_management_system.utils.MiscUtils.nullOr
 @AllArgsConstructor
 public class TaskService {
 
+    private ContextComponent contextComponent;
     private UserComponent userComponent;
     private TaskComponent taskComponent;
 
@@ -36,11 +38,6 @@ public class TaskService {
         User creator = userComponent.getById(userId);
         Task task = taskComponent.createTask(creator, taskCreationRequestPojo);
         return TaskConverter.convert(task, false);
-    }
-
-    public TaskResponsePojoWithCacheInfo getTaskCachedInfo(Long id) {
-        Task task = taskComponent.getTask(id);
-        return new TaskResponsePojoWithCacheInfo(ObjectUtils.identityToString(task), TaskConverter.convert(task, true));
     }
 
     public TaskResponsePojo getTask(Long id) {
@@ -86,7 +83,8 @@ public class TaskService {
     @Transactional
     public ChangedStatusResponsePojo setStatus(Long taskId, Status newStatus) {
         Task task = taskComponent.getTask(taskId);
-        userComponent.validateStatusChange(task, newStatus);
+        CustomUserDetails principal = contextComponent.getPrincipal();
+        userComponent.validateStatusChange(task, newStatus, principal);
         Status oldStatus = task.getStatus();
         taskComponent.changeStatus(task, newStatus);
         return new ChangedStatusResponsePojo(taskId, oldStatus, newStatus);

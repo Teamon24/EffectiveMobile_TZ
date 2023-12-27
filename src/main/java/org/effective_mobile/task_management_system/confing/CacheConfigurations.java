@@ -1,9 +1,12 @@
 package org.effective_mobile.task_management_system.confing;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.effective_mobile.task_management_system.confing.properties.CacheProperties;
+import org.effective_mobile.task_management_system.confing.properties.CacheSettings;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,13 +15,26 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CacheConfigurations {
 
-    public static final  String TASKS_CACHE = "tasks";
-
     @Bean
-    public CacheManager cacheManager(@Value("${app.cache.enabled}") String enableCaching) {
-        if (enableCaching.equals("true")) {
-            return new ConcurrentMapCacheManager(TASKS_CACHE);
+    public CacheManager cacheManager(final CacheProperties cacheProperties) {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        if (!cacheProperties.appCacheEnabled) {
+            return new NoOpCacheManager();
         }
-        return new NoOpCacheManager();
+        for (CacheSettings setting : cacheProperties.settings) {
+            if (setting.isEnabled()) {
+                CacheSettings.TimeToLiveInfo timeToLiveInfo = setting.getTtl();
+
+                Cache<Object, Object> cache =
+                    Caffeine.newBuilder()
+                        .initialCapacity(50)
+                        .maximumSize(100)
+                        .expireAfterAccess(timeToLiveInfo.getValue(), timeToLiveInfo.getType())
+                        .build();
+
+                cacheManager.registerCustomCache(setting.getName(), cache);
+            }
+        }
+        return cacheManager;
     }
 }

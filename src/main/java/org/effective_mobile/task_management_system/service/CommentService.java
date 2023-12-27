@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static org.effective_mobile.task_management_system.confing.CacheConfigurations.TASKS_CACHE;
+import static org.effective_mobile.task_management_system.confing.properties.AppCacheNames.TASKS;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +21,7 @@ public class CommentService {
     private TaskComponent taskComponent;
     private UserComponent userComponent;
 
-    @CacheEvict(cacheNames = TASKS_CACHE, key = "#taskId")
+    @CacheEvict(cacheNames = TASKS, key = "#taskId")
     public Comment createComment(Long userId, Long taskId, CommentCreationRequestPojo requestPojo) {
         Comment comment = comment(userId, taskId, requestPojo);
         return commentRepository.save(comment);

@@ -1,1 +1,1 @@
-./build-compose-up.sh "-x test" ""
+./build-compose-up.sh "" ""

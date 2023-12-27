@@ -1,9 +1,9 @@
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
-        <Property name="LOG_PATTERN">%d{[yyyy-MM-dd HH:mm:ss.SSSZ]} %p %m%n</Property>
-        <Property name="FILE_SIZE_THRESHOLD">2500KB</Property>
+        <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss.SSSZ}] %p /%tid-%tn/: %m%n</Property>
+        <Property name="FILE_SIZE_THRESHOLD">25000KB</Property>
         <Property name="FILE_NAME_PATTERN">%d{yyyy-MM-dd HH.mm.ss}</Property>
-        <Property name="LOG_DIR">logs</Property>
+        <Property name="LOG_DIR">logs${sys:file.separator}</Property>
         <Property name="APPLICATION_LOG_PREFIX">app</Property>
     </Properties>
 
@@ -14,17 +14,16 @@
         </Console>
 
         <RollingFile name="stdoutFile"
-                     fileName="${LOG_DIR}/stdout.log"
-                     filePattern="${LOG_DIR}/stdout-${FILE_NAME_PATTERN}.log.gz">
-            <LevelRangeFilter minLevel="FATAL" maxLevel="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+                     fileName="${LOG_DIR}stdout.log"
+                     filePattern="${LOG_DIR}stdout-${FILE_NAME_PATTERN}.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
         <RollingFile name="debugLog"
-                     fileName="${LOG_DIR}/app.debug.log"
-                     filePattern="${LOG_DIR}/app.debug-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}app.debug.log"
+                     filePattern="${LOG_DIR}app.debug-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
@@ -32,8 +31,8 @@
         </RollingFile>
 
         <RollingFile name="infoLog"
-                     fileName="${LOG_DIR}/app.info.log"
-                     filePattern="${LOG_DIR}/app.info-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}app.info.log"
+                     filePattern="${LOG_DIR}app.info-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="WARN" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
@@ -41,8 +40,8 @@
         </RollingFile>
 
         <RollingFile name="errorLog"
-                     fileName="${LOG_DIR}/app.error.log"
-                     filePattern="${LOG_DIR}/app.error-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}app.error.log"
+                     filePattern="${LOG_DIR}app.error-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
@@ -52,8 +51,8 @@
         </RollingFile>
 
         <RollingFile name="apiLog"
-                     fileName="${LOG_DIR}/app.api.log"
-                     filePattern="${LOG_DIR}/app.api-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}app.api.log"
+                     filePattern="${LOG_DIR}app.api-${FILE_NAME_PATTERN}.log.gz">
             <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
@@ -61,8 +60,8 @@
         </RollingFile>
 
         <RollingFile name="databaseLog"
-                     fileName="${LOG_DIR}/hibernate.log"
-                     filePattern="${LOG_DIR}/hibernate-${FILE_NAME_PATTERN}.log.gz">
+                     fileName="${LOG_DIR}hibernate.log"
+                     filePattern="${LOG_DIR}hibernate-${FILE_NAME_PATTERN}.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies><SizeBasedTriggeringPolicy size="${FILE_SIZE_THRESHOLD}"/></Policies>
             <DefaultRolloverStrategy max="1"/>

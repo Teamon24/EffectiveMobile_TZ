@@ -25,11 +25,6 @@ public class SecurityConfigurations {
     public final AuthenticationFilter authenticationFilter;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(
         final AuthenticationConfiguration authenticationConfiguration
     ) throws Exception {
@@ -44,6 +39,5 @@ public class SecurityConfigurations {
             .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
-
 }
  

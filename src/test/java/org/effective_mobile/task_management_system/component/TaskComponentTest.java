@@ -40,7 +40,7 @@ class TaskComponentTest extends CachableComponentTest<Task, TaskRepository> {
 
     @Override
     public void beforeEach() {
-        component = new TaskComponent(
+        component = new TaskComponentImpl(
             repository,
             Mockito.mock(FilteredAndPagedTaskRepositoryImpl.class)
         );

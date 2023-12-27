@@ -1,9 +1,10 @@
 package org.effective_mobile.task_management_system.security;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.effective_mobile.task_management_system.component.UserComponent;
+import org.effective_mobile.task_management_system.confing.properties.AppCacheNames;
 import org.effective_mobile.task_management_system.database.entity.User;
-import org.effective_mobile.task_management_system.database.repository.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository userRepository;
+    private UserComponent userComponent;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String email) {
-        final User user = userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> {
-                String message = String.format("User (email = '%s') was not found", email);
-                return new EntityNotFoundException(message);
-            });
-
+        final User user = userComponent.getByEmail(email);
         return new CustomUserDetails(user);
     }
 }

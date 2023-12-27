@@ -4,7 +4,6 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.exception.ToEnumConvertException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
-import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.ValuableEnum;
 
 import java.util.Arrays;
@@ -46,8 +45,12 @@ public abstract class EnumNameConverter<Enam extends Enum<Enam> & ValuableEnum<S
         throw new ToEnumConvertException(message);
     }
 
-    public static List<String> names(@NonNull final Class<? extends ValuableEnum<String>> enumClass) {
+    public static List<String> values(@NonNull final Class<? extends ValuableEnum<String>> enumClass) {
         return Arrays.stream(enumClass.getEnumConstants()).map(ValuableEnum::getValue).collect(Collectors.toList());
+    }
+
+    public static List<String> names(@NonNull final Class<? extends Enum<?>> enumClass) {
+        return Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
     }
 }
 

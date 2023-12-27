@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.effective_mobile.task_management_system.pojo.HasCreatorUsername;
 import org.effective_mobile.task_management_system.pojo.HasExecutorUsername;
 import org.effective_mobile.task_management_system.resource.json.CommentJsonPojo;
+import org.effective_mobile.task_management_system.resource.json.JsonPojoId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class TaskResponsePojo extends TaskEssential implements HasExecutorUsername, HasCreatorUsername {
+public class TaskResponsePojo extends TaskEssential implements JsonPojoId, HasExecutorUsername, HasCreatorUsername {
 
     @JsonProperty private Long id;
     @JsonProperty private String status;

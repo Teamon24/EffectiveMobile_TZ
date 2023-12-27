@@ -55,6 +55,6 @@ public class EnumAtRequestBodyValidator implements ConstraintValidator<ValidEnum
         context
             .addMessageParameter(wrongValueParam, StringUtils.defaultIfEmpty(value, "<empty>"))
             .addMessageParameter(enumParam, enumClass.getSimpleName())
-            .addMessageParameter(acceptableValuesParam, StringUtils.join(EnumNameConverter.names(enumClass), ", "));
+            .addMessageParameter(acceptableValuesParam, StringUtils.join(EnumNameConverter.values(enumClass), ", "));
     }
 }

@@ -38,8 +38,13 @@ public class TaskConverter {
     }
 
     private static TaskExecutor executorInfoOrNull(User executor) {
-        return Objects.isNull(executor) ?
-            null : new TaskExecutor(executor.getId(), executor.getUsername());
+        if (Objects.isNull(executor)) {
+            return null;
+        } else {
+            Long executorId = executor.getId();
+            String executorUsername = executor.getUsername();
+            return new TaskExecutor(executorId, executorUsername);
+        }
     }
 
     private static List<CommentJsonPojo> convertComments(Task task, Boolean withComments) {
