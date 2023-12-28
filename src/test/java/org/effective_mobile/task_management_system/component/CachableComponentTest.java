@@ -10,14 +10,14 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 
 @RunWith(MockitoJUnitRunner.class)
 @ExtendWith(MockitoExtension.class)
-public abstract class CachableComponentTest<E extends AbstractEntity, R extends AbstractJpaRepository<E, ?>> {
+public abstract class CachableComponentTest<Id, E extends AbstractEntity, R extends AbstractJpaRepository<E, Id>> {
 
     private Boolean findOrThrowInteractionDisabled = false;
     private final Class<E> entityClass;
@@ -54,8 +54,13 @@ public abstract class CachableComponentTest<E extends AbstractEntity, R extends 
         afterEach();
     }
 
-    public void findOrThrowInteractionDisabled(Consumer<?> o) {
+    public E verifyFindOrThrowInteraction(
+        Id id,
+        E task,
+        Supplier<E> o
+    ) {
         findOrThrowInteractionDisabled = true;
-        o.accept(null);
+        Mockito.when(repository.findOrThrow(entityClass, id)).thenReturn(task);
+        return o.get();
     }
 }

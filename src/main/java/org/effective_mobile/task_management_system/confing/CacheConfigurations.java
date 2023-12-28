@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.effective_mobile.task_management_system.maintain.cache.CacheProperties;
 import org.effective_mobile.task_management_system.maintain.cache.CacheSettings;
+import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -23,7 +24,7 @@ public class CacheConfigurations {
         }
         for (CacheSettings setting : cacheProperties.settings) {
             if (setting.isEnabled()) {
-                CacheSettings.TimeToLiveInfo timeToLiveInfo = setting.getTtl();
+                TimeToLiveInfo timeToLiveInfo = setting.getTtl();
 
                 Cache<Object, Object> cache =
                     Caffeine.newBuilder()

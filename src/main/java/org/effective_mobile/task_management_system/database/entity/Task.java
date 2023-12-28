@@ -1,11 +1,9 @@
 package org.effective_mobile.task_management_system.database.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -52,11 +50,14 @@ public class Task extends AbstractEntity {
     @Column
     private String content;
 
+    // TODO: избавиться от FetchType.EAGER (сейчас связи подтягиваются из-за spring-кеша).
+    // https://stackoverflow.com/questions/35997541/getting-org-hibernate-lazyinitializationexception-exceptions-after-retrieving
     @Setter
     @ManyToOne
     @JoinColumn(name = "executor_id")
     private User executor;
 
+    // TODO: избавиться от FetchType.EAGER (сейчас связи подтягиваются из-за spring-кеша).
     @NotNull
     @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)

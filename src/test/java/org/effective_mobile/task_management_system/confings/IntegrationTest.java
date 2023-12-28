@@ -6,14 +6,16 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import net.datafaker.Faker;
 import org.effective_mobile.task_management_system.TaskManagementSystemApp;
+import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.TaskRepository;
 import org.effective_mobile.task_management_system.database.repository.UserRepository;
+import org.effective_mobile.task_management_system.security.AuthProperties;
+import org.effective_mobile.task_management_system.security.AuthorizationComponent;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.security.JwtAuthTokenComponent;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -35,22 +37,23 @@ import java.util.function.BiFunction;
 @AutoConfigureMockMvc
 public abstract class IntegrationTest {
 
-    @Value("${app.auth.cookieName}")
-    protected String cookieName;
-
     protected final String username = "teamon24";
     protected final String email = username + "@gmail.com";
     protected final String password = new Faker().internet().password(8, 20, true, true, true);
     protected final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-    @Autowired
-    protected MockMvc mvc;
+    @Autowired protected AuthProperties authProperties;
+    @Autowired protected MockMvc mvc;
     @Autowired protected TaskRepository taskRepository;
     @Autowired protected UserRepository userRepository;
     @Autowired protected ObjectMapper objectMapper;
     @Autowired private JwtAuthTokenComponent jwtTokenComponent;
 
+    @Autowired protected UsernameProvider usernameProvider;
+    @Autowired protected AuthorizationComponent authorizationComponent;
+
     protected User user;
+    protected String cookieName = authProperties.authTokenName;
 
     protected MockHttpServletResponse postJson(User user, String path, Object payload) throws Exception {
         return methodJson(user, path, payload, MockMvcRequestBuilders::post).andReturn().getResponse();
@@ -75,7 +78,11 @@ public abstract class IntegrationTest {
         BiFunction<String, Object[], MockHttpServletRequestBuilder> method
     ) throws Exception {
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+        CustomUserDetails customUserDetails = new CustomUserDetails(
+            user,
+            u -> usernameProvider.getUsername(u),
+            authorizationComponent.getAuthorities(user)
+        );
 
         return mvc.perform(
             method.apply(path, new Object[]{})

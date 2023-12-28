@@ -7,14 +7,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.exception.ErrorCreator;
 import org.effective_mobile.task_management_system.exception.ErrorInfo;
-import org.effective_mobile.task_management_system.exception.InvalidAuthTokenException;
+import org.effective_mobile.task_management_system.exception.auth.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -29,6 +30,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final AuthTokenComponent authTokenComponent;
     private final ObjectMapper objectMapper;
+    private final ContextComponent contextComponent;
 
     @Override
     protected void doFilterInternal(
@@ -38,20 +40,28 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     )
         throws ServletException, IOException
     {
-        String token = authTokenComponent.getTokenFromCookies(request);
-        if (token != null) {
+        String authToken = authTokenComponent.getTokenFromCookies(request);
+        if (authToken != null) {
+            var httpStatus = HttpStatus.OK;
+            Exception caught = null;
             try {
-                String username = authTokenComponent.validateTokenAndGetSubject(token);
+                String username = authTokenComponent.validateTokenAndGetUsername(authToken);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                UsernamePasswordAuthenticationToken authentication = unauthenticated(userDetails, request);
+                contextComponent.setAuthentication(authentication);
             } catch (EntityNotFoundException e) {
-                addErrorToResponse(request, response, e, HttpStatus.NOT_FOUND);
-                return;
-            } catch (InvalidAuthTokenException e) {
-                addErrorToResponse(request, response, e, HttpStatus.UNAUTHORIZED);
+                httpStatus = HttpStatus.NOT_FOUND;
+                caught = e;
+            } catch (AuthenticationException e) {
+                httpStatus = HttpStatus.UNAUTHORIZED;
+                caught = e;
+            } catch (Exception e) {
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                caught = e;
+            }
+
+            if (httpStatus != HttpStatus.OK) {
+                addErrorToResponse(request, response, caught, httpStatus);
                 return;
             }
         }
@@ -59,10 +69,19 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
+    private UsernamePasswordAuthenticationToken unauthenticated(
+        UserDetails userDetails,
+        @NonNull HttpServletRequest request
+    ) {
+        var authentication = UsernamePasswordAuthenticationToken.unauthenticated(userDetails, null);
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        return authentication;
+    }
+
     private void addErrorToResponse(
         HttpServletRequest request,
         HttpServletResponse response,
-        Exception e,
+        @NotNull Exception e,
         HttpStatus httpStatus
     ) throws IOException {
         ErrorInfo errorInfo = ErrorCreator.createErrorInfo(request, e, httpStatus);
@@ -74,6 +93,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (object == null) {
             return null;
         }
-        return objectMapper.writeValueAsString(object);
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
     }
 }

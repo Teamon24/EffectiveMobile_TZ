@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 import static org.effective_mobile.task_management_system.utils.enums.Priority.LOW;
 
-class TaskComponentTest extends CachableComponentTest<Task, TaskRepository> {
+class TaskComponentTest extends CachableComponentTest<Long, Task, TaskRepository> {
 
     private TaskComponent component;
     private static final Faker faker = new Faker();
@@ -54,14 +54,11 @@ class TaskComponentTest extends CachableComponentTest<Task, TaskRepository> {
      */
     @Test
     public void getEntityTestLogic() {
-        findOrThrowInteractionDisabled((ignored) -> {
-            long id = randomId();
-            Task task = getTask(randomContent(), LOW);
-            Mockito.when(repository.findOrThrow(Task.class, id)).thenReturn(task);
-            Task foundTask = component.getTask(id);
-            AssertionsUtils.assertEquals(task, foundTask, Task::getContent);
-            AssertionsUtils.assertEquals(task, foundTask, Task::getPriority);
-        });
+        Long id = randomId();
+        Task task = getTask(randomContent(), LOW);
+        Task foundTask = verifyFindOrThrowInteraction(id, task, () -> component.getTask(id));
+        AssertionsUtils.assertEquals(task, foundTask, Task::getContent);
+        AssertionsUtils.assertEquals(task, foundTask, Task::getPriority);
     }
 
     /**

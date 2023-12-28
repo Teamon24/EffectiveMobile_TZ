@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
-import org.effective_mobile.task_management_system.maintain.cache.CacheSettings;
 import org.effective_mobile.task_management_system.exception.ToEnumConvertException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
+import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
 import org.effective_mobile.task_management_system.utils.enums.converter.EnumNameConverter;
 
 import java.io.IOException;
@@ -16,12 +16,12 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Десериализатор для класса {@link CacheSettings.TimeToLiveInfo}. Используется в десериализации настроек кэша.
+ * Десериализатор для класса {@link TimeToLiveInfo}. Используется в десериализации настроек кэша.
  */
-public class TimeToLiveInfoDeserializer extends JsonDeserializer<CacheSettings.TimeToLiveInfo> {
+public class TimeToLiveInfoDeserializer extends JsonDeserializer<TimeToLiveInfo> {
 
     @Override
-    public CacheSettings.TimeToLiveInfo deserialize(
+    public TimeToLiveInfo deserialize(
         JsonParser jp,
         DeserializationContext ctxt
     ) throws IOException {
@@ -54,6 +54,6 @@ public class TimeToLiveInfoDeserializer extends JsonDeserializer<CacheSettings.T
             throw new ToEnumConvertException(message);
         }
 
-        return new CacheSettings.TimeToLiveInfo(found, value);
+        return new TimeToLiveInfo(found, value);
     }
 }

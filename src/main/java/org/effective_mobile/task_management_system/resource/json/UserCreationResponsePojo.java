@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreationResponsePojo {
+public class UserCreationResponsePojo implements JsonPojoId {
     @Getter
     @JsonProperty private Long id;
     @JsonProperty private String username;

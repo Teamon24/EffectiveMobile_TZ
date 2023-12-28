@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.confings.IntegrationTest;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.resource.json.UserCreationResponsePojo;
@@ -31,11 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class AuthenticationResourceTest extends IntegrationTest {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private AuthTokenComponent authTokenComponent;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private AuthTokenComponent authTokenComponent;
+    @Autowired private UsernameProvider usernameProvider;
 
     /**
      * Test for {@link AuthenticationResource#signin} и {@link AuthenticationResource#signup}.
@@ -73,12 +72,13 @@ public class AuthenticationResourceTest extends IntegrationTest {
         String token = authTokenJsonNode.asText();
         Assertions.assertTrue(StringUtils.isNotBlank(token));
 
-        Optional<User> user = userRepository.findByEmail(email);
-        Assertions.assertTrue(user.isPresent());
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        Assertions.assertTrue(optionalUser.isPresent());
 
-        String subject = authTokenComponent.validateTokenAndGetSubject(token);
-        Assertions.assertEquals(user.get().getEmail(), subject);
-        Assertions.assertTrue(passwordEncoder.matches(password, user.get().getPassword()));
+        User user = optionalUser.get();
+        String subject = authTokenComponent.validateTokenAndGetUsername(token);
+        Assertions.assertEquals(usernameProvider.getUsername(user), subject);
+        Assertions.assertTrue(passwordEncoder.matches(password, user.getPassword()));
     }
 
     private ResultActions post(String signin, Object body) throws Exception {

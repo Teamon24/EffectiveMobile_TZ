@@ -24,7 +24,7 @@ public class InitializedCachesHasNamesTest {
     @Test
     public void initializedCachesHasNamesTest() {
         Assertions.assertIterableEquals(
-            List.of(AppCacheNames.USERS_AUTH, AppCacheNames.TASKS),
+            List.of(AppCacheNames.TASKS, AppCacheNames.USERS_AUTH),
             cacheProperties.settings.stream().map(CacheSettings::getName).toList()
         );
     }

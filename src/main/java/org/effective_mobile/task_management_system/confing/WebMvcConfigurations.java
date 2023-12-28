@@ -15,7 +15,7 @@ import java.util.List;
 
 @Configuration
 @AllArgsConstructor
-public class CustomWebMvcConfigurer implements WebMvcConfigurer {
+public class WebMvcConfigurations implements WebMvcConfigurer {
 
     private final AuthTokenComponent authTokenComponent;
     private final HttpExchangeLoggingComponent httpExchangeLoggingComponent;

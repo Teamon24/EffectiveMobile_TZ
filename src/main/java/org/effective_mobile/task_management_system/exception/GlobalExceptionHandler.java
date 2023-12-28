@@ -2,10 +2,14 @@ package org.effective_mobile.task_management_system.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.effective_mobile.task_management_system.exception.auth.PasswordAuthenticationException;
+import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
+import org.effective_mobile.task_management_system.exception.auth.UserAuthenticationException;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -64,8 +68,12 @@ public class GlobalExceptionHandler {
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ExceptionHandler({ InvalidAuthTokenException.class })
-    public ResponseEntity<ErrorInfo> toUnauthorized(HttpServletRequest req, InvalidAuthTokenException ex) {
+    @ExceptionHandler({
+        TokenAuthenticationException.class,
+        PasswordAuthenticationException.class,
+        UserAuthenticationException.class
+    })
+    public ResponseEntity<ErrorInfo> toUnauthorized(HttpServletRequest req, Exception ex) {
         return createErrorInfo(req, ex, HttpStatus.UNAUTHORIZED).responseEntity();
     }
 
@@ -91,7 +99,10 @@ public class GlobalExceptionHandler {
      * @return информация о возникшей ошибке.
      */
     @ResponseBody
-    @ExceptionHandler(EntityNotFoundException.class)
+    @ExceptionHandler({
+        EntityNotFoundException.class,
+        JpaObjectRetrievalFailureException.class
+    })
     public ResponseEntity<ErrorInfo> toNotFound(HttpServletRequest req, Exception ex) {
         return createErrorInfo(req, ex, HttpStatus.NOT_FOUND).responseEntity();
     }

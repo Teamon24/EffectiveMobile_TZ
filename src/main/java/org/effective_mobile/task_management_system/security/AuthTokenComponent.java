@@ -1,17 +1,22 @@
 package org.effective_mobile.task_management_system.security;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.effective_mobile.task_management_system.exception.InvalidAuthTokenException;
+import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthTokenComponent {
-    ResponseCookie getCleanTokenCookie();
+    @Nullable String getToken(Cookie cookie);
     String getTokenFromCookies(HttpServletRequest request);
-    String getToken(Cookie cookie);
+
+    String generateToken(UsernamePasswordAuthenticationToken subject);
+    String generateToken(UserDetails userDetails);
     ResponseCookie generateTokenCookie(UserDetails userDetails);
-    String generateToken(final UserDetails userDetails);
-    void validateToken(String token) throws InvalidAuthTokenException;
-    String validateTokenAndGetSubject(final String token) throws InvalidAuthTokenException;
+
+    DecodedJWT validateToken(String token) throws TokenAuthenticationException;
+    String validateTokenAndGetUsername(String token) throws TokenAuthenticationException;
 }
