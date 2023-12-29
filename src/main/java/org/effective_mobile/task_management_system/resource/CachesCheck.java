@@ -6,10 +6,8 @@ import org.effective_mobile.task_management_system.database.entity.AbstractEntit
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.repository.TaskRepository;
 import org.effective_mobile.task_management_system.resource.json.JsonPojoId;
-import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.service.TaskResponsePojoWithCacheInfo;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
-import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.hibernate.LazyInitializationException;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -32,7 +30,7 @@ import java.util.stream.Collectors;
 @Profile("dev")
 @RequestMapping("/cache")
 @AllArgsConstructor
-public class CachesResource {
+public class CachesCheck {
 
     private CacheManager cacheManager;
     private TaskRepository taskRepository;

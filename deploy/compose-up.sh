@@ -11,8 +11,8 @@ shouldBeEmpty $3 3
 ENV_FILE=".env"
 PROFILE="$2"
 if [ "$1" = 'rmi' ]; then
-  docker rmi task-management-system-image
-  docker build -t task-management-system-image .
+  docker rmi task-management-system-api
+  docker build -t task-management-system-api .
 fi
 
 if [ "$2" != "default" ] && [ -n "$2" ]; then
@@ -26,8 +26,5 @@ fi
 ENV_FILE_ARG="--env-file ./profile/$ENV_FILE"
 PROFILE_ARG="--profile $PROFILE"
 
-echo "docker-compose $ENV_FILE_ARG config"
 docker compose $ENV_FILE_ARG config
-
-echo "docker-compose $ENV_FILE_ARG -f docker-compose.yml up -d"
 docker compose $ENV_FILE_ARG $PROFILE_ARG up -d --force-recreate

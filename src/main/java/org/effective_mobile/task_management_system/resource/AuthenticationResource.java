@@ -1,15 +1,11 @@
 package org.effective_mobile.task_management_system.resource;
 
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.docs.AuthenticationResourceDocs;
 import org.effective_mobile.task_management_system.resource.json.UserCreationResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo;
@@ -29,7 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @AllArgsConstructor
-public class AuthenticationResource {
+public class AuthenticationResource implements AuthenticationResourceDocs {
 
     private final AuthenticationManager authenticationManager;
     private final UsernameProvider usernameProvider;
@@ -37,11 +33,6 @@ public class AuthenticationResource {
     private final AuthTokenComponent authTokenComponent;
     private final UserService userService;
 
-    @Tag(name = "Регистрация")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = Long.class)) }),
-        @ApiResponse(responseCode = "404", description = "Пользователя не существует")
-    })
     @PostMapping(Api.SIGN_UP)
     public UserCreationResponsePojo signup(@RequestBody @Valid SignupRequestPojo signUpPayload) {
         userService.checkUserDoesNotExists(signUpPayload);
@@ -49,11 +40,6 @@ public class AuthenticationResource {
         return UserConverter.userCreationResponse(newUser);
     }
 
-    @Tag(name = "Вход в систему")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = SigninResponsePojo.class), mediaType = "application/json") }),
-        @ApiResponse(responseCode = "404", description = "Пользователя не существует")
-    })
     @PostMapping(Api.SIGN_IN)
     public SigninResponsePojo signin(@RequestBody @Valid final SigninRequestPojo signinRequestPojo) {
         UsernamePasswordAuthenticationToken authentication = unauthenticated(signinRequestPojo);

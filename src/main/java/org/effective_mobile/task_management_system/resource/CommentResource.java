@@ -1,9 +1,9 @@
 package org.effective_mobile.task_management_system.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.database.entity.Comment;
+import org.effective_mobile.task_management_system.docs.CommentResourceDocs;
 import org.effective_mobile.task_management_system.resource.json.CommentCreationRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.CommentService;
@@ -19,15 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(Api.COMMENT)
 @AllArgsConstructor
-public class CommentResource {
+public class CommentResource implements CommentResourceDocs {
 
     private CommentService commentService;
 
-    @Tag(name = "Создание комментария")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createComment(
-        @PathVariable(Api.COMMENT_TASK_ID) Long taskId,
+        @PathVariable(Api.PathParam.COMMENT_TASK_ID) Long taskId,
         @RequestBody @Valid CommentCreationRequestPojo commentCreationRequestPojo,
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {

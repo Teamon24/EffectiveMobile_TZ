@@ -1,9 +1,11 @@
-package org.effective_mobile.task_management_system.exception;
+package org.effective_mobile.task_management_system.exception.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
@@ -13,38 +15,38 @@ import org.springframework.http.ResponseEntity;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorInfo {
+public class ErrorInfo implements JsonPojo {
 
     /**
      * Unix-время возникновения ошибки.
      */
-    private long timestamp;
+    @JsonProperty private long timestamp;
 
     /**
      * Числовой код ошибки.
      */
-    private Integer status;
+    @JsonProperty private Integer status;
 
     /**
      * Название ошибки.
      */
-    private String error;
+    @JsonProperty private String error;
 
     /**
      * Класс исключения.
      */
-    private String exception;
+    @JsonProperty private String exception;
 
     /**
      * Сообщение из исключения.
      */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String message;
+    @JsonProperty private String message;
 
     /**
      * URL упавшего запроса.
      */
-    private String path;
+    @JsonProperty private String path;
 
     public ResponseEntity<ErrorInfo> responseEntity() {
         return new ResponseEntity<>(this, HttpStatusCode.valueOf(this.getStatus()));

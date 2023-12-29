@@ -1,5 +1,6 @@
-package org.effective_mobile.task_management_system.exception;
+package org.effective_mobile.task_management_system.exception.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class ValidationErrorInfo extends ErrorInfo {
      */
     @Getter
     @Setter
-    private List<ValidationError> errors;
+    @JsonProperty private List<ValidationError> errors;
 
     /**
      * Строит объект, получая информацию из существующего {@link ErrorInfo}.
@@ -39,10 +40,10 @@ public class ValidationErrorInfo extends ErrorInfo {
     @Data
     @Builder
     public static class ValidationError {
-        private String object;
-        private String field;
-        private Object rejectedValue;
-        private String message;
+        @JsonProperty private String object;
+        @JsonProperty private String field;
+        @JsonProperty private Object rejectedValue;
+        @JsonProperty private String message;
 
         public static ValidationError create(FieldError fieldError) {
             return ValidationError.builder()

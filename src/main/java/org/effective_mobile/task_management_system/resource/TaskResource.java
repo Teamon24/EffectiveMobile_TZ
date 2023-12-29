@@ -1,24 +1,16 @@
 package org.effective_mobile.task_management_system.resource;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
+import org.effective_mobile.task_management_system.docs.TaskResourceDocs;
 import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
-import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
-import org.effective_mobile.task_management_system.service.TaskResponsePojoWithCacheInfo;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
@@ -39,17 +31,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.effective_mobile.task_management_system.utils.docs.Docs.TASK_PATH_VAR_DESCRIPTION;
+import static org.effective_mobile.task_management_system.resource.Api.PathParam.ID;
 
 @RestController
 @RequestMapping(Api.TASK)
 @AllArgsConstructor
-public class TaskResource {
+public class TaskResource implements TaskResourceDocs {
 
     private final TaskService taskService;
 
-
-    @Tag(name = "Создание")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
@@ -60,79 +50,66 @@ public class TaskResource {
         return taskService.createTask(customUserDetails.getUserId(), taskCreationPayload);
     }
 
-    @Tag(name = "Получение")
-    @GetMapping("/{id}")
+    @GetMapping("/{"+ ID + "}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
-    TaskResponsePojo getTask(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
-    ) {
+    TaskResponsePojo getTask(@PathVariable Long id) {
         return taskService.getTask(id);
     }
 
-    @Tag(name = "Пагинация и фильтрация")
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     PageResponsePojo<TaskResponsePojo> getTasks(
         @RequestBody @Valid TasksFiltersRequestPojo tasksFiltersRequestPojo,
-        @RequestParam(defaultValue = "0", name = "page") @NotNull int pageNumber,
-        @RequestParam(defaultValue = "10", name = "size") @NotNull int size
+        @RequestParam(defaultValue = Api.QueryParam.Page.DEFAULT_INDEX, name = Api.QueryParam.Page.NAME) int pageNumber,
+        @RequestParam(defaultValue = Api.QueryParam.Page.DEFAULT_SIZE, name = Api.QueryParam.Page.SIZE) int size
     ) {
         Pageable page = PageRequest.of(pageNumber, size);
         Page<TaskResponsePojo> tasksPage = taskService.getByCreatorOrExecutor(tasksFiltersRequestPojo, page);
         return new PageResponsePojo<>(tasksPage);
     }
 
-    @Tag(name = "Редактирование")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponsePojo.class)) })
-    })
-    @PutMapping("/{id}")
+    @PutMapping("/{"+ ID + "}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     TaskResponsePojo editTask(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
-        @RequestBody @Valid @NonNull TaskEditionRequestPojo taskEditionRequestPojo
+        @PathVariable(name = ID) Long id,
+        @RequestBody TaskEditionRequestPojo taskEditionRequestPojo
     ) {
         return taskService.editTask(id, taskEditionRequestPojo);
     }
 
-    @Tag(name = "Удаление")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{"+ ID + "}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public void deleteTask(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
+    public void deleteTask(@PathVariable(name = ID) Long id) {
         taskService.deleteTask(id);
     }
 
-    @Tag(name = "Назначение исполнителя")
-    @PutMapping("/{id}" + Api.EXECUTOR)
+    @PutMapping("/{"+ ID + "}" + Api.EXECUTOR)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     AssignmentResponsePojo setExecutor(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
-        @RequestParam(Api.EXECUTOR_USERNAME) String executorUsername
+        @PathVariable(name = ID) Long id,
+        @RequestParam(Api.QueryParam.EXECUTOR) String executorUsername
     ) {
         return taskService.setExecutor(id, executorUsername);
     }
 
-    @Tag(name = "Удаление исполнителя")
-    @PutMapping("/{id}" + Api.UNASSIGN)
+    @PutMapping("/{"+ ID + "}" + Api.UNASSIGN)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public Long removeExecutor(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
+    public Long removeExecutor(@PathVariable(name = ID) Long id) {
         return taskService.unassign(id);
     }
 
-    @Tag(name = "Изменение статуса")
-    @PutMapping("/{id}" + Api.STATUS)
+    @PutMapping("/{"+ ID + "}" + Api.STATUS)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     ChangedStatusResponsePojo setStatus(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
-        @RequestParam(name = Api.NEW_STATUS_PARAM) @ValidEnum(clazz = Status.class) String newStatusStr
+        @PathVariable(name = ID) Long id,
+        @RequestParam(name = Api.QueryParam.NEW_STATUS) @ValidEnum(clazz = Status.class) String newStatusStr
     ) {
         Status newStatus = new StatusConverter().convert(newStatusStr);
         return taskService.setStatus(id, newStatus);
     }
-
 }

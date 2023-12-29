@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.exception;
+package org.effective_mobile.task_management_system.exception.json;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;

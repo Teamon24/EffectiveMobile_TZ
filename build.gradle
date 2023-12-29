@@ -1,14 +1,28 @@
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+buildscript {
+    dependencies {
+        classpath 'commons-io:commons-io:2.6'
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
-	id 'org.springframework.boot' version '3.2.0'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springdoc.openapi-gradle-plugin' version '1.8.0'
+    id 'org.openapi.generator' version '7.2.0'
 }
 
-group 'org.effective_mobile.task_management_system'
-version '1.0-SNAPSHOT'
+group 'org.effective-mobile'
+version '1.0'
 
-def mainClazz = 'org.effective_mobile.task_management_system.TaskManagementSystemApp'
+def rootPackage = 'org.effective_mobile.task_management_system'
+def mainClazz = rootPackage + '.TaskManagementSystemApp'
 java { sourceCompatibility = '17' }
 application { mainClassName = mainClazz }
 repositories { mavenCentral() }
@@ -16,7 +30,7 @@ repositories { mavenCentral() }
 sourceSets {
     generated {
         java {
-            srcDirs = ['build/generated/sources/annotationProcessor/java/main']
+            srcDirs = ["$buildDir/generated/sources/annotationProcessor/java/main"]
         }
     }
 }
@@ -26,8 +40,7 @@ dependencies {
     def lombok_v = '1.18.30'
     def querydsl_v = '5.0.0:jakarta'
     def jakarta_v = '3.1.0'
-    def junitVersion = '5.10.1'
-
+    def junit_v = '5.10.1'
     compileOnly "org.projectlombok:lombok:${lombok_v}"
     annotationProcessor "org.projectlombok:lombok:${lombok_v}"
     testCompileOnly "org.projectlombok:lombok:${lombok_v}"
@@ -67,11 +80,12 @@ dependencies {
 
     // TESTS --------------------------------------------------------------
     implementation 'net.datafaker:datafaker:2.0.2'
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junit_v}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_v}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junit_v}"
 
     testRuntimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.h2database:h2'
 
     testImplementation 'org.testcontainers:junit-jupiter:1.17.5'
     testImplementation 'org.testcontainers:testcontainers:1.17.5'
@@ -85,22 +99,162 @@ test {
     useJUnitPlatform()
 }
 
-def jarName = 'task-management-system'
-def jarNameVersExt = "$jarName-${version}.jar"
-
 def jarMap = [
         jar: [
-                name    : jarName,
-                fullname: jarNameVersExt,
-                build   : "build/libs/$jarNameVersExt",
-                deploy  : "deploy/$jarNameVersExt"]
+                name    : project.name,
+                fullname: "$project.name-${version}.jar",
+                build   : "build/libs",
+                deploy  : "deploy"]
 ]
 
-def jafFileInfo = jarMap.get("jar")
+def jafFileInfo = jarMap.get('jar')
 
-task copyJar(type: Copy) { from jafFileInfo.build; into 'deploy' }
-task deleteJar() { project.delete(files(jafFileInfo.deploy)) }
+task copyJar(type: Copy) {
+    from "$jafFileInfo.build/${jafFileInfo.fullname}"
+    into jafFileInfo.deploy
+}
+
+task deleteJar() {
+    delete(files("$jafFileInfo.deploy/${jafFileInfo.fullname}"))
+}
 
 bootJar {
-    archiveFileName = jarNameVersExt
+    archiveFileName = jafFileInfo.fullname
+}
+
+ext {
+    srcDir = pathStr("$rootDir", 'src')
+    resourceDir = pathStr(srcDir, 'main', 'resources')
+    apiPath = pathStr(srcDir, 'api')
+    profile = project.properties.getOrDefault('profile', 'dev')
+
+    openApiGeneratingToWait = project.properties.getOrDefault('timeToWait', '120')
+    apiFilesToCopyDir = pathStr("$rootDir", "docs")
+    apiDocsFilename = "${name}-api-${version}${"default" == profile ? "" : '-' + profile}.json"
+    apiDocsFilepath = pathStr(apiFilesToCopyDir, apiDocsFilename)
+    apiGitIgnoreFile = pathStr(apiFilesToCopyDir, "open.api.gitignore")
+
+    portProp = 'server.port'
+    addressProp = 'server.address'
+    profiles = getProfilesFromProps()
+}
+
+task cleanApiModule {
+    doLast {
+        Files.walk(Path.of(apiPath))
+             .filter(path -> path.toString() != apiPath)
+             .sorted(Comparator.reverseOrder())
+             .map(Path::toFile)
+             .forEach(File::delete)
+    }
+}
+
+task deleteDocsJson {
+    doLast {
+        def file = file(apiDocsFilepath)
+        file.exists() ? file.delete() : false
+    }
+}
+
+generateOpenApiDocs {}
+//https://stackoverflow.com/questions/65504256/how-to-generate-compile-jar-and-depend-on-a-gradle-module
+//https://andresalmiray.com/multi-module-project-builds-with-maven-and-gradle/
+//Генерация json-файла с описанием API
+openApi {
+    def properties = profiles[profile]
+    mergeOpenApiGenerationPropsToCurrent(properties, profiles["open-api-generation"])
+    def port = properties.get(portProp)
+    def address = properties.get(addressProp)
+    apiDocsUrl = "http://$address:$port/v3/api-docs"
+    outputDir = file(apiFilesToCopyDir)
+    outputFileName = apiDocsFilename
+    waitTimeInSeconds = Integer.valueOf(openApiGeneratingToWait)
+    customBootRun {
+        args = ["--spring.profiles.active=$profile"]
+    }
+}
+
+openApiValidate {
+    inputSpec = apiDocsFilepath
+}
+
+//Генерация API
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = apiDocsFilepath
+    outputDir = apiPath
+    apiPackage = rootPackage + ".api"
+    modelPackage = rootPackage + ".api.model"
+    configOptions = ([
+            dateLibrary: "java8",
+            groupId: "$project.group",
+            artifactId: "$project.name-api",
+            version: "$project.version",
+            name: "${project.name}-api"
+    ])
+}
+
+
+task copyOpenApiGitIgnore () {
+    doLast {
+        file(pathStr(apiPath, ".openapi-generator-ignore")).delete()
+        copy {
+            from(file(apiGitIgnoreFile))
+            into(file(apiPath))
+        }
+    }
+}
+def getProfilesFromProps() {
+    def regex = "application(.*)\\.properties"
+    Pattern appPropsPattern = Pattern.compile(regex)
+    def profiles = new HashMap<String, Properties>()
+
+    fileTree(dir: resourceDir)
+            .findAll()
+            .stream()
+            .map(it -> it.name)
+            .filter(it -> it.matches(regex))
+            .map(it -> {
+                Matcher m1 = appPropsPattern.matcher(it)
+                m1.find()
+                return m1.group(1)
+            })
+            .forEach(propsFilePostfix -> {
+                String replaced = propsFilePostfix.replaceFirst("-", "");
+                String profile = replaced.isBlank() ? "default" : replaced;
+                profiles[profile] = readProps(propsFilePostfix)
+            })
+    return profiles
+}
+
+forkedSpringBootRun {
+    doNotTrackState("See https://github.com/springdoc/springdoc-openapi-gradle-plugin/issues/102")
+}
+
+def readProps(profile) {
+    def appPropsName="application" + profile
+    String appProps = pathStr(srcDir, 'main', 'resources', "${appPropsName}.properties");
+    File appPropsFile = file(appProps)
+    try {
+        FileInputStream configFileReader = new FileInputStream(appPropsFile);
+        def properties = new Properties()
+        try {
+            properties.load(configFileReader);
+            configFileReader.close();
+            return properties
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    } catch (FileNotFoundException e) {
+        System.out.println(e.getMessage());
+        throw new RuntimeException();
+    }
+}
+
+static def pathStr(String... pathParts) {
+    String.join(File.separator, pathParts)
+}
+
+static void mergeOpenApiGenerationPropsToCurrent(Properties current, Properties openapiProps) {
+    current.putAll(openapiProps)
 }

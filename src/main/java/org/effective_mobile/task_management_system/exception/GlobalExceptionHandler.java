@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.effective_mobile.task_management_system.exception.auth.PasswordAuthenticationException;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.effective_mobile.task_management_system.exception.auth.UserAuthenticationException;
+import org.effective_mobile.task_management_system.exception.json.ErrorInfo;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import static org.effective_mobile.task_management_system.exception.ErrorCreator.createErrorInfo;
-import static org.effective_mobile.task_management_system.exception.ErrorCreator.createValidationErrorInfo;
+import static org.effective_mobile.task_management_system.exception.json.ErrorCreator.createErrorInfo;
+import static org.effective_mobile.task_management_system.exception.json.ErrorCreator.createValidationErrorInfo;
 
 /**
  * Глобальный перехватчик исключений, формирует ответы с http-кодами ошибок для клиента.

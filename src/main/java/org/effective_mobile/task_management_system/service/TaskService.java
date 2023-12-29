@@ -34,13 +34,13 @@ public class TaskService {
     private TaskComponent taskComponent;
 
     @Transactional
-    public TaskResponsePojo createTask(Long userId, TaskCreationRequestPojo taskCreationRequestPojo) {
+    public TaskResponsePojo createTask(@NotNull Long userId, TaskCreationRequestPojo taskCreationRequestPojo) {
         User creator = userComponent.getById(userId);
         Task task = taskComponent.createTask(creator, taskCreationRequestPojo);
         return TaskConverter.convert(task, false);
     }
 
-    public TaskResponsePojo getTask(Long id) {
+    public TaskResponsePojo getTask(@NotNull Long id) {
         Task task = taskComponent.getTask(id);
         return TaskConverter.convert(task, true);
     }
