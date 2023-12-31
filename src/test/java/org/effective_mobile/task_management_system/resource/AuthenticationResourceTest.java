@@ -67,7 +67,7 @@ public class AuthenticationResourceTest extends IntegrationTest {
 
         final JsonNode node = objectMapper.readTree(resultActions.getResponse().getContentAsString());
 
-        JsonNode authTokenJsonNode = node.get(cookieName);
+        JsonNode authTokenJsonNode = node.get(authTokenNameLazy.get());
         Assertions.assertNotNull(authTokenJsonNode);
         String token = authTokenJsonNode.asText();
         Assertions.assertTrue(StringUtils.isNotBlank(token));
