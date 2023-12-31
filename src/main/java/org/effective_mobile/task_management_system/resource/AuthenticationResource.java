@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.database.entity.User;
-import org.effective_mobile.task_management_system.docs.AuthenticationResourceDocs;
+import org.effective_mobile.task_management_system.maintain.docs.AuthenticationResourceDocs;
 import org.effective_mobile.task_management_system.resource.json.UserCreationResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo;

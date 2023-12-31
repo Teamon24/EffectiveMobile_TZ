@@ -24,7 +24,7 @@ version '1.0'
 def rootPackage = 'org.effective_mobile.task_management_system'
 
 def appEntrypoint = rootPackage + '.TaskManagementSystemApp'
-def apiGenerationEntrypoint = rootPackage + '.docs.generation.OpenApiGeneration'
+def apiGenerationEntrypoint = rootPackage + '.maintain.docs.generation.OpenApiGeneration'
 
 java { sourceCompatibility = '17' }
 application { mainClassName = appEntrypoint }

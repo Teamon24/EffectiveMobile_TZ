@@ -1,11 +1,18 @@
 package org.effective_mobile.task_management_system;
 
+import org.apache.commons.lang3.StringUtils;
+
 public interface Packages {
     String ROOT           = "org.effective_mobile.task_management_system";
-    String RESOURCE       = Packages.ROOT + "." + "resource";
-    String SERVICE        = Packages.ROOT + "." + "service";
-    String SECURITY       = Packages.ROOT + "." + "security";
-    String MAINTAIN       = Packages.ROOT + "." + "maintain";
-    String CONFING        = Packages.ROOT + "." + "confing";
-    String API_GENERATION = Packages.ROOT + "." + "docs.generation";
+
+    String RESOURCE       = ROOT + "." + "resource";
+    String SERVICE        = ROOT + "." + "service";
+    String SECURITY       = ROOT + "." + "security";
+    String MAINTAIN       = ROOT + "." + "maintain";
+    String CONFING        = ROOT + "." + "confing";
+    String COMPONENT      = ROOT + "." + "component";
+    String REPOSITORY     = ROOT + "." + "database.repository";
+    String EXCEPTION      = ROOT + "." + "exception";
+    String CACHE          = ROOT + "." + MAINTAIN + "." + "cache";
+    String LOGGING        = ROOT + "." + MAINTAIN + "." + "logging";
 }

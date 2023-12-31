@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
-import org.effective_mobile.task_management_system.utils.validator.ValidEnum;
+import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 
 /**
  * Json pojo с информацией для создания задачи.

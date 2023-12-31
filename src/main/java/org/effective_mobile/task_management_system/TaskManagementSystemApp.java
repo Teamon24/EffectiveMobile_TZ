@@ -15,7 +15,21 @@ import org.springframework.context.annotation.PropertySource;
     encoding = "UTF-8"
 )
 @Log4j2
-@SpringBootApplication
+@SpringBootApplication(
+    scanBasePackages = {
+        Packages.LOGGING,
+        Packages.CONFING,
+        Packages.SECURITY,
+
+        Packages.RESOURCE,
+        Packages.SERVICE,
+        Packages.COMPONENT,
+        Packages.REPOSITORY,
+
+        Packages.EXCEPTION,
+        Packages.CACHE,
+    }
+)
 public class TaskManagementSystemApp {
     public static void main(String[] args) {
         SpringApplication.run(TaskManagementSystemApp.class, args);

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 import org.effective_mobile.task_management_system.utils.enums.Status;
-import org.effective_mobile.task_management_system.utils.validator.ValidEnum;
+import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 
 @NoArgsConstructor
 @AllArgsConstructor
