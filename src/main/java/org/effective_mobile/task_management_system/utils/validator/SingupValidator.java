@@ -17,7 +17,7 @@ public class SingupValidator implements ConstraintValidator<Signup, String> {
         this.validationComponent = validationComponent;
     }
 
-    private Signup.Type fieldName;
+    private Signup.Type fieldName = null;
 
     @Override
     public void initialize(Signup matching) {

@@ -9,6 +9,8 @@ import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
+
 public interface TaskComponent {
     Task getTask(Long taskId);
     Task createTask(User user, TaskCreationRequestPojo taskCreationPayload);
@@ -18,4 +20,5 @@ public interface TaskComponent {
     Task editTask(Task task, TaskEditionRequestPojo payload);
     void deleteTask(Long id);
     Page<Task> findByCreatorAndExecutor(TasksFiltersRequestPojo tasksFiltersPayload, Pageable pageable);
+    Collection<Task> getAll();
 }

@@ -26,12 +26,11 @@ public class CommentResource implements CommentResourceDocs {
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createComment(
-        @PathVariable(Api.PathParam.COMMENT_TASK_ID) Long taskId,
         @RequestBody @Valid CommentCreationRequestPojo commentCreationRequestPojo,
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         Long userId = customUserDetails.getUserId();
-        Comment comment = commentService.createComment(userId, taskId, commentCreationRequestPojo);
+        Comment comment = commentService.createComment(userId, commentCreationRequestPojo);
         return comment.getId();
     }
 }

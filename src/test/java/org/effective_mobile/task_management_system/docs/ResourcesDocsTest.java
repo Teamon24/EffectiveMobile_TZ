@@ -103,7 +103,7 @@ public class ResourcesDocsTest {
                     "description",
                     method,
                     method.getAnnotation(Tag.class),
-                    (expected, actual) -> !actual.isBlank())) break;
+                    (expected, actual) -> StringUtils.isNotBlank(actual))) break;
             }
         }
 

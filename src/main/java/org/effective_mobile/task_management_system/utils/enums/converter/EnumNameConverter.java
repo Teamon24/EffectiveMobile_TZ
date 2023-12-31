@@ -17,7 +17,7 @@ public abstract class EnumNameConverter<Enam extends Enum<Enam> & ValuableEnum<S
 
     protected abstract Class<Enam> enumClass();
 
-    public Enam convert(String value) {
+    public Enam convert(String value) throws ToEnumConvertException {
         return getEnumOrDie(enumClass(), value);
     }
 

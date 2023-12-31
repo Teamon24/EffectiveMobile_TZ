@@ -2,9 +2,9 @@ package org.effective_mobile.task_management_system.resource;
 
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
+import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.database.entity.AbstractEntity;
 import org.effective_mobile.task_management_system.database.entity.Task;
-import org.effective_mobile.task_management_system.database.repository.TaskRepository;
 import org.effective_mobile.task_management_system.resource.json.JsonPojoId;
 import org.effective_mobile.task_management_system.service.TaskResponsePojoWithCacheInfo;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class CachesCheck {
 
     private CacheManager cacheManager;
-    private TaskRepository taskRepository;
+    private TaskComponent taskComponent;
 
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
@@ -72,7 +72,7 @@ public class CachesCheck {
             throw new NoSuchElementException("There is no cache with name = '%s'".formatted(name));
         }
 
-        return taskRepository.findAll().stream()
+        return taskComponent.getAll().stream()
             .map(AbstractEntity::getId)
             .map(it -> getTask(cache, it))
             .filter(Objects::nonNull)

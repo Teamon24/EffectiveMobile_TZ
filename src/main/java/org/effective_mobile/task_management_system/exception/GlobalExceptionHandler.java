@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.effective_mobile.task_management_system.Packages;
 import org.effective_mobile.task_management_system.exception.auth.PasswordAuthenticationException;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.effective_mobile.task_management_system.exception.auth.UserAuthenticationException;
@@ -13,9 +14,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import static org.effective_mobile.task_management_system.exception.json.ErrorCreator.createErrorInfo;
@@ -24,7 +25,7 @@ import static org.effective_mobile.task_management_system.exception.json.ErrorCr
 /**
  * Глобальный перехватчик исключений, формирует ответы с http-кодами ошибок для клиента.
  */
-@ControllerAdvice
+@RestControllerAdvice(basePackages = { Packages.RESOURCE })
 public class GlobalExceptionHandler {
 
     /**
@@ -33,9 +34,8 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<ErrorInfo> toBadRequest(
+    public @ResponseBody ResponseEntity<ErrorInfo> toBadRequest(
         final HttpServletRequest req,
         final MethodArgumentNotValidException ex)
     {
@@ -48,7 +48,6 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({
         HttpMessageNotReadableException.class,
         ToEnumConvertException.class,
@@ -58,7 +57,7 @@ public class GlobalExceptionHandler {
         TaskHasNoExecutorException.class,
         NothingToUpdateInTaskException.class
     })
-    public ResponseEntity<ErrorInfo> toBadRequest(HttpServletRequest req, Exception ex) {
+    public @ResponseBody ResponseEntity<ErrorInfo> toBadRequest(HttpServletRequest req, Exception ex) {
         return createErrorInfo(req, ex, HttpStatus.BAD_REQUEST).responseEntity();
     }
 
@@ -68,13 +67,12 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({
         TokenAuthenticationException.class,
         PasswordAuthenticationException.class,
         UserAuthenticationException.class
     })
-    public ResponseEntity<ErrorInfo> toUnauthorized(HttpServletRequest req, Exception ex) {
+    public @ResponseBody ResponseEntity<ErrorInfo> toUnauthorized(HttpServletRequest req, Exception ex) {
         return createErrorInfo(req, ex, HttpStatus.UNAUTHORIZED).responseEntity();
     }
 
@@ -84,12 +82,11 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({
         AccessDeniedException.class,
         DeniedOperationException.class
     })
-    public ResponseEntity<ErrorInfo> toForbidden(HttpServletRequest req, Exception ex) {
+    public @ResponseBody ResponseEntity<ErrorInfo> toForbidden(HttpServletRequest req, Exception ex) {
         return createErrorInfo(req, ex, HttpStatus.FORBIDDEN).responseEntity();
     }
 
@@ -99,12 +96,11 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({
         EntityNotFoundException.class,
         JpaObjectRetrievalFailureException.class
     })
-    public ResponseEntity<ErrorInfo> toNotFound(HttpServletRequest req, Exception ex) {
+    public @ResponseBody ResponseEntity<ErrorInfo> toNotFound(HttpServletRequest req, Exception ex) {
         return createErrorInfo(req, ex, HttpStatus.NOT_FOUND).responseEntity();
     }
 
@@ -114,12 +110,11 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({
         ConversionFailedException.class,
         MethodArgumentTypeMismatchException.class
     })
-    public ResponseEntity<ErrorInfo> toUnprocessableEntity(HttpServletRequest req, Exception ex) {
+    public @ResponseBody ResponseEntity<ErrorInfo> toUnprocessableEntity(HttpServletRequest req, Exception ex) {
         Exception exception = ex;
         if (ex instanceof MethodArgumentTypeMismatchException) {
             exception = (Exception) ex.getCause();
@@ -134,9 +129,8 @@ public class GlobalExceptionHandler {
      * @param ex исключение.
      * @return информация о возникшей ошибке.
      */
-    @ResponseBody
     @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<ErrorInfo> internalServerError(
+    public @ResponseBody ResponseEntity<ErrorInfo> internalServerError(
         final HttpServletRequest req,
         final Exception ex)
     {

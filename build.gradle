@@ -22,15 +22,69 @@ group 'org.effective-mobile'
 version '1.0'
 
 def rootPackage = 'org.effective_mobile.task_management_system'
-def mainClazz = rootPackage + '.TaskManagementSystemApp'
+
+def appEntrypoint = rootPackage + '.TaskManagementSystemApp'
+def apiGenerationEntrypoint = rootPackage + '.docs.generation.OpenApiGeneration'
+
 java { sourceCompatibility = '17' }
-application { mainClassName = mainClazz }
-repositories { mavenCentral() }
+application { mainClassName = appEntrypoint }
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+ext {
+    jar = [
+            name    : "$project.name-${version}.jar",
+            build   : "build/libs",
+            deploy  : "deploy"
+    ]
+
+    profile = project.properties.getOrDefault('profile', 'dev')
+    openApiGeneratingToWait = project.properties.getOrDefault('timeToWait', '120')
+    apiModuleJdk = project.properties.getOrDefault('apiModuleJdk', '8')
+    apiModuleMaven = getMaven(Integer.valueOf(apiModuleJdk))
+
+    paths = [
+
+    ]
+    srcPath = slpath("$rootDir", 'src')
+    resourcePath = slpath(srcPath, 'main', 'resources')
+
+
+    server = [
+            port : 'server.port',
+            address : 'server.address'
+    ]
+
+    apiDir = "api"
+
+    api = [
+            artifactId : "$project.name-$apiDir",
+            version : project.version
+    ]
+
+    api.jar = "${api.artifactId}-${api.version}.jar"
+    println "${api.jar}"
+    apiPath = slpath(srcPath, apiDir)
+
+    apiFilesToCopyPath = slpath("$rootDir", "docs")
+    apiDocsFilename = "$name-$apiDir-$version${"default" == profile ? "" : '-' + profile}.json"
+    apiDocsFilepath = slpath(apiFilesToCopyPath, apiDocsFilename)
+    apiGitIgnoreFilepath = slpath(apiFilesToCopyPath, "open.api.gitignore")
+
+    profiles = getProfilesFromProps()
+}
 
 sourceSets {
     generated {
         java {
-            srcDirs = ["$buildDir/generated/sources/annotationProcessor/java/main"]
+            srcDirs = [slpath("$buildDir", "generated", "sources", "annotationProcessor", "java", "main")]
+        }
+    }
+    api {
+        java {
+            srcDirs = [slpath("$apiPath", "api", "target", "classes")]
         }
     }
 }
@@ -45,6 +99,8 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombok_v}"
     testCompileOnly "org.projectlombok:lombok:${lombok_v}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombok_v}"
+
+//    implementation project(':api')
 
     // SPRING ----------------------------------------------------------------
     configurations {
@@ -93,50 +149,37 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    implementation files("$srcPath/$apiDir/target/${api.jar}")
 }
 
 test {
     useJUnitPlatform()
 }
 
-def jarMap = [
-        jar: [
-                name    : project.name,
-                fullname: "$project.name-${version}.jar",
-                build   : "build/libs",
-                deploy  : "deploy"]
-]
-
-def jafFileInfo = jarMap.get('jar')
 
 task copyJar(type: Copy) {
-    from "$jafFileInfo.build/${jafFileInfo.fullname}"
-    into jafFileInfo.deploy
+    from slpath(jar.build, jar.name)
+    into jar.deploy
 }
 
 task deleteJar() {
-    delete(files("$jafFileInfo.deploy/${jafFileInfo.fullname}"))
+    file(slpath(jar.deploy, jar.name)).delete()
 }
 
 bootJar {
-    archiveFileName = jafFileInfo.fullname
+    archiveFileName = jar.name
 }
 
-ext {
-    srcDir = pathStr("$rootDir", 'src')
-    resourceDir = pathStr(srcDir, 'main', 'resources')
-    apiPath = pathStr(srcDir, 'api')
-    profile = project.properties.getOrDefault('profile', 'dev')
+task compileApiModule(type: Exec) {
+    def jdkName = "java-$apiModuleJdk-openjdk-amd64"
+    def jvmPath = "/usr/lib/jvm"
+    def jdkPath = jvmPath + "/" + jdkName
+    def forking = '-Dmaven.compiler.fork=true'
+    def executing = "-Dmaven.compiler.executable=$jdkPath/bin/javac"
 
-    openApiGeneratingToWait = project.properties.getOrDefault('timeToWait', '120')
-    apiFilesToCopyDir = pathStr("$rootDir", "docs")
-    apiDocsFilename = "${name}-api-${version}${"default" == profile ? "" : '-' + profile}.json"
-    apiDocsFilepath = pathStr(apiFilesToCopyDir, apiDocsFilename)
-    apiGitIgnoreFile = pathStr(apiFilesToCopyDir, "open.api.gitignore")
-
-    portProp = 'server.port'
-    addressProp = 'server.address'
-    profiles = getProfilesFromProps()
+    workingDir "$apiPath"
+    commandLine "$apiModuleMaven", '-f', "$apiPath/", 'clean', 'compile', 'package', '-e', forking, executing
 }
 
 task cleanApiModule {
@@ -156,17 +199,21 @@ task deleteDocsJson {
     }
 }
 
-generateOpenApiDocs {}
+generateOpenApiDocs {
+    application.mainClass = apiGenerationEntrypoint
+}
+
+//Генерация json-файла с описанием API
 //https://stackoverflow.com/questions/65504256/how-to-generate-compile-jar-and-depend-on-a-gradle-module
 //https://andresalmiray.com/multi-module-project-builds-with-maven-and-gradle/
-//Генерация json-файла с описанием API
 openApi {
-    def properties = profiles[profile]
-    mergeOpenApiGenerationPropsToCurrent(properties, profiles["open-api-generation"])
-    def port = properties.get(portProp)
-    def address = properties.get(addressProp)
+    def currentProps = profiles[profile]
+    def openApiGenerationProps = profiles["open-api-generation"]
+    mergeOpenApiGenerationPropsToCurrent(currentProps, openApiGenerationProps)
+     def port = currentProps.get(server.port)
+    def address = currentProps.get(server.address)
     apiDocsUrl = "http://$address:$port/v3/api-docs"
-    outputDir = file(apiFilesToCopyDir)
+    outputDir = file(apiFilesToCopyPath)
     outputFileName = apiDocsFilename
     waitTimeInSeconds = Integer.valueOf(openApiGeneratingToWait)
     customBootRun {
@@ -176,6 +223,12 @@ openApi {
 
 openApiValidate {
     inputSpec = apiDocsFilepath
+    recommend = true
+}
+
+openApiMeta {
+    generatorName = "Jim"
+    packageName = rootPackage
 }
 
 //Генерация API
@@ -184,32 +237,43 @@ openApiGenerate {
     inputSpec = apiDocsFilepath
     outputDir = apiPath
     apiPackage = rootPackage + ".api"
-    modelPackage = rootPackage + ".api.model"
+    modelPackage = rootPackage + ".model"
     configOptions = ([
-            dateLibrary: "java8",
             groupId: "$project.group",
-            artifactId: "$project.name-api",
-            version: "$project.version",
-            name: "${project.name}-api"
+            artifactId: "${api.artifactId}",
+            version: "${api.version}",
+            name: "$project.name-api",
+            packageModel: "dto",
+            interfaceOnly: "true",
+            useResponseEntity: "false",
+            skipDefaultInterface: "true",
     ])
-}
 
+    if (Integer.valueOf(apiModuleJdk) == 8) {
+        configOptions.put("java8", "true")
+    } else {
+        configOptions.put("useSpringBoot3", "true")
+        configOptions.put("useJakartaEe"  , "true")
+    }
+
+}
 
 task copyOpenApiGitIgnore () {
     doLast {
-        file(pathStr(apiPath, ".openapi-generator-ignore")).delete()
+        file(slpath(apiPath, ".openapi-generator-ignore")).delete()
         copy {
-            from(file(apiGitIgnoreFile))
+            from(file(apiGitIgnoreFilepath))
             into(file(apiPath))
         }
     }
 }
+
 def getProfilesFromProps() {
     def regex = "application(.*)\\.properties"
-    Pattern appPropsPattern = Pattern.compile(regex)
+    def appPropsPattern = Pattern.compile(regex)
     def profiles = new HashMap<String, Properties>()
 
-    fileTree(dir: resourceDir)
+    fileTree(dir: resourcePath)
             .findAll()
             .stream()
             .map(it -> it.name)
@@ -221,8 +285,8 @@ def getProfilesFromProps() {
             })
             .forEach(propsFilePostfix -> {
                 String replaced = propsFilePostfix.replaceFirst("-", "");
-                String profile = replaced.isBlank() ? "default" : replaced;
-                profiles[profile] = readProps(propsFilePostfix)
+                String profile = replaced.isBlank() ? "default" : replaced
+                profiles[profile] = readProps("application" + propsFilePostfix)
             })
     return profiles
 }
@@ -231,9 +295,8 @@ forkedSpringBootRun {
     doNotTrackState("See https://github.com/springdoc/springdoc-openapi-gradle-plugin/issues/102")
 }
 
-def readProps(profile) {
-    def appPropsName="application" + profile
-    String appProps = pathStr(srcDir, 'main', 'resources', "${appPropsName}.properties");
+def readProps(appPropsName) {
+    String appProps = slpath(srcPath, 'main', 'resources', "${appPropsName}.properties");
     File appPropsFile = file(appProps)
     try {
         FileInputStream configFileReader = new FileInputStream(appPropsFile);
@@ -251,10 +314,18 @@ def readProps(profile) {
     }
 }
 
-static def pathStr(String... pathParts) {
+static def slpath(String... pathParts) {
     String.join(File.separator, pathParts)
 }
 
 static void mergeOpenApiGenerationPropsToCurrent(Properties current, Properties openapiProps) {
     current.putAll(openapiProps)
+}
+
+static String getMaven(Integer jdkVersion) {
+    if (jdkVersion == 8) {
+        return '/opt/apache-maven-3.6.3/bin/mvn'
+    } else {
+        return '/opt/apache-maven-3.8.4/bin/mvn'
+    }
 }

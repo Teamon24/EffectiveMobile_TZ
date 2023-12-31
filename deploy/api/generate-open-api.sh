@@ -1,8 +1,4 @@
-PROFILE=${1:-"default"}
-TIME_TO_WAIT=${2:-85}
-PROFILE_PROP="-Pprofile=$PROFILE"
-TIME_TO_WAIT_PROP="-PtimeToWait=$TIME_TO_WAIT"
-PROPS="$PROFILE_PROP $TIME_TO_WAIT_PROP"
+. ./api/vars.sh
 
 cd ..
 ./gradlew deleteDocsJson $PROPS
@@ -19,4 +15,6 @@ cd ..
 
 #Копируем .gitignore в папку с API-модулем
 ./gradlew copyOpenApiGitIgnore $PROPS
+
+./gradlew compileApiModule $PROPS
 

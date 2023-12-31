@@ -12,7 +12,7 @@ public final class Api {
     public static final String UNASSIGN = "/unassign";
     public static final String STATUS = "/status";
     public static final String PRIORITIES = "/priorities";
-    public static final String COMMENT = TASK + "/{" + COMMENT_TASK_ID + "}/comment";
+    public static final String COMMENT = "/comment";
 
     public static final class QueryParam {
         public static final String EXECUTOR = "userName";

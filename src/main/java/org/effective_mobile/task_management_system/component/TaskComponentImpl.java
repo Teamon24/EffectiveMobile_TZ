@@ -26,12 +26,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static org.effective_mobile.task_management_system.maintain.cache.AppCacheNames.TASKS;
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
+import static org.effective_mobile.task_management_system.maintain.cache.AppCacheNames.TASKS;
+import static org.effective_mobile.task_management_system.utils.MiscUtils.unsupported;
 
 @Component
 @CacheConfig(cacheNames = TASKS)
@@ -105,6 +107,7 @@ public class TaskComponentImpl implements TaskComponent {
         taskRepository.delete(task);
     }
 
+    @Override
     public Page<Task> findByCreatorAndExecutor(TasksFiltersRequestPojo tasksFiltersPayload, Pageable pageable) {
         return filteredAndPagedTaskRepository
             .findByCreatorAndExecutor(
@@ -112,6 +115,11 @@ public class TaskComponentImpl implements TaskComponent {
                 tasksFiltersPayload.getExecutorUsername(),
                 pageable
             );
+    }
+
+    @Override
+    public Collection<Task> getAll() {
+        throw unsupported();
     }
 
     private <V> boolean setIfNew(
