@@ -21,19 +21,13 @@ plugins {
 group 'org.effective-mobile'
 version '1.0'
 
-def rootPackage = 'org.effective_mobile.task_management_system'
 
-def appEntrypoint = rootPackage + '.TaskManagementSystemApp'
-def apiGenerationEntrypoint = rootPackage + '.maintain.docs.generation.OpenApiGeneration'
-
-java { sourceCompatibility = '17' }
-application { mainClassName = appEntrypoint }
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
 
 ext {
+    rootPackage = 'org.effective_mobile.task_management_system'
+    appEntrypoint = rootPackage + '.TaskManagementSystemApp'
+    apiGenerationEntrypoint = rootPackage + '.maintain.docs.generation.OpenApiGeneration'
+
     jar = [
             name    : "$project.name-${version}.jar",
             build   : "build/libs",
@@ -44,7 +38,8 @@ ext {
     openApiGeneratingToWait = project.properties.getOrDefault('timeToWait', '120')
     apiModuleJdk = project.properties.getOrDefault('apiModuleJdk', '8')
     apiModuleMaven = getMaven(Integer.valueOf(apiModuleJdk))
-
+    entrypoint = project.properties.getOrDefault('entrypoint', appEntrypoint)
+    println entrypoint
     paths = [
 
     ]
@@ -65,7 +60,6 @@ ext {
     ]
 
     api.jar = "${api.artifactId}-${api.version}.jar"
-    println "${api.jar}"
     apiPath = slpath(srcPath, apiDir)
 
     apiFilesToCopyPath = slpath("$rootDir", "docs")
@@ -74,7 +68,18 @@ ext {
     apiGitIgnoreFilepath = slpath(apiFilesToCopyPath, "open.api.gitignore")
 
     profiles = getProfilesFromProps()
+
 }
+
+java {
+    sourceCompatibility = '17' }
+
+application {
+    mainClass = entrypoint }
+
+repositories {
+    mavenCentral() }
+
 
 sourceSets {
     generated {
@@ -157,7 +162,6 @@ test {
     useJUnitPlatform()
 }
 
-
 task copyJar(type: Copy) {
     from slpath(jar.build, jar.name)
     into jar.deploy
@@ -200,7 +204,8 @@ task deleteDocsJson {
 }
 
 generateOpenApiDocs {
-    application.mainClass = apiGenerationEntrypoint
+    application.mainClass = entrypoint
+    println "generateOpenApiDocs:$entrypoint"
 }
 
 //Генерация json-файла с описанием API
@@ -230,6 +235,8 @@ openApiMeta {
     generatorName = "Jim"
     packageName = rootPackage
 }
+
+
 
 //Генерация API
 openApiGenerate {

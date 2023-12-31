@@ -1,5 +1,6 @@
 . ./api/vars.sh
 
+echo "generate-open-api: PROPS=$PROPS"
 cd ..
 ./gradlew deleteDocsJson $PROPS
 ./gradlew cleanApiModule $PROPS

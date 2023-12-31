@@ -5,7 +5,10 @@ API_JAVA_VERSION=${3:-"8"}
 DELIM=";"
 JAVA_VERSIONS="8${DELIM}9${DELIM}11${DELIM}17"
 
-PROFILE_PROP="-Pprofile=$PROFILE"
-TIME_TO_WAIT_PROP="-PtimeToWait=$TIME_TO_WAIT"
-API_JDK_VERSION="-PapiModuleJdk=$API_JAVA_VERSION"
-PROPS="$PROFILE_PROP $TIME_TO_WAIT_PROP $API_JDK_VERSION"
+MAIN_CLASS='org.effective_mobile.task_management_system.maintain.docs.generation.OpenApiGeneration'
+
+PROPS=""
+PROPS="$PROPS -Pprofile=$PROFILE"
+PROPS="$PROPS -PtimeToWait=$TIME_TO_WAIT"
+PROPS="$PROPS -PapiModuleJdk=$API_JAVA_VERSION"
+PROPS="$PROPS -Pentrypoint=$MAIN_CLASS"
