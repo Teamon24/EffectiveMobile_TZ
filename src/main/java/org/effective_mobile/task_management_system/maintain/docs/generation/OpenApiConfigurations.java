@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.docs.generation;
+package org.effective_mobile.task_management_system.maintain.docs.generation;
 
 import jakarta.persistence.EntityManager;
 import org.effective_mobile.task_management_system.component.CommentComponent;

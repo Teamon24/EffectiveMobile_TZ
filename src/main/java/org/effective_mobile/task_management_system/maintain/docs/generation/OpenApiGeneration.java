@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.docs.generation;
+package org.effective_mobile.task_management_system.maintain.docs.generation;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
@@ -26,8 +26,7 @@ import java.util.Arrays;
         Packages.SERVICE,
         Packages.SECURITY,
         Packages.MAINTAIN,
-        Packages.CONFING,
-        Packages.API_GENERATION,
+        Packages.CONFING
     },
     exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class }
 )

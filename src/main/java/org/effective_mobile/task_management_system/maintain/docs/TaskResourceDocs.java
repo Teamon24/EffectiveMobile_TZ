@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.docs;
+package org.effective_mobile.task_management_system.maintain.docs;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.effective_mobile.task_management_system.exception.json.ErrorInfo;
 import org.effective_mobile.task_management_system.resource.Api;
 import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
@@ -19,7 +18,7 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskRespon
 import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.utils.enums.Status;
-import org.effective_mobile.task_management_system.utils.validator.ValidEnum;
+import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 import org.springframework.http.MediaType;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;

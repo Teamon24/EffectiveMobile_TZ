@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.docs;
+package org.effective_mobile.task_management_system.maintain.docs;
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
