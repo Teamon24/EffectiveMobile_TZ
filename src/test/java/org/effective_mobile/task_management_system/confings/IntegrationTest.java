@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -53,7 +54,7 @@ public abstract class IntegrationTest {
     @Autowired protected AuthorizationComponent authorizationComponent;
 
     protected User user;
-    protected String cookieName = authProperties.authTokenName;
+    protected Supplier<String> authTokenNameLazy = () -> authProperties.authTokenName;
 
     protected MockHttpServletResponse postJson(User user, String path, Object payload) throws Exception {
         return methodJson(user, path, payload, MockMvcRequestBuilders::post).andReturn().getResponse();
@@ -88,7 +89,7 @@ public abstract class IntegrationTest {
             method.apply(path, new Object[]{})
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload == null ? "" : asString(payload))
-                .cookie(new Cookie(cookieName, jwtTokenComponent.generateTokenCookie(customUserDetails).getValue()))
+                .cookie(new Cookie(authTokenNameLazy.get(), jwtTokenComponent.generateTokenCookie(customUserDetails).getValue()))
         );
     }
 
