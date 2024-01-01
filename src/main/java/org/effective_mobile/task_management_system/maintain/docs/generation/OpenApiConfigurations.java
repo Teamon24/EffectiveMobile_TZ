@@ -11,6 +11,7 @@ import org.effective_mobile.task_management_system.database.repository.TaskRepos
 import org.effective_mobile.task_management_system.database.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -18,18 +19,16 @@ import java.util.function.Supplier;
 
 @Configuration
 public class OpenApiConfigurations {
-
-    @Bean public Supplier<EntityManager> entityManager() { return () -> null; }
-    @Bean public Supplier<FilteredAndPagedTaskRepository> filteredAndPagedTaskRepository() { return () -> null; }
-    @Bean public Supplier<CommentRepository> commentRepository() { return () -> null; }
-    @Bean public Supplier<TaskRepository> taskRepository() { return () -> null; }
-    @Bean public Supplier<UserRepository> userRepository() { return () -> null; }
-
-    @Bean public CommentComponent commentComponent(Optional<CommentRepository> commentRepository) {
+    @Bean @Profile("open-api-generation") public Supplier<EntityManager> entityManager() { return () -> null; }
+    @Bean @Profile("open-api-generation") public Supplier<FilteredAndPagedTaskRepository> filteredAndPagedTaskRepository() { return () -> null; }
+    @Bean @Profile("open-api-generation") public Supplier<CommentRepository> commentRepository() { return () -> null; }
+    @Bean @Profile("open-api-generation") public Supplier<TaskRepository> taskRepository() { return () -> null; }
+    @Bean @Profile("open-api-generation") public Supplier<UserRepository> userRepository() { return () -> null; }
+    @Bean @Profile("open-api-generation") public CommentComponent commentComponent(Optional<CommentRepository> commentRepository) {
         return new CommentComponent(commentRepository.orElse(null));
     }
 
-    @Bean public TaskComponent taskComponent(
+    @Bean @Profile("open-api-generation") public TaskComponent taskComponent(
         Optional<TaskRepository> taskRepository,
         Optional<FilteredAndPagedTaskRepository> filteredAndPagedTaskRepository
     ) {
@@ -38,7 +37,7 @@ public class OpenApiConfigurations {
             filteredAndPagedTaskRepository.orElse(null));
     }
 
-    @Bean public UserComponent userComponent(
+    @Bean @Profile("open-api-generation") public UserComponent userComponent(
         Optional<UserRepository> userRepository,
         Optional<PasswordEncoder> passwordEncoder
     ) {

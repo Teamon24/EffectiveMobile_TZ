@@ -3,32 +3,40 @@ package org.effective_mobile.task_management_system.maintain.docs.generation;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.effective_mobile.task_management_system.Packages;
+import org.effective_mobile.task_management_system.Properties;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.Arrays;
 
 @PropertySource(
     value = {
-        "classpath:custom.properties",
-        "classpath:application.properties",
-        "classpath:messages.properties"
+        Properties.APPLICATION,
+        Properties.CUSTOM,
+        Properties.MESSAGES
     },
-    encoding = "UTF-8"
+    encoding = Properties.ENCODING
 )
 @Log4j2
-@SpringBootApplication(
-    scanBasePackages = {
+@ComponentScan(
+    basePackages = {
+        Packages.CONFING,
+        Packages.SECURITY,
         Packages.RESOURCE,
         Packages.SERVICE,
-        Packages.SECURITY,
-        Packages.MAINTAIN,
-        Packages.CONFING
-    },
-    exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class }
+        Packages.MAINTAIN
+    }
+)
+@EnableAutoConfiguration(
+    exclude = {
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class }
 )
 public class OpenApiGeneration {
 
@@ -42,7 +50,7 @@ public class OpenApiGeneration {
         logInitialMessageForEachLevel();
         SpringApplication.run(OpenApiGeneration.class, args);
     }
-    public static void logInitialMessageForEachLevel(){
+    public static void logInitialMessageForEachLevel() {
         Arrays.stream(Level.values()).forEach(level -> log.log(level, INITIAL_MESSAGE));
     }
 }

@@ -10,4 +10,4 @@ else
 fi
 
 cd ..
-./gradlew compileApiModule -PapiModuleJdk=$API_JAVA_VERSION --stacktrace
+./gradlew compileApiModule $PROPS --stacktrace

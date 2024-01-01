@@ -1,34 +1,32 @@
 package org.effective_mobile.task_management_system;
 
 import lombok.extern.log4j.Log4j2;
+import org.effective_mobile.task_management_system.maintain.docs.generation.OpenApiConfigurations;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 
 
 @PropertySource(
     value = {
-        "classpath:custom.properties",
-        "classpath:application.properties",
-        "classpath:messages.properties"
+        Properties.APPLICATION,
+        Properties.CUSTOM,
+        Properties.MESSAGES
     },
-    encoding = "UTF-8"
+    encoding = Properties.ENCODING
 )
 @Log4j2
-@SpringBootApplication(
-    scanBasePackages = {
-        Packages.LOGGING,
-        Packages.CONFING,
-        Packages.SECURITY,
-
-        Packages.RESOURCE,
-        Packages.SERVICE,
-        Packages.COMPONENT,
-        Packages.REPOSITORY,
-
-        Packages.EXCEPTION,
-        Packages.CACHE,
-    }
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan(
+    excludeFilters =
+    @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE,
+        value = OpenApiConfigurations.class
+    )
 )
 public class TaskManagementSystemApp {
     public static void main(String[] args) {
