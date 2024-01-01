@@ -1,5 +1,5 @@
-. ./vars.sh
-. ./functions.sh
+. ./run/_vars.sh
+. ./run/_functions.sh
 
 CUR_DIR=$(pwd)
 echo "build.sh: expects 1[$TEST_ARG]; actual: $@"
@@ -17,7 +17,6 @@ fi
 
 cd ..
 ./gradlew deleteJar
-echo "./gradlew clean build $tests"
 ./gradlew clean build $tests
 ./gradlew bootJar
 ./gradlew copyJar

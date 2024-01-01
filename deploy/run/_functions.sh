@@ -1,3 +1,9 @@
+function scriptDir() {
+  echo "script directory: $(dirname "$(readlink -f "$0")")"
+  cd "$(dirname "$(readlink -f "$0")")"
+}
+
+
 function message() {
   echo '--- ['$(date +'%H:%M:%S %d.%m.%Y')'] --- ' $1
 }
