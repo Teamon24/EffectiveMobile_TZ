@@ -1,10 +1,5 @@
 package org.effective_mobile.task_management_system.resource;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -37,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.effective_mobile.task_management_system.utils.docs.Docs.TASK_PATH_VAR_DESCRIPTION;
-
 @RestController
 @RequestMapping(Api.TASK)
 @AllArgsConstructor
@@ -61,7 +54,7 @@ public class TaskResource {
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     TaskResponsePojo getTask(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id
+        @NotNull @PathVariable Long id
     ) {
         return taskService.getTask(id);
     }
@@ -79,14 +72,11 @@ public class TaskResource {
         return new PageResponsePojo<>(tasksPage);
     }
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponsePojo.class)) })
-    })
     @PutMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     TaskResponsePojo editTask(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
+        @NotNull @PathVariable Long id,
         @RequestBody @Valid @NonNull TaskEditionRequestPojo taskEditionRequestPojo
     ) {
         return taskService.editTask(id, taskEditionRequestPojo);
@@ -94,7 +84,7 @@ public class TaskResource {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public void deleteTask(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
+    public void deleteTask(@NotNull @PathVariable Long id) {
         taskService.deleteTask(id);
     }
 
@@ -102,7 +92,7 @@ public class TaskResource {
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     AssignmentResponsePojo setExecutor(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
+        @NotNull @PathVariable Long id,
         @RequestParam(Api.EXECUTOR_USERNAME) String executorUsername
     ) {
         return taskService.setExecutor(id, executorUsername);
@@ -110,7 +100,7 @@ public class TaskResource {
 
     @PutMapping("/{id}" + Api.UNASSIGN)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public Long removeExecutor(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
+    public Long removeExecutor(@NotNull @PathVariable Long id) {
         return taskService.unassign(id);
     }
 
@@ -118,7 +108,7 @@ public class TaskResource {
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     ChangedStatusResponsePojo setStatus(
-        @NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id,
+        @NotNull @PathVariable Long id,
         @RequestParam(name = Api.NEW_STATUS_PARAM) @ValidEnum(clazz = Status.class) String newStatusStr
     ) {
         Status newStatus = new StatusConverter().convert(newStatusStr);

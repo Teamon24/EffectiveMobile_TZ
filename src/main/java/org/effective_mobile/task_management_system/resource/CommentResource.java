@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.database.entity.Comment;
