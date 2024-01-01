@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.utils.validator;
+package org.effective_mobile.task_management_system.component.validator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -9,14 +9,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = StrongPasswordValidator.class)
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Constraint(validatedBy = SingupValidator.class)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface StrongPassword {
-    String message() default "{validation.error.password.weak}";
+public @interface Signup {
+    String message() default "{validation.error.signup.taken}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    Type field();
+
+    enum Type { USERNAME, EMAIL }
 }

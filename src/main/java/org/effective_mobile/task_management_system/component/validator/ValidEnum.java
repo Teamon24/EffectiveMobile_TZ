@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.utils.validator;
+package org.effective_mobile.task_management_system.component.validator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
