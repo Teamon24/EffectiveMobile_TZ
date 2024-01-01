@@ -1,20 +1,14 @@
-. ./api/vars.sh
+. ./api/_vars.sh
+. ./api/_functions.sh
 
-echo "generate-open-api.sh: PROPS=$PROPS"
+printProps "generate-open-api.sh" "$PROPS"
+
 cd ..
-./gradlew deleteDocsJson $PROPS
+#Удаление файлов в API-модуле.
 ./gradlew cleanApiModule $PROPS
 
-#Генерация json-файла, который содержит описание API
-./gradlew generateOpenApiDocs $PROPS --stacktrace
-
-#Валидация json-файла, который содержит описание API
-./gradlew openApiValidate $PROPS
-
-#Генерация самого API
+#Генерация файлов API-модуля.
 ./gradlew openApiGenerate $PROPS
 
-#Копируем .gitignore в папку с API-модулем
+#Копируем .gitignore в папку с API-модулем.
 ./gradlew copyOpenApiGitIgnore $PROPS
-
-./gradlew compileApiModule $PROPS

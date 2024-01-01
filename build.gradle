@@ -184,7 +184,7 @@ task cleanApiModule {
     }
 }
 
-task deleteDocsJson {
+task deleteApiSpecification {
     doLast {
         def file = file(paths.apiDocsFile)
         file.exists() ? file.delete() : false

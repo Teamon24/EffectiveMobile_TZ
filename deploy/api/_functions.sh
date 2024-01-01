@@ -1,3 +1,10 @@
+function printProps() {
+  SCRIPS_NAME=$1
+  PROPS=$2
+  echo "$SCRIPS_NAME"
+  echo "properties = $PROPS"
+}
+
 function printJavaHome() {
     TITLE=${1:-""}
     echo "============================== $TITLE ====================================="
