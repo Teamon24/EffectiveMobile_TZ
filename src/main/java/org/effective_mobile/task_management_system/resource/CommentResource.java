@@ -23,7 +23,6 @@ public class CommentResource {
 
     private CommentService commentService;
 
-    @Tag(name = "Создание комментария")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createComment(

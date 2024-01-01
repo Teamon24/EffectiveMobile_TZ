@@ -5,20 +5,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
-import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
-import org.effective_mobile.task_management_system.service.TaskResponsePojoWithCacheInfo;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
@@ -49,7 +47,6 @@ public class TaskResource {
     private final TaskService taskService;
 
 
-    @Tag(name = "Создание")
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
@@ -60,7 +57,6 @@ public class TaskResource {
         return taskService.createTask(customUserDetails.getUserId(), taskCreationPayload);
     }
 
-    @Tag(name = "Получение")
     @GetMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
@@ -70,7 +66,6 @@ public class TaskResource {
         return taskService.getTask(id);
     }
 
-    @Tag(name = "Пагинация и фильтрация")
     @GetMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
@@ -84,7 +79,6 @@ public class TaskResource {
         return new PageResponsePojo<>(tasksPage);
     }
 
-    @Tag(name = "Редактирование")
     @ApiResponses({
         @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponsePojo.class)) })
     })
@@ -98,14 +92,12 @@ public class TaskResource {
         return taskService.editTask(id, taskEditionRequestPojo);
     }
 
-    @Tag(name = "Удаление")
     @DeleteMapping("/{id}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public void deleteTask(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
         taskService.deleteTask(id);
     }
 
-    @Tag(name = "Назначение исполнителя")
     @PutMapping("/{id}" + Api.EXECUTOR)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
@@ -116,14 +108,12 @@ public class TaskResource {
         return taskService.setExecutor(id, executorUsername);
     }
 
-    @Tag(name = "Удаление исполнителя")
     @PutMapping("/{id}" + Api.UNASSIGN)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public Long removeExecutor(@NotNull @PathVariable @Parameter(description = TASK_PATH_VAR_DESCRIPTION)  Long id) {
         return taskService.unassign(id);
     }
 
-    @Tag(name = "Изменение статуса")
     @PutMapping("/{id}" + Api.STATUS)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
