@@ -24,39 +24,50 @@ group 'org.effective-mobile'
 version '1.0'
 
 ext {
+    customPropPrefix = 'custom'
+    defaultProfile = 'default'
     rootPackage = 'org.effective_mobile.task_management_system'
     appEntrypoint = "${rootPackage}.TaskManagementSystemApp"
 
-    profile                 = projectPropOrElse('custom.profile', 'dev')
-    openApiGeneratingToWait = projectPropOrElse('custom.timeToWait', '120')
-    apiModuleJdk            = projectPropOrElse('custom.apiModuleJdk', '8')
-    entrypoint              = projectPropOrElse('custom.entrypoint', appEntrypoint)
-    apiModuleMaven          = projectPropOrThrow('custom.mvnHome')
+    profile                 = projectPropOrElse(customProp('profile'), 'dev')
+    openApiGeneratingToWait = projectPropOrElse(customProp('timeToWait'), '120')
+    apiModuleJdk            = projectPropOrElse(customProp('apiModuleJdk'), '8')
+    entrypoint              = projectPropOrElse(customProp('entrypoint'), appEntrypoint)
+    apiModuleMaven          = projectPropOrThrow(customProp('mvnHome'))
 
-    apiDir = "api"
-    apiDocsFilename = "$name-$apiDir-$version${"default" == profile ? "" : '-' + profile}.json"
+    apiDir = 'api'
+    apiDocsFilename = "$name-$apiDir-$version${defaultProfile == profile ? '' : '-' + profile}.json"
 
     paths = [ src     : slpath("$rootDir", 'src') ]
     paths.rootPath         = "$rootDir"
     paths.resources        = slpath(paths.src            , 'main', 'resources')
     paths.api              = slpath(paths.src            , apiDir)
-    paths.apiFilesToCopy   = slpath(paths.rootPath       , "docs")
+    paths.apiFilesToCopy   = slpath(paths.rootPath       , 'docs')
     paths.apiDocsFile      = slpath(paths.apiFilesToCopy , apiDocsFilename)
-    paths.apiGitIgnoreFile = slpath(paths.apiFilesToCopy , "open.api.gitignore")
-    paths.deploy           = slpath(paths.rootPath       , "deploy")
-    paths.build            = slpath(paths.rootPath       , "build", "libs")
+    paths.apiGitIgnoreFile = slpath(paths.apiFilesToCopy , 'open.api.gitignore')
+    paths.deploy           = slpath(paths.rootPath       , 'deploy')
+    paths.build            = slpath(paths.rootPath       , 'build', 'libs')
 
-    paths.appPropsFile  = (Object appPropsName) -> { return slpath(paths.resources, "${appPropsName}.properties"); }
+    paths.jvm              = slpath('/usr' , 'lib', 'jvm')
+    paths.jdk              = slpath(paths.jvm, "java-$apiModuleJdk-openjdk-amd64")
+    paths.javac            = slpath(paths.jdk, 'bin', 'javac')
+
+    paths.appPropsFile  = appPropsName -> slpath(paths.resources, "${appPropsName}.properties")
+
+    profiles = getProfilesFromProps(paths.resources)
+    printProjectProperties()
+
+    openApiProfile = 'open-api-generation'
+    openApiGenerationProps = profiles[openApiProfile]
+
+    port = openApiGenerationProps.get('server.port')
+    address = openApiGenerationProps.get('server.address')
+    apiSpecUrl = "http://$address:$port/v3/api-docs"
 
     jar = [
             name    : "$project.name-${version}.jar",
             build   : paths.build,
             deploy  : paths.deploy
-    ]
-
-    server = [
-            port   : 'server.port',
-            address: 'server.address'
     ]
 
     api = [
@@ -65,9 +76,10 @@ ext {
     ]
 
     api.jar = "${api.artifactId}-${api.version}.jar"
-    profiles = getProfilesFromProps()
+}
 
-    printProjectProperties()
+private String customProp(String property) {
+    return "${customPropPrefix}.${property}" as String
 }
 
 java {
@@ -85,14 +97,15 @@ repositories {
 sourceSets {
     generated {
         java {
-            srcDirs = [slpath("$buildDir", "generated", "sources", "annotationProcessor", "java", "main")]
+            srcDirs = [slpath("$buildDir", 'generated', 'sources', 'annotationProcessor', 'java', 'main')]
         }
     }
 }
 
 dependencies {
     // OPEN-API-МОДУЛЬ.
-    implementation files("${paths.api}/target/${api.jar}")
+    implementation files(slpath(paths.api, 'target', api.jar))
+
     // LOMBOK -----------------------------------------------------------------
     def lombok_v = '1.18.30'
     def querydsl_v = '5.0.0:jakarta'
@@ -176,11 +189,14 @@ bootJar {
 
 task cleanApiModule {
     doLast {
-        Files.walk(Path.of(paths.api))
-             .filter(path -> path.toString() != paths.api)
-             .sorted(Comparator.reverseOrder())
-             .map(Path::toFile)
-             .forEach(File::delete)
+        if (file(paths.api).exists()) {
+            println "cleanApiModule: cleaning up api module (${paths.api})"
+            Files.walk(Path.of(paths.api))
+                    .filter(path -> path.toString() != paths.api)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete)
+        }
     }
 }
 
@@ -198,18 +214,8 @@ generateOpenApiDocs {
     }
 }
 
-//Генерация json-файла с описанием API
-//https://stackoverflow.com/questions/65504256/how-to-generate-compile-jar-and-depend-on-a-gradle-module
-//https://andresalmiray.com/multi-module-project-builds-with-maven-and-gradle/
 openApi {
-    def openApiProfile = "open-api-generation"
-    def openApiGenerationProps = profiles[openApiProfile]
-
-    def port = openApiGenerationProps.get(server.port)
-    def address = openApiGenerationProps.get(server.address)
-    def url = "http://$address:$port/v3/api-docs"
-    apiDocsUrl = url
-    println url
+    apiDocsUrl = apiSpecUrl
     outputDir = file(paths.apiFilesToCopy)
     outputFileName = apiDocsFilename
     waitTimeInSeconds = Integer.valueOf(openApiGeneratingToWait)
@@ -231,36 +237,36 @@ openApiMeta {
 
 //Генерация API
 openApiGenerate {
-    generatorName = "spring"
+    generatorName = 'spring'
     inputSpec = paths.apiDocsFile
     outputDir = paths.api
-    apiPackage = rootPackage + ".api"
-    modelPackage = rootPackage + ".model"
+    apiPackage = rootPackage + '.api'
+    modelPackage = rootPackage + '.model'
 
     configOptions = [
             groupId: "$project.group",
             artifactId: "${api.artifactId}",
             artifactVersion: "${api.version}",
             name: "$project.name-api",
-            interfaceOnly: "true",
-            useResponseEntity: "false",
-            skipDefaultInterface: "true"
+            interfaceOnly: 'true',
+            useResponseEntity: 'false',
+            skipDefaultInterface: 'true'
     ]
 
     if (Integer.valueOf(apiModuleJdk) == 8) {
-        configOptions.put("java8", "true")
+        configOptions.put('java8', 'true')
     } else {
-        configOptions.put("useSpringBoot3", "true")
-        configOptions.put("useJakartaEe"  , "true")
+        configOptions.put('useSpringBoot3', 'true')
+        configOptions.put('useJakartaEe'  , 'true')
     }
 }
 
+//Мультимодульный проект
+//https://stackoverflow.com/questions/65504256/how-to-generate-compile-jar-and-depend-on-a-gradle-module
+//https://andresalmiray.com/multi-module-project-builds-with-maven-and-gradle/
 task compileApiModule(type: Exec) {
-    def jdkName = "java-$apiModuleJdk-openjdk-amd64"
-    def jvmPath = "/usr/lib/jvm"
-    def jdkPath = jvmPath + "/" + jdkName
     def forking = '-Dmaven.compiler.fork=true'
-    def executing = "-Dmaven.compiler.executable=$jdkPath/bin/javac"
+    def executing = "-Dmaven.compiler.executable=${paths.javac}"
     def commandLineArray = [
             "$apiModuleMaven",
             '-f', "$paths.api/",
@@ -268,15 +274,16 @@ task compileApiModule(type: Exec) {
             forking,
             executing
     ]
-
-    println "compileApiModule: command='${String.join(" ", commandLineArray)}'"
+    doFirst {
+        println "compileApiModule: command='${String.join(" ", commandLineArray)}'"
+    }
     workingDir "$paths.api"
     commandLine commandLineArray
 }
 
 task copyOpenApiGitIgnore () {
     doLast {
-        file(slpath(paths.api, ".openapi-generator-ignore")).delete()
+        file(slpath(paths.api, '.openapi-generator-ignore')).delete()
         copy {
             from(file(paths.apiGitIgnoreFile))
             into(file(paths.api))
@@ -284,12 +291,12 @@ task copyOpenApiGitIgnore () {
     }
 }
 
-def getProfilesFromProps() {
+def getProfilesFromProps(path) {
     def regex = "application(.*)\\.properties"
     def appPropsPattern = Pattern.compile(regex)
     def profiles = new HashMap<String, Properties>()
 
-    fileTree(dir: paths.resources)
+    fileTree(dir: path)
             .findAll()
             .stream()
             .map(it -> it.name)
@@ -300,15 +307,15 @@ def getProfilesFromProps() {
                 return m1.group(1)
             })
             .forEach(propsFilePostfix -> {
-                String replaced = propsFilePostfix.replaceFirst("-", "");
-                String profile = replaced.isBlank() ? "default" : replaced
-                profiles[profile] = readProps("application" + propsFilePostfix)
+                String replaced = propsFilePostfix.replaceFirst('-', '');
+                String profile = replaced.isBlank() ? defaultProfile : replaced
+                profiles[profile] = readProps('application' + propsFilePostfix)
             })
     return profiles
 }
 
 forkedSpringBootRun {
-    doNotTrackState("See https://github.com/springdoc/springdoc-openapi-gradle-plugin/issues/102")
+    doNotTrackState('See https://github.com/springdoc/springdoc-openapi-gradle-plugin/issues/102')
 }
 
 def readProps(appPropsName) {
@@ -330,7 +337,7 @@ def readProps(appPropsName) {
     }
 }
 
-def projectPropOrElse(propName, defaultValue) {
+def projectPropOrElse(String propName, defaultValue) {
     return project.properties.getOrDefault(propName, defaultValue)
 }
 
@@ -340,21 +347,22 @@ def projectPropOrThrow(propName) {
     return propValue.toString()
 }
 
-static def slpath(String... pathParts) {
-    String.join(File.separator, pathParts)
-}
-
-void printProjectProperties(keyNameFilter) {
+void printProjectProperties() {
     String max = project.properties.keySet().stream().max(Comparator.comparing(String::length)).get();
     project.properties
             .entrySet()
             .stream()
-            .filter(p -> !Objects.equals(p.getKey(), "properties"))
+            .filter(p -> p.getKey().startsWith(customPropPrefix))
+            .filter(p -> !Objects.equals(p.getKey(), 'properties'))
             .sorted(Comparator.comparing(Map.Entry::getKey))
             .map(entry -> Pair.of(entry, max.length() - entry.getKey().length()))
             .forEach(entryAndDiff -> {
                 Integer diff = entryAndDiff.getRight();
                 var entry = entryAndDiff.getLeft();
-                System.out.println("%s = %s".formatted(entry.getKey() + " ".repeat(diff), entry.getValue()))
+                System.out.println('%s = %s'.formatted(entry.getKey() + ' '.repeat(diff), entry.getValue()))
             })
+}
+
+static def slpath(String... pathParts) {
+    String.join(File.separator, pathParts)
 }
