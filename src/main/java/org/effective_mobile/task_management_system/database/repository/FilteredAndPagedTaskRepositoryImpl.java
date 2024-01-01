@@ -32,7 +32,6 @@ public class FilteredAndPagedTaskRepositoryImpl implements FilteredAndPagedTaskR
         this.jpaQueryFactory = new JPAQueryFactory(entityManager);
     }
 
-
     public Page<Task> findByCreatorAndExecutor(
         @Nullable String creator,
         @Nullable String executor,

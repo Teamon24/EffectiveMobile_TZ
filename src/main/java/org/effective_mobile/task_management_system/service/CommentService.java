@@ -20,9 +20,9 @@ public class CommentService {
 
     public Comment createComment(
         Long userId,
-        Long taskId,
         CommentCreationRequestPojo commentCreationRequestPojo
     ) {
+        Long taskId = commentCreationRequestPojo.getTaskId();
         User user = userComponent.getById(userId);
         Task task = taskComponent.getTask(taskId);
         return this.commentComponent.createComment(user, task, commentCreationRequestPojo);

@@ -1,17 +1,17 @@
 version: '3.3'
 services:
-  task_management_system:
+  task-management-system-api:
     profiles: ["default"]
-    image: 'task-management-system-image'
-    container_name: task-management-system-container
+    image: 'task-management-system-api'
+    container_name: task-management-system-api
     environment:
       SPRING_PROFILES_ACTIVE: ${PROFILE}
     command: -Dspring.profiles.active=${PROFILE}
     depends_on:
-      - task_management_system_db
+      - task-management-system-db
     ports:
       - ${API_EXT_PORT}:${API_INT_PORT}
-  task_management_system_db:
+  task-management-system-db:
     profiles: ["default", "dev"]
     image: postgres
     restart: always

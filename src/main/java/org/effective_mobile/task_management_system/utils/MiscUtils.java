@@ -31,4 +31,12 @@ public final class MiscUtils {
         }
         return null;
     }
+
+    public static StackTraceElement method() {
+        return new Throwable().getStackTrace()[0];
+    }
+
+    public static UnsupportedOperationException unsupported() {
+        return new UnsupportedOperationException(method().getMethodName());
+    }
 }

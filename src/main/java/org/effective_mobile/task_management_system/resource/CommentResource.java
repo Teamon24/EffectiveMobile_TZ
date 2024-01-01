@@ -8,7 +8,6 @@ import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.CommentService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +24,11 @@ public class CommentResource {
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Long createComment(
-        @PathVariable(Api.COMMENT_TASK_ID) Long taskId,
         @RequestBody @Valid CommentCreationRequestPojo commentCreationRequestPojo,
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         Long userId = customUserDetails.getUserId();
-        Comment comment = commentService.createComment(userId, taskId, commentCreationRequestPojo);
+        Comment comment = commentService.createComment(userId, commentCreationRequestPojo);
         return comment.getId();
     }
 }

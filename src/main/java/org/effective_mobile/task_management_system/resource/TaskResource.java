@@ -3,7 +3,6 @@ package org.effective_mobile.task_management_system.resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
@@ -32,13 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.effective_mobile.task_management_system.resource.Api.PathParam.ID;
+
 @RestController
 @RequestMapping(Api.TASK)
 @AllArgsConstructor
 public class TaskResource {
 
     private final TaskService taskService;
-
 
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
@@ -50,12 +50,10 @@ public class TaskResource {
         return taskService.createTask(customUserDetails.getUserId(), taskCreationPayload);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{"+ ID + "}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
-    TaskResponsePojo getTask(
-        @NotNull @PathVariable Long id
-    ) {
+    TaskResponsePojo getTask(@NotNull @PathVariable Long id) {
         return taskService.getTask(id);
     }
 
@@ -64,55 +62,54 @@ public class TaskResource {
     public @ResponseBody
     PageResponsePojo<TaskResponsePojo> getTasks(
         @RequestBody @Valid TasksFiltersRequestPojo tasksFiltersRequestPojo,
-        @RequestParam(defaultValue = "0", name = "page") @NotNull int pageNumber,
-        @RequestParam(defaultValue = "10", name = "size") @NotNull int size
+        @RequestParam(defaultValue = Api.QueryParam.Page.DEFAULT_INDEX, name = Api.QueryParam.Page.NAME) int pageNumber,
+        @RequestParam(defaultValue = Api.QueryParam.Page.DEFAULT_SIZE, name = Api.QueryParam.Page.SIZE) int size
     ) {
         Pageable page = PageRequest.of(pageNumber, size);
         Page<TaskResponsePojo> tasksPage = taskService.getByCreatorOrExecutor(tasksFiltersRequestPojo, page);
         return new PageResponsePojo<>(tasksPage);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{"+ ID + "}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     TaskResponsePojo editTask(
-        @NotNull @PathVariable Long id,
-        @RequestBody @Valid @NonNull TaskEditionRequestPojo taskEditionRequestPojo
+        @PathVariable(name = ID) Long id,
+        @RequestBody TaskEditionRequestPojo taskEditionRequestPojo
     ) {
         return taskService.editTask(id, taskEditionRequestPojo);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{"+ ID + "}")
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public void deleteTask(@NotNull @PathVariable Long id) {
+    public void deleteTask(@PathVariable(name = ID) Long id) {
         taskService.deleteTask(id);
     }
 
-    @PutMapping("/{id}" + Api.EXECUTOR)
+    @PutMapping("/{"+ ID + "}" + Api.EXECUTOR)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     AssignmentResponsePojo setExecutor(
-        @NotNull @PathVariable Long id,
-        @RequestParam(Api.EXECUTOR_USERNAME) String executorUsername
+        @PathVariable(name = ID) Long id,
+        @RequestParam(Api.QueryParam.EXECUTOR) String executorUsername
     ) {
         return taskService.setExecutor(id, executorUsername);
     }
 
-    @PutMapping("/{id}" + Api.UNASSIGN)
+    @PutMapping("/{"+ ID + "}" + Api.UNASSIGN)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public Long removeExecutor(@NotNull @PathVariable Long id) {
+    public Long removeExecutor(@PathVariable(name = ID) Long id) {
         return taskService.unassign(id);
     }
 
-    @PutMapping("/{id}" + Api.STATUS)
+    @PutMapping("/{"+ ID + "}" + Api.STATUS)
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody
     ChangedStatusResponsePojo setStatus(
-        @NotNull @PathVariable Long id,
-        @RequestParam(name = Api.NEW_STATUS_PARAM) @ValidEnum(clazz = Status.class) String newStatusStr
+        @PathVariable(name = ID) Long id,
+        @RequestParam(name = Api.QueryParam.NEW_STATUS) @ValidEnum(clazz = Status.class) String newStatusStr
     ) {
         Status newStatus = new StatusConverter().convert(newStatusStr);
         return taskService.setStatus(id, newStatus);
     }
-
 }
