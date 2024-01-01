@@ -1,7 +1,5 @@
 package org.effective_mobile.task_management_system.resource;
 
-import static org.effective_mobile.task_management_system.resource.Api.PathParam.COMMENT_TASK_ID;
-
 public final class Api {
     public static final String SIGN_IN = "/signin";
     public static final String SIGN_UP = "/signup";

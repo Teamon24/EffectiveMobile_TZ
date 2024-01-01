@@ -1,6 +1,5 @@
-#!/bin/bash
-. ./vars.sh
-. ./functions.sh
+. ./run/_vars.sh
+. ./run/_functions.sh
 
 echo "compose-up.sh: expects 1[rmi/''] 2[$PROFILE_ARGS]; actual: 1[$1] 2[$2] others[$3 $4 $5 $6]"
 
@@ -10,6 +9,7 @@ shouldBeEmpty $3 3
 
 ENV_FILE=".env"
 PROFILE="$2"
+
 if [ "$1" = 'rmi' ]; then
   docker rmi task-management-system-api
   docker build -t task-management-system-api .
