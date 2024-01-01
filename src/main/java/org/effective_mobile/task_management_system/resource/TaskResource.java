@@ -14,7 +14,7 @@ import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
-import org.effective_mobile.task_management_system.utils.validator.ValidEnum;
+import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

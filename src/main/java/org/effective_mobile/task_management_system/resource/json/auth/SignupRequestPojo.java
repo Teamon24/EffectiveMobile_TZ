@@ -6,11 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.effective_mobile.task_management_system.resource.json.RequestPojo;
-import org.effective_mobile.task_management_system.utils.validator.Signup;
-import org.effective_mobile.task_management_system.utils.validator.StrongPassword;
+import org.effective_mobile.task_management_system.component.validator.Signup;
+import org.effective_mobile.task_management_system.component.validator.StrongPassword;
 
-import static org.effective_mobile.task_management_system.utils.validator.Signup.Type.EMAIL;
-import static org.effective_mobile.task_management_system.utils.validator.Signup.Type.USERNAME;
+import static org.effective_mobile.task_management_system.component.validator.Signup.Type.EMAIL;
+import static org.effective_mobile.task_management_system.component.validator.Signup.Type.USERNAME;
 
 @AllArgsConstructor
 @NoArgsConstructor

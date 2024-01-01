@@ -17,9 +17,9 @@ import java.util.List;
 @AllArgsConstructor
 public class WebMvcConfigurations implements WebMvcConfigurer {
 
+    private final ObjectMapper objectMapper;
     private final AuthTokenComponent authTokenComponent;
     private final HttpExchangeLoggingComponent httpExchangeLoggingComponent;
-    private final ObjectMapper objectMapper;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
