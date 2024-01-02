@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confing;
+package org.effective_mobile.task_management_system.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

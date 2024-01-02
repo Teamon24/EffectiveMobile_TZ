@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confing;
+package org.effective_mobile.task_management_system.config;
 
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;

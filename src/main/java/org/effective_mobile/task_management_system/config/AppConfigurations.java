@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confing;
+package org.effective_mobile.task_management_system.config;
 
 import org.effective_mobile.task_management_system.component.ContextComponent;
 import org.springframework.context.annotation.Bean;

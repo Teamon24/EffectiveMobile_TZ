@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confings;
+package org.effective_mobile.task_management_system.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,8 +40,8 @@ public abstract class IntegrationTest {
     protected final String username = "teamon24";
     protected final String email = username + "@gmail.com";
     protected final String password = new Faker().internet().password(8, 20, true, true, true);
-    protected final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
+    @Autowired protected PasswordEncoder passwordEncoder;
     @Autowired protected AuthProperties authProperties;
     @Autowired protected MockMvc mvc;
     @Autowired protected TaskRepository taskRepository;
@@ -57,22 +56,22 @@ public abstract class IntegrationTest {
     protected Supplier<String> authTokenNameLazy = () -> authProperties.authTokenName;
 
     protected MockHttpServletResponse postJson(User user, String path, Object payload) throws Exception {
-        return methodJson(user, path, payload, MockMvcRequestBuilders::post).andReturn().getResponse();
+        return perform(user, path, payload, MockMvcRequestBuilders::post).andReturn().getResponse();
     }
 
     protected MockHttpServletResponse putJson(User user, String path, Object payload) throws Exception {
-        return methodJson(user, path, payload, MockMvcRequestBuilders::put).andReturn().getResponse();
+        return perform(user, path, payload, MockMvcRequestBuilders::put).andReturn().getResponse();
     }
 
     protected MockHttpServletResponse getJson(User user, String path) throws Exception {
-        return methodJson(user, path, null, MockMvcRequestBuilders::get).andReturn().getResponse();
+        return perform(user, path, null, MockMvcRequestBuilders::get).andReturn().getResponse();
     }
 
     protected MockHttpServletResponse deleteJson(User user, String path, Object payload) throws Exception {
-        return methodJson(user, path, payload, MockMvcRequestBuilders::delete).andReturn().getResponse();
+        return perform(user, path, payload, MockMvcRequestBuilders::delete).andReturn().getResponse();
     }
 
-    protected ResultActions methodJson(
+    protected ResultActions perform(
         User user,
         String path,
         @Nullable Object payload,

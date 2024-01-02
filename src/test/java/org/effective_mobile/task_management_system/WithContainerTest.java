@@ -1,6 +1,5 @@
-package org.effective_mobile.task_management_system.confings;
+package org.effective_mobile.task_management_system;
 
-import org.effective_mobile.task_management_system.TaskManagementSystemApp;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;

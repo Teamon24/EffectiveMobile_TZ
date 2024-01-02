@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.confings;
+package org.effective_mobile.task_management_system.component;
 
 import org.effective_mobile.task_management_system.TaskManagementSystemApp;
 import org.junit.runner.RunWith;
