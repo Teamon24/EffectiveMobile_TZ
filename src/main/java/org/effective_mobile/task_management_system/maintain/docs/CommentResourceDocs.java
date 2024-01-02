@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.effective_mobile.task_management_system.exception.json.ErrorInfo;
-import org.effective_mobile.task_management_system.resource.json.CommentCreationRequestPojo;
-import org.effective_mobile.task_management_system.security.CustomUserDetails;
+import org.effective_mobile.task_management_system.resource.json.comment.CommentCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.comment.CommentCreationResponsePojo;
 import org.springframework.http.MediaType;
 
 public interface CommentResourceDocs {
@@ -25,8 +25,5 @@ public interface CommentResourceDocs {
             description = "При отсутствии задачи в базе данных."
         )
     })
-    Long createComment(
-        @RequestBody CommentCreationRequestPojo commentCreationRequestPojo,
-        CustomUserDetails customUserDetails
-    );
+    CommentCreationResponsePojo createComment(@RequestBody CommentCreationRequestPojo commentCreationRequestPojo);
 }

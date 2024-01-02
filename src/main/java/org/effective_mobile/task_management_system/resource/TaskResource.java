@@ -1,6 +1,7 @@
 package org.effective_mobile.task_management_system.resource;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 import org.effective_mobile.task_management_system.database.entity.Task;

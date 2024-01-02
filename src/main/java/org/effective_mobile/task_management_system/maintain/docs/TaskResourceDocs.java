@@ -11,7 +11,9 @@ import jakarta.validation.Valid;
 import org.effective_mobile.task_management_system.resource.Api;
 import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
-import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.assignment.UnassignmentResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.DeletedTaskResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.task.StatusChangeResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
@@ -35,9 +37,7 @@ public interface TaskResourceDocs {
                 schema = @Schema(implementation = TaskCreationRequestPojo.class))}),
     })
     TaskResponsePojo createTask(
-        @RequestBody @Valid TaskCreationRequestPojo taskCreationPayload,
-        CustomUserDetails customUserDetails
-    );
+        @RequestBody @Valid TaskCreationRequestPojo taskCreationPayload);
 
     @Tag(name = "Получение задачи")
     @ApiResponses({
@@ -89,9 +89,12 @@ public interface TaskResourceDocs {
 
     @Tag(name = "Удаление задачи")
     @ApiResponses({
-        @ApiResponse(responseCode = "200")
+        @ApiResponse(
+            responseCode = "200",
+            content = {@Content(
+                schema = @Schema(implementation = DeletedTaskResponsePojo.class))}),
     })
-    void deleteTask(
+    DeletedTaskResponsePojo deleteTask(
         @Parameter(
             in = PATH,
             name = Api.PathParam.ID,
@@ -121,9 +124,10 @@ public interface TaskResourceDocs {
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
-            content = {@Content(mediaType = MediaType.TEXT_PLAIN_VALUE)})
+            content = {@Content(
+                schema = @Schema(implementation = UnassignmentResponsePojo.class))}),
     })
-    Long removeExecutor(
+    UnassignmentResponsePojo removeExecutor(
         @Parameter(
             in = PATH,
             name = Api.PathParam.ID,
@@ -135,9 +139,9 @@ public interface TaskResourceDocs {
         @ApiResponse(
             responseCode = "200",
             content = {@Content(
-                schema = @Schema(implementation = ChangedStatusResponsePojo.class))}),
+                schema = @Schema(implementation = StatusChangeResponsePojo.class))}),
     })
-    ChangedStatusResponsePojo setStatus(
+    StatusChangeResponsePojo setStatus(
         @Parameter(
             in = PATH,
             name = Api.PathParam.ID,

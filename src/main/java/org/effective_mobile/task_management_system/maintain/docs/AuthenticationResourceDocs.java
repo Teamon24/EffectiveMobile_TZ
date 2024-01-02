@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.effective_mobile.task_management_system.exception.json.ErrorInfo;
 import org.effective_mobile.task_management_system.exception.json.ValidationErrorInfo;
-import org.effective_mobile.task_management_system.resource.json.UserCreationResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.assignment.SignupResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
@@ -18,7 +18,7 @@ public interface AuthenticationResourceDocs {
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
-            content = { @Content(schema = @Schema(implementation = UserCreationResponsePojo.class)) }
+            content = { @Content(schema = @Schema(implementation = SignupRequestPojo.class)) }
         ),
         @ApiResponse(
             responseCode = "400",
@@ -31,7 +31,7 @@ public interface AuthenticationResourceDocs {
                 """,
             content = { @Content(schema = @Schema(implementation = ValidationErrorInfo.class)) })
     })
-    UserCreationResponsePojo signup(SignupRequestPojo signUpPayload);
+    SignupResponsePojo signup(SignupRequestPojo signUpPayload);
 
     @Tag(name = "Вход в систему")
     @ApiResponses({
