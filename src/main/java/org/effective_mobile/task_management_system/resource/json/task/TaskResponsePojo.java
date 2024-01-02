@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.effective_mobile.task_management_system.pojo.HasCreatorUsername;
 import org.effective_mobile.task_management_system.pojo.HasExecutorUsername;
-import org.effective_mobile.task_management_system.resource.json.CommentJsonPojo;
+import org.effective_mobile.task_management_system.resource.json.comment.CommentJsonPojo;
 import org.effective_mobile.task_management_system.resource.json.JsonPojoId;
 
 import java.util.ArrayList;

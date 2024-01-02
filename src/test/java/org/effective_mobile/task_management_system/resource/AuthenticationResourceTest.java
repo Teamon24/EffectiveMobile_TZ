@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.confings.IntegrationTest;
 import org.effective_mobile.task_management_system.database.entity.User;
-import org.effective_mobile.task_management_system.resource.json.UserCreationResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.assignment.SignupResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
 import org.effective_mobile.task_management_system.security.AuthTokenComponent;
@@ -49,9 +49,9 @@ public class AuthenticationResourceTest extends IntegrationTest {
         SignupRequestPojo signupRequestPojo = new SignupRequestPojo(email, username, password);
         MvcResult mvcResult = post(Api.SIGN_UP, signupRequestPojo).andReturn();
 
-        UserCreationResponsePojo userCreationResponsePojo = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserCreationResponsePojo.class);
+        SignupResponsePojo signupResponsePojo = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), SignupResponsePojo.class);
 
-        User user = userRepository.findOrThrow(User.class, userCreationResponsePojo.getId());
+        User user = userRepository.findOrThrow(User.class, signupResponsePojo.getId());
 
         Assertions.assertTrue(passwordEncoder.matches(password, user.getPassword()));
         Assertions.assertEquals(user.getEmail(), email);

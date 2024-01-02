@@ -6,7 +6,7 @@ import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.CommentRepository;
 import org.effective_mobile.task_management_system.maintain.cache.AppCacheNames;
-import org.effective_mobile.task_management_system.resource.json.CommentCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.comment.CommentCreationRequestPojo;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 

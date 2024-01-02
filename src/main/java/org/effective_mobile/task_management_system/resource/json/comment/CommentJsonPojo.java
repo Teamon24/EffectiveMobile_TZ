@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.resource.json;
+package org.effective_mobile.task_management_system.resource.json.comment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
