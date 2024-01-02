@@ -23,10 +23,5 @@ public abstract class AssignmentEssential implements HasExecutorUsername, HasTas
 
     @JsonIgnore
     private String executorUsername;
-
-    @Override
-    public String getExecutorUsername() {
-        return executorUsername;
-    }
 }
 

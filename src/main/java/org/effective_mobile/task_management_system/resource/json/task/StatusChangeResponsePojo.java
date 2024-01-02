@@ -9,7 +9,7 @@ import org.effective_mobile.task_management_system.utils.enums.Status;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangedStatusResponsePojo implements ResponsePojo {
+public class StatusChangeResponsePojo implements ResponsePojo {
     @Getter
     @JsonProperty
     private Long taskId;

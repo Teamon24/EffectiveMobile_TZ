@@ -3,7 +3,8 @@ package org.effective_mobile.task_management_system.resource;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.database.entity.Comment;
-import org.effective_mobile.task_management_system.resource.json.CommentCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.comment.CommentCreationRequestPojo;
+import org.effective_mobile.task_management_system.resource.json.comment.CommentCreationResponsePojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.service.CommentService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,12 +24,11 @@ public class CommentResource {
 
     @PostMapping
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
-    public @ResponseBody Long createComment(
-        @RequestBody @Valid CommentCreationRequestPojo commentCreationRequestPojo,
-        @AuthenticationPrincipal CustomUserDetails customUserDetails
+    public @ResponseBody CommentCreationResponsePojo createComment(
+        @RequestBody @Valid CommentCreationRequestPojo commentCreationRequestPojo
     ) {
-        Long userId = customUserDetails.getUserId();
-        Comment comment = commentService.createComment(userId, commentCreationRequestPojo);
-        return comment.getId();
+        Comment comment = commentService.createComment(commentCreationRequestPojo);
+        Long id = comment.getId();
+        return new CommentCreationResponsePojo(id, commentCreationRequestPojo);
     }
 }

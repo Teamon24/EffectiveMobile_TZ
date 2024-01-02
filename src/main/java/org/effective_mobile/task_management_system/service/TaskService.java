@@ -7,8 +7,6 @@ import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
-import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
-import org.effective_mobile.task_management_system.resource.json.task.ChangedStatusResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
@@ -23,9 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.effective_mobile.task_management_system.utils.MiscUtils.evalIfNotNull;
-import static org.effective_mobile.task_management_system.utils.MiscUtils.nullOrApply;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class TaskService {
 
@@ -33,27 +31,25 @@ public class TaskService {
     private UserComponent userComponent;
     private TaskComponent taskComponent;
 
-    @Transactional
-    public TaskResponsePojo createTask(@NotNull Long userId, TaskCreationRequestPojo taskCreationRequestPojo) {
+    public Task createTask(TaskCreationRequestPojo taskCreationRequestPojo) {
+        Long userId = contextComponent.getUserId();
         User creator = userComponent.getById(userId);
         Task task = taskComponent.createTask(creator, taskCreationRequestPojo);
-        return TaskConverter.convert(task, false);
+        return task;
     }
 
-    public TaskResponsePojo getTask(@NotNull Long id) {
+    public Task getTask(@NotNull Long id) {
         Task task = taskComponent.getTask(id);
-        return TaskConverter.convert(task, true);
+        return task;
     }
 
-    @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
     public void deleteTask(@NotNull Long id) {
         taskComponent.deleteTask(id);
     }
 
-    @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#taskId)")
-    public AssignmentResponsePojo setExecutor(
+    public User setExecutor(
         @NotNull Long taskId,
         @NotNull String newExecutorUsername
     ) {
@@ -61,33 +57,29 @@ public class TaskService {
         Task task = taskComponent.getTask(taskId);
         User oldExecutor = task.getExecutor();
         taskComponent.setExecutor(task, newExecutor);
-        String oldExecutorUsername = nullOrApply(oldExecutor, User::getUsername);
-        return new AssignmentResponsePojo(taskId, newExecutor.getUsername(), oldExecutorUsername);
+        return oldExecutor;
     }
 
-    @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#taskId)")
-    public Long unassign(@NotNull Long taskId) {
+    public void removeExecutor(@NotNull Long taskId) {
         Task task = taskComponent.getTask(taskId);
-        return taskComponent.removeExecutor(task).getId();
+        taskComponent.removeExecutor(task);
     }
 
-    @Transactional
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
-    public TaskResponsePojo editTask(@NotNull Long id, TaskEditionRequestPojo requestPojo) {
+    public Task editTask(@NotNull Long id, TaskEditionRequestPojo requestPojo) {
         Task task = taskComponent.getTask(id);
         Task editedTask = taskComponent.editTask(task, requestPojo);
-        return TaskConverter.convert(editedTask, false);
+        return editedTask;
     }
 
-    @Transactional
-    public ChangedStatusResponsePojo setStatus(Long taskId, Status newStatus) {
+    public Status setStatus(Long taskId, Status newStatus) {
         Task task = taskComponent.getTask(taskId);
         CustomUserDetails principal = contextComponent.getPrincipal();
         userComponent.validateStatusChange(task, newStatus, principal);
         Status oldStatus = task.getStatus();
         taskComponent.changeStatus(task, newStatus);
-        return new ChangedStatusResponsePojo(taskId, oldStatus, newStatus);
+        return oldStatus;
     }
 
     public Page<TaskResponsePojo> getByCreatorOrExecutor(

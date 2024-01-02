@@ -13,6 +13,10 @@ import java.util.Optional;
 @Component
 public class ContextComponent {
 
+    public Long getUserId() {
+        return getPrincipal().getUserId();
+    }
+
     public CustomUserDetails getPrincipal() {
         return (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
