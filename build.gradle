@@ -3,14 +3,33 @@ plugins {
     id 'application'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
 }
 
 group 'org.effective_mobile.task_management_system'
 version '1.0-SNAPSHOT'
 
 def mainClazz = 'org.effective_mobile.task_management_system.TaskManagementSystemApp'
-java { sourceCompatibility = '17' }
 application { mainClassName = mainClazz }
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.freeCompilerArgs = [
+            //Чтобы дефолтные методы в kotlin-интерфейсах были видны из java-классов
+            "-Xjvm-default=all"
+    ]
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "17"
+}
+
 repositories { mavenCentral() }
 
 sourceSets {
@@ -21,13 +40,50 @@ sourceSets {
     }
 }
 
+ext {
+    paths = [ src     : slpath("$rootDir", 'src') ]
+
+    paths.resources     = slpath(paths.src, 'main', 'resources')
+    paths.main          = slpath(paths.src, 'main')
+    paths.javaSrc       = slpath(paths.src, 'main', 'java')
+    paths.kotlinSrc     = slpath(paths.src, 'main', 'kotlin')
+
+    paths.testResources = slpath(paths.src, 'test', 'resources')
+    paths.testJavaSrc   = slpath(paths.src, 'test', 'java')
+    paths.testKotlinSrc = slpath(paths.src, 'test', 'kotlin')
+}
+
+sourceSets {
+
+    main.resources.srcDirs = [paths.resources]
+    test.resources.srcDirs = [paths.testResources]
+
+    //Чтобы kotlin-классы и java-классы могли использовать друг друга
+    //Java-компилятор знает о java и о kotlin
+    main.java.srcDirs = [paths.javaSrc, paths.kotlinSrc]
+    test.java.srcDirs = [paths.testJavaSrc, paths.testKotlinSrc]
+
+    //Kotlin-компилятор знает о java и о kotlin
+    main.kotlin.srcDirs = [paths.javaSrc, paths.kotlinSrc]
+    test.kotlin.srcDirs = [paths.testJavaSrc, paths.testKotlinSrc]
+}
+
 dependencies {
-    //LOMBOK -----------------------------------------------------------------
     def lombok_v = '1.18.30'
     def querydsl_v = '5.0.0:jakarta'
     def jakarta_v = '3.1.0'
     def junitVersion = '5.10.1'
 
+    implementation("home:utils") {
+        version {
+            branch = "main"
+        }
+    }
+
+    //kotlin -----------------------------------------------------------------
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+
+    //LOMBOK -----------------------------------------------------------------
     compileOnly "org.projectlombok:lombok:${lombok_v}"
     annotationProcessor "org.projectlombok:lombok:${lombok_v}"
     testCompileOnly "org.projectlombok:lombok:${lombok_v}"
@@ -59,8 +115,8 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api:${jakarta_v}"
     // MISC -----------------------------------------------------------------
     implementation 'org.postgresql:postgresql:42.5.4'
-    implementation 'com.google.guava:guava:31.0.1-jre'
-    implementation 'org.apache.commons:commons-text:1.9'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'org.apache.commons:commons-text:1.10.0'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     // DOCUMENTING----------------------------------------------------------
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3'
@@ -103,4 +159,8 @@ task deleteJar() { project.delete(files(jafFileInfo.deploy)) }
 
 bootJar {
     archiveFileName = jarNameVersExt
+}
+
+static def slpath(String... pathParts) {
+    String.join(File.separator, pathParts)
 }

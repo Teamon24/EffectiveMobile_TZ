@@ -3,12 +3,17 @@ package org.effective_mobile.task_management_system.resource.json.task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.effective_mobile.task_management_system.pojo.HasCreatorUsername;
-import org.effective_mobile.task_management_system.pojo.HasExecutorUsername;
+import org.effective_mobile.task_management_system.pojo.HasTaskInfo;
+import org.effective_mobile.task_management_system.resource.json.ResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.comment.CommentJsonPojo;
 import org.effective_mobile.task_management_system.resource.json.JsonPojoId;
+import org.effective_mobile.task_management_system.utils.MiscUtils;
+import org.effective_mobile.task_management_system.utils.enums.Priority;
+import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +21,14 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class TaskResponsePojo extends TaskEssential implements JsonPojoId, HasExecutorUsername, HasCreatorUsername {
+public class TaskResponsePojo implements JsonPojoId, ResponsePojo, HasTaskInfo {
 
     @JsonProperty private Long id;
-    @JsonProperty private String status;
+    @JsonProperty private Priority priority;
+
+    @NotEmpty
+    @JsonProperty private String content;
+    @JsonProperty private Status status;
 
     @JsonProperty("creator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -36,16 +45,17 @@ public class TaskResponsePojo extends TaskEssential implements JsonPojoId, HasEx
     public TaskResponsePojo(
         Long id,
         String content,
-        String status,
-        String priority,
+        Status status,
+        Priority priority,
         TaskExecutor taskExecutorJsonPojo,
         TaskCreator taskCreatorJsonPojo,
         List<CommentJsonPojo> comments
     ) {
-        super(priority, content);
 
         this.id = id;
         this.status = status;
+        this.content = content;
+        this.priority = priority;
         this.taskExecutorJsonPojo = taskExecutorJsonPojo;
         this.taskCreatorJsonPojo = taskCreatorJsonPojo;
         this.comments = comments;
@@ -54,12 +64,18 @@ public class TaskResponsePojo extends TaskEssential implements JsonPojoId, HasEx
     @Override
     @JsonIgnore
     public String getExecutorUsername() {
-        return this.taskExecutorJsonPojo.getUsername();
+        return MiscUtils.nullOrApply(taskExecutorJsonPojo, UserInfo::getUsername);
     }
 
     @Override
     @JsonIgnore
     public String getCreatorUsername() {
         return this.taskCreatorJsonPojo.getUsername();
+    }
+
+    @Nullable
+    @Override
+    public Long getTaskId() {
+        return getId();
     }
 }

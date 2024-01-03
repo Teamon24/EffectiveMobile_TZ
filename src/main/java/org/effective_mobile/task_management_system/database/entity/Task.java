@@ -12,9 +12,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
+import org.effective_mobile.task_management_system.pojo.HasTaskInfo;
+import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +38,8 @@ import java.util.Objects;
 @Getter
 @Entity
 @Table(name = "tasks")
-public class Task extends AbstractEntity {
+public class Task extends AbstractEntity implements HasTaskInfo {
+
 
     @Setter
     @Column(length = 20, nullable = false)
@@ -83,5 +88,23 @@ public class Task extends AbstractEntity {
         this.executor = executor;
         this.creator = Objects.requireNonNull(creator);
         this.comments = comments;
+    }
+
+    @Nullable
+    @Override
+    public Long getTaskId() {
+        return id;
+    }
+
+    @NonNull
+    @Override
+    public String getCreatorUsername() {
+        return creator.getUsername();
+    }
+
+    @Nullable
+    @Override
+    public String getExecutorUsername() {
+        return MiscUtils.nullOrApply(executor, User::getUsername);
     }
 }

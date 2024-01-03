@@ -5,11 +5,13 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.primitives.Ints;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
+import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -67,15 +69,25 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
     }
 
     @Override
-    public ResponseCookie generateTokenCookie(UserDetails userDetails) {
+    public ResponseCookie generateTokenResponseCookie(UserDetails userDetails) {
         String token = generateToken(userDetails);
         return ResponseCookie.from(authProperties.authTokenName, token).maxAge(24 * 60 * 60).httpOnly(true).build();
     }
 
     @Override
+    public Cookie generateTokenCookie(UserDetails userDetails) {
+        ResponseCookie tokenCookie = generateTokenResponseCookie(userDetails);
+        Cookie cookie = new Cookie(tokenCookie.getName(), tokenCookie.getValue());
+        cookie.setDomain(tokenCookie.getDomain());
+        cookie.setPath(tokenCookie.getPath());
+        cookie.setMaxAge(Ints.saturatedCast(tokenCookie.getMaxAge().toSeconds()));
+        return cookie;
+    }
+
+    @Override
     public DecodedJWT validateToken(final String token) throws TokenAuthenticationException {
         if (token == null) {
-            throw new TokenAuthenticationException("There is no '%s' in cookies".formatted(authProperties.authTokenName));
+            throw new TokenAuthenticationException(AuthExceptionMessages.noTokenInCookie(authProperties.authTokenName));
         }
 
         try {

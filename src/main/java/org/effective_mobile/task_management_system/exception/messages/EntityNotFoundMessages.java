@@ -6,10 +6,11 @@ import org.effective_mobile.task_management_system.database.entity.AbstractEntit
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EntityNotFoundMessages {
-    public static <E extends AbstractEntity, ID> String notFound(Class<E> userClass, ID id) {
+    public static <E extends AbstractEntity, ID> String notFound(Class<E> entityClass, ID id) {
         return ExceptionMessages.getMessage(
             "exception.entity.notFound.id",
-            userClass.getSimpleName(),
-            id);
+            entityClass.getSimpleName(),
+            id
+        );
     }
 }

@@ -18,7 +18,8 @@ import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AssignmentEssential implements HasExecutorUsername, HasTaskId, JsonPojo {
+public abstract class AssignmentEssential implements HasExecutorUsername, HasTaskId {
+
     @JsonProperty private Long taskId;
 
     @JsonIgnore

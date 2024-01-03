@@ -3,7 +3,6 @@ package org.effective_mobile.task_management_system.resource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
-import org.effective_mobile.task_management_system.confings.IntegrationTest;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.resource.json.assignment.SignupResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;

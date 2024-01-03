@@ -1,2 +1,8 @@
 rootProject.name = 'effective-mobile-tz'
 
+sourceControl {
+    gitRepository("https://github.com/Teamon24/utils.git") {
+        producesModule("home:utils")
+    }
+}
+

@@ -1,7 +1,7 @@
 package org.effective_mobile.task_management_system.component;
 
-import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
@@ -18,7 +18,7 @@ public interface TaskComponent {
     Task setExecutor(Task task, User user);
     Task removeExecutor(Task task);
     Task editTask(Task task, TaskEditionRequestPojo payload);
-    void deleteTask(Long id);
+    void deleteTask(Task task);
     Page<Task> findByCreatorAndExecutor(TasksFiltersRequestPojo tasksFiltersPayload, Pageable pageable);
     Collection<Task> getAll();
 }

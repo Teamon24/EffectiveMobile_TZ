@@ -37,8 +37,8 @@ public class TaskConverter {
         return new TaskResponsePojo(
             task.getId(),
             task.getContent(),
-            task.getStatus().name(),
-            task.getPriority().name(),
+            task.getStatus(),
+            task.getPriority(),
             executorInfo(executor),
             creatorInfo(creator),
             convertComments(task, withComments)

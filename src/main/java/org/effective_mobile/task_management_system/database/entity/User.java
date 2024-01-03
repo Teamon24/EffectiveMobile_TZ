@@ -14,11 +14,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.effective_mobile.task_management_system.pojo.HasUserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Entity
 @Table(name = "users",
     uniqueConstraints = {
@@ -26,7 +26,8 @@ import java.util.List;
         @UniqueConstraint(columnNames = "email")
 })
 @NoArgsConstructor
-public class User extends AbstractEntity {
+@Getter
+public class User extends AbstractEntity implements HasUserInfo {
 
     @NotBlank
     @Size(max = 20)

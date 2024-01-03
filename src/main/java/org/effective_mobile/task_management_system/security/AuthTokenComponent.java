@@ -15,7 +15,9 @@ public interface AuthTokenComponent {
 
     String generateToken(UsernamePasswordAuthenticationToken subject);
     String generateToken(UserDetails userDetails);
-    ResponseCookie generateTokenCookie(UserDetails userDetails);
+    ResponseCookie generateTokenResponseCookie(UserDetails userDetails);
+
+    Cookie generateTokenCookie(UserDetails userDetails);
 
     DecodedJWT validateToken(String token) throws TokenAuthenticationException;
     String validateTokenAndGetUsername(String token) throws TokenAuthenticationException;

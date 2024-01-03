@@ -45,7 +45,8 @@ public class TaskService {
 
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#id)")
     public void deleteTask(@NotNull Long id) {
-        taskComponent.deleteTask(id);
+        Task task = taskComponent.getTask(id);
+        taskComponent.deleteTask(task);
     }
 
     @PreAuthorize("@authorizationComponent.currentUserIsCreator(#taskId)")

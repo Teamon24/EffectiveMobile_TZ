@@ -101,9 +101,8 @@ public class TaskComponentImpl implements TaskComponent {
         throw new NothingToUpdateInTaskException(message);
     }
 
-    @CacheEvict(key="#id")
-    public void deleteTask(Long id) {
-        Task task = taskRepository.findOrThrow(Task.class, id);
+    @CacheEvict(key="#task.getId()")
+    public void deleteTask(Task task) {
         taskRepository.delete(task);
     }
 
