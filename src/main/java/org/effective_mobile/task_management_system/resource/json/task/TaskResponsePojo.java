@@ -13,6 +13,7 @@ import org.effective_mobile.task_management_system.resource.json.JsonPojoId;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,7 +24,10 @@ import java.util.List;
 @NoArgsConstructor
 public class TaskResponsePojo implements JsonPojoId, ResponsePojo, HasTaskInfo {
 
-    @JsonProperty private Long id;
+    @JsonProperty
+    @org.jetbrains.annotations.NotNull
+    private Long id;
+
     @JsonProperty private Priority priority;
 
     @NotEmpty
@@ -73,7 +77,7 @@ public class TaskResponsePojo implements JsonPojoId, ResponsePojo, HasTaskInfo {
         return this.taskCreatorJsonPojo.getUsername();
     }
 
-    @Nullable
+    @NotNull
     @Override
     public Long getTaskId() {
         return getId();

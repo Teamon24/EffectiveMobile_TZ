@@ -90,13 +90,12 @@ public class Task extends AbstractEntity implements HasTaskInfo {
         this.comments = comments;
     }
 
-    @Nullable
     @Override
+    @org.jetbrains.annotations.NotNull
     public Long getTaskId() {
         return id;
     }
 
-    @NonNull
     @Override
     public String getCreatorUsername() {
         return creator.getUsername();

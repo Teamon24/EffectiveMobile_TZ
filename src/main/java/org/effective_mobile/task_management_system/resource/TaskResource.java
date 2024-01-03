@@ -7,6 +7,7 @@ import org.effective_mobile.task_management_system.component.validator.ValidEnum
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.resource.json.PageResponsePojo;
+import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.assignment.UnassignmentResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeResponsePojo;
@@ -79,8 +80,9 @@ public class TaskResource {
     @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody AssignmentResponsePojo setExecutor(
         @PathVariable(name = ID) Long id,
-        @RequestParam(Api.QueryParam.EXECUTOR) String newExecutorUsername
+        @RequestBody AssignmentRequestPojo assignmentRequestPojo
     ) {
+        var newExecutorUsername = assignmentRequestPojo.getNewExecutorUsername();
         User oldExecutor = taskService.setExecutor(id, newExecutorUsername);
         String oldExecutorUsername = nullOrApply(oldExecutor, User::getUsername);
         return new AssignmentResponsePojo(id, newExecutorUsername, oldExecutorUsername);

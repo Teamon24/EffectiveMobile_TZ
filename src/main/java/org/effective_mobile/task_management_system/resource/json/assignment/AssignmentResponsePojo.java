@@ -8,18 +8,17 @@ import org.effective_mobile.task_management_system.utils.enums.Status;
 @Getter
 public class AssignmentResponsePojo extends AssignmentEssential implements ResponsePojo {
 
-    @JsonProperty
-    protected Status status = Status.ASSIGNED;
+    @JsonProperty private String newExecutorUsername;
+    @JsonProperty private String oldExecutorUsername;
 
-    @JsonProperty
-    private String newExecutorUsername;
-
-    public String getOldExecutorUsername() {
-        return super.getExecutorUsername();
-    }
-
-    public AssignmentResponsePojo(Long taskId, String newExecutorUsername, String oldExecutorUsername) {
-        super(taskId, oldExecutorUsername);
+    public AssignmentResponsePojo(
+        Long taskId,
+        String newExecutorUsername,
+        String oldExecutorUsername
+    ) {
+        super(taskId, Status.ASSIGNED);
         this.newExecutorUsername = newExecutorUsername;
+        this.oldExecutorUsername = oldExecutorUsername;
     }
 }
+

@@ -69,7 +69,7 @@ public class TaskComponentImpl implements TaskComponent {
     @CachePut(key = "#result.getId()")
     public Task setExecutor(Task task, User user) {
         User oldExecutor = task.getExecutor();
-        throwIfSameExecutor(user, oldExecutor);
+        throwIfSameExecutor(task, user, oldExecutor);
         return setExecutorAndSave(task, user, Status.ASSIGNED);
     }
 
@@ -143,10 +143,15 @@ public class TaskComponentImpl implements TaskComponent {
         return taskRepository.save(task);
     }
 
-    private void throwIfSameExecutor(User user, User oldExecutor) {
+    private void throwIfSameExecutor(
+        Task task,
+        User newExecutor,
+        User oldExecutor
+    ) {
         String oldUsername = MiscUtils.nullOrApply(oldExecutor, User::getUsername);
-        if (Objects.equals(oldUsername, user.getUsername())) {
-            String message = getMessage("exception.task.executor.same", user.getUsername());
+        String newExecutorUsername = newExecutor.getUsername();
+        if (Objects.equals(oldUsername, newExecutorUsername)) {
+            String message = TaskExceptionMessages.sameExecutorChange(task.getId(), newExecutorUsername);
             throw new AssignmentException(message);
         }
     }

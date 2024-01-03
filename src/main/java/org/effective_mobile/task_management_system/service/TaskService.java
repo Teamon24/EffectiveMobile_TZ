@@ -54,8 +54,8 @@ public class TaskService {
         @NotNull Long taskId,
         @NotNull String newExecutorUsername
     ) {
-        User newExecutor = userComponent.getByUsername(newExecutorUsername);
         Task task = taskComponent.getTask(taskId);
+        User newExecutor = userComponent.getByUsername(newExecutorUsername);
         User oldExecutor = task.getExecutor();
         taskComponent.setExecutor(task, newExecutor);
         return oldExecutor;

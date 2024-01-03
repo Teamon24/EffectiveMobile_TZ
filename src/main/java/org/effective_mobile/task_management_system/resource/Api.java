@@ -14,7 +14,6 @@ public final class Api {
     public static final String COMMENT = "/comment";
 
     public static final class QueryParam {
-        public static final String EXECUTOR = "userName";
         public static final String NEW_STATUS = "value";
         public static final class Page {
             public static final String NAME = "page";

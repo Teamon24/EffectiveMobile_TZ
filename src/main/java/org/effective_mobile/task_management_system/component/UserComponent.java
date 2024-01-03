@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.effective_mobile.task_management_system.exception.messages.AccessExceptionMessages;
 import org.effective_mobile.task_management_system.maintain.cache.AppCacheNames;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
@@ -91,7 +92,8 @@ public class UserComponent {
         Long creatorId = task.getCreator().getId();
         Long currentUserId = principal.getUserId();
         if (!Objects.equals(creatorId, currentUserId)) {
-            throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notCreator");
+            String message = AccessExceptionMessages.notACreator(task.getId(), principal.getUsernameAtDb());
+            throw new DeniedOperationException(message);
         }
     }
 
@@ -120,22 +122,8 @@ public class UserComponent {
         }
 
         if (!Objects.equals(executor.getId(), principal.getUserId())) {
-            throw createDeniedOperationEx(task, principal, "exception.access.task.edition.notExecutor");
+            String message = AccessExceptionMessages.notAExecutor(task.getId(), principal.getUsernameAtDb());
+            throw new DeniedOperationException(message);
         }
-    }
-
-    private DeniedOperationException createDeniedOperationEx(
-        Task task,
-        CustomUserDetails principal,
-        String templateKey
-    ) {
-        String message = getMessage(
-            templateKey,
-            User.class.getSimpleName(),
-            principal.getUsernameAtDb(),
-            Task.class.getSimpleName(),
-            task.getId()
-        );
-        return new DeniedOperationException(message);
     }
 }

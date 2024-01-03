@@ -3,6 +3,7 @@ package org.effective_mobile.task_management_system.exception;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.validation.FieldError;
 
@@ -11,6 +12,7 @@ import java.util.List;
 /**
  * Объект, дополнительно содержащий информацию об ошибках валидации.
  */
+@NoArgsConstructor
 public class ValidationErrorInfo extends ErrorInfo {
 
     /**
