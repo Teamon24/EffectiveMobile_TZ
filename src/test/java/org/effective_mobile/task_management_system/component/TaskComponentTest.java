@@ -3,7 +3,6 @@ package org.effective_mobile.task_management_system.component;
 import net.datafaker.Faker;
 import net.datafaker.providers.base.Internet;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.effective_mobile.task_management_system.AssertionsUtils;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.FilteredAndPagedTaskRepositoryImpl;
@@ -11,10 +10,12 @@ import org.effective_mobile.task_management_system.database.repository.TaskRepos
 import org.effective_mobile.task_management_system.exception.AssignmentException;
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
+import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
+import org.effective_mofile.task_management_system.AssertionsUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -110,7 +111,7 @@ class TaskComponentTest extends CachableComponentTest<Long, Task, TaskRepository
             () -> component.setExecutor(task, newExecutor)
         );
 
-        String message = getMessage("exception.task.executor.same", oldExecutor.getUsername());
+        String message = TaskExceptionMessages.sameExecutorChange(task.getId(), oldExecutor.getUsername());
         Assertions.assertEquals(message, assignmentException.getMessage());
 
         Mockito.verifyNoInteractions(repository);
