@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.effective_mobile.task_management_system.security.AuthTokenComponent;
+import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;

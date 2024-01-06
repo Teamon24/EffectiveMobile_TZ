@@ -3,12 +3,14 @@ package org.effective_mobile.task_management_system.component;
 import jakarta.servlet.http.HttpServletRequest;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class ContextComponent {
@@ -18,7 +20,15 @@ public class ContextComponent {
     }
 
     public CustomUserDetails getPrincipal() {
-        return (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (CustomUserDetails) getAuthentication().getPrincipal();
+    }
+
+    private Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public void setAuthorities(Set<GrantedAuthority> authorities) {
+        getPrincipal().setAuthorities(authorities);
     }
 
     public HttpServletRequest getRequest() {
@@ -38,5 +48,9 @@ public class ContextComponent {
 
     public void setAuthentication(Authentication authentication) {
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public boolean isAuthenticated() {
+        return getAuthentication() != null;
     }
 }

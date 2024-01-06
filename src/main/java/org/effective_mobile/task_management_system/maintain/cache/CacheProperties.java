@@ -17,6 +17,7 @@ public class CacheProperties {
     public final Boolean appCacheEnabled;
     public final CacheSettings tasks;
     public final CacheSettings usersAuth;
+    public final CacheSettings privileges;
 
     public final Collection<CacheSettings> settings;
 
@@ -24,15 +25,17 @@ public class CacheProperties {
         ObjectMapper objectMapper,
         @Value("#{${app.cache.enabled}}") Boolean appCacheEnabled,
         @Value("${app.cache.tasks.info}") String cacheTasksInfo,
-        @Value("${app.cache.users.auth.info}") String cacheUsersAuthInfo
+        @Value("${app.cache.users.auth.info}") String cacheUsersAuthInfo,
+        @Value("${app.cache.tasks.privileges.info}") String cachePrivilegesInfo
     ) throws JsonProcessingException {
         this.appCacheEnabled = appCacheEnabled;
         this.tasks = objectMapper.readValue(cacheTasksInfo, CacheSettings.class);
         this.usersAuth = objectMapper.readValue(cacheUsersAuthInfo, CacheSettings.class);
-        this.settings = List.of(this.tasks, this.usersAuth);
+        this.privileges = objectMapper.readValue(cachePrivilegesInfo, CacheSettings.class);
+        this.settings = List.of(this.tasks, this.usersAuth, this.privileges);
         for (CacheSettings setting : this.settings) {
             log.info(
-                "CACHE [%s]: %s; expiration: %s %s".formatted(
+                "CACHE Settings [%s] was read: enabled - %s; expiration: %s %s".formatted(
                     setting.getName(),
                     setting.isEnabled() ? "yes" : "no",
                     setting.getTtl().getType(),

@@ -3,14 +3,14 @@ package org.effective_mobile.task_management_system.security;
 import lombok.Getter;
 import lombok.Setter;
 import org.effective_mobile.task_management_system.database.entity.User;
+import org.effective_mobile.task_management_system.security.authorization.RequiredAuthorizationInfo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.function.Function;
+import java.util.Set;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, RequiredAuthorizationInfo {
 
     @Getter private final Long userId;
     @Getter private final String password;
@@ -20,14 +20,18 @@ public class CustomUserDetails implements UserDetails {
 
     @Getter
     @Setter
-    private Collection<? extends GrantedAuthority> authorities;
+    private Collection<GrantedAuthority> authorities;
 
-    public CustomUserDetails(User user, Function<User, String> usernameProviding, HashSet<GrantedAuthority> authorities) {
+    public CustomUserDetails(
+        User user,
+        String detailsUsername,
+        Set<GrantedAuthority> authorities
+    ) {
         this.userId = user.getId();
         this.usernameAtDb = user.getUsername();
         this.password = user.getPassword();
         this.email = user.getEmail();
-        this.detailsUsername = usernameProviding.apply(user);
+        this.detailsUsername = detailsUsername;
         this.authorities = authorities;
     }
 

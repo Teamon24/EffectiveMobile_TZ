@@ -9,8 +9,7 @@ import org.effective_mobile.task_management_system.resource.json.assignment.Sign
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
-import org.effective_mobile.task_management_system.security.AuthTokenComponent;
-import org.effective_mobile.task_management_system.security.CustomUserDetails;
+import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
 import org.effective_mobile.task_management_system.service.UserService;
 import org.effective_mobile.task_management_system.utils.converter.UserConverter;
 import org.springframework.http.HttpStatus;

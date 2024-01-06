@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
@@ -93,7 +92,7 @@ public class Task extends AbstractEntity implements HasTaskInfo {
     @Override
     @org.jetbrains.annotations.NotNull
     public Long getTaskId() {
-        return id;
+        return getId();
     }
 
     @Override

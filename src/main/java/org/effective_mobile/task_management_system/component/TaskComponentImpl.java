@@ -31,9 +31,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 import static org.effective_mobile.task_management_system.maintain.cache.AppCacheNames.TASKS;
-import static org.effective_mobile.task_management_system.utils.MiscUtils.unsupported;
 
 @Component
 @CacheConfig(cacheNames = TASKS)
@@ -117,8 +115,9 @@ public class TaskComponentImpl implements TaskComponent {
     }
 
     @Override
+    @Deprecated(since = "it's for cache debug", forRemoval = true)
     public Collection<Task> getAll() {
-        throw unsupported();
+        return taskRepository.findAll();
     }
 
     private <V> boolean setIfNew(

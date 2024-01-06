@@ -3,6 +3,7 @@ package org.effective_mobile.task_management_system.component;
 import net.datafaker.Faker;
 import net.datafaker.providers.base.Internet;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.effective_mobile.task_management_system.AssertionsUtils;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.FilteredAndPagedTaskRepositoryImpl;
@@ -15,7 +16,6 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskCreati
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
-import org.effective_mofile.task_management_system.AssertionsUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 
 import java.util.stream.Stream;
 
-import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 import static org.effective_mobile.task_management_system.utils.enums.Priority.LOW;
 
 class TaskComponentTest extends CachableComponentTest<Long, Task, TaskRepository> {

@@ -5,12 +5,14 @@ import lombok.NonNull;
 import org.effective_mobile.task_management_system.database.entity.AbstractEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
+@NoRepositoryBean
 public interface AbstractJpaRepository<T extends AbstractEntity, ID>
     extends
     JpaRepository<T, ID>

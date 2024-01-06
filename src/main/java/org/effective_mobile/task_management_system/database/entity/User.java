@@ -30,7 +30,7 @@ import java.util.List;
 public class User extends AbstractEntity implements HasUserInfo {
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 30)
     private String username;
 
     @Email
@@ -43,7 +43,7 @@ public class User extends AbstractEntity implements HasUserInfo {
     private String password;
 
     @Setter
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.DETACH} )
+    @OneToMany(cascade = { CascadeType.REMOVE })
     @JoinColumn(name = "creator_id")
     @ToString.Exclude
     private List<Task> tasks = new ArrayList<>();

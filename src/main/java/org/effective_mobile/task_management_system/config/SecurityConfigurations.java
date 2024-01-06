@@ -2,16 +2,15 @@ package org.effective_mobile.task_management_system.config;
 
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
-import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
-import org.effective_mobile.task_management_system.security.AuthTokenComponent;
-import org.effective_mobile.task_management_system.security.AuthenticationComponent;
-import org.effective_mobile.task_management_system.security.AuthenticationComponentImpl;
-import org.effective_mobile.task_management_system.security.AuthenticationFilter;
-import org.effective_mobile.task_management_system.security.AuthorizationComponent;
-import org.effective_mobile.task_management_system.security.AuthorizationComponentImpl;
-import org.effective_mobile.task_management_system.security.CustomUserDetailsService;
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository;
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepositoryStub;
+import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationComponent;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationComponentImpl;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationFilter;
+import org.effective_mobile.task_management_system.security.authorization.AuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +19,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,14 +42,6 @@ public class SecurityConfigurations {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(
-        AuthorizationComponent authorizationComponent,
-        UsernameProvider usernameProvider
-    ) {
-        return new CustomUserDetailsService(authorizationComponent, usernameProvider);
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(
         final AuthenticationConfiguration authenticationConfiguration
     ) throws Exception {
@@ -59,32 +49,30 @@ public class SecurityConfigurations {
     }
 
     @Bean
+    public AuthenticationComponent authenticationComponent(
+        final AuthTokenComponent authTokenComponent,
+        final ContextComponent contextComponent
+    ) {
+        return new AuthenticationComponentImpl(authTokenComponent, contextComponent);
+    }
+
+    @Bean
     public SecurityFilterChain configure(
         final HttpSecurity http,
-        final AuthenticationFilter authenticationFilter) throws Exception
-    {
+        final AuthenticationFilter authenticationFilter,
+        final AuthorizationFilter authorizationFilter
+    ) throws Exception {
         return http.cors(withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 
     @Bean
-    public AuthorizationComponent authorizationComponent(
-        UserComponent userComponent,
-        ContextComponent contextComponent,
-        TaskComponent taskComponent
-    ) {
-        return new AuthorizationComponentImpl(userComponent, contextComponent, taskComponent);
-    }
-
-    @Bean
-    public AuthenticationComponent authenticationComponent(
-        AuthTokenComponent authTokenComponent,
-        ContextComponent contextComponent
-    ) {
-        return new AuthenticationComponentImpl(authTokenComponent, contextComponent);
+    public PrivilegeRepository privilegeRepository() {
+        return new PrivilegeRepositoryStub();
     }
 }
 

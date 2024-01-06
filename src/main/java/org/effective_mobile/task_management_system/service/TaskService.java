@@ -3,6 +3,7 @@ package org.effective_mobile.task_management_system.service;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.component.StatusChangeComponent;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.database.entity.Task;
@@ -30,6 +31,7 @@ public class TaskService {
     private ContextComponent contextComponent;
     private UserComponent userComponent;
     private TaskComponent taskComponent;
+    private StatusChangeComponent statusChangeComponent;
 
     public Task createTask(TaskCreationRequestPojo taskCreationRequestPojo) {
         Long userId = contextComponent.getUserId();
@@ -76,8 +78,8 @@ public class TaskService {
 
     public Status setStatus(Long taskId, Status newStatus) {
         Task task = taskComponent.getTask(taskId);
-        CustomUserDetails principal = contextComponent.getPrincipal();
-        userComponent.validateStatusChange(task, newStatus, principal);
+        CustomUserDetails customUserDetails = contextComponent.getPrincipal();
+        statusChangeComponent.validateStatusChange(customUserDetails, task, newStatus);
         Status oldStatus = task.getStatus();
         taskComponent.changeStatus(task, newStatus);
         return oldStatus;

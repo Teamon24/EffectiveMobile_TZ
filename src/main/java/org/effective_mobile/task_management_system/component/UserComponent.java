@@ -2,20 +2,15 @@ package org.effective_mobile.task_management_system.component;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.exception.messages.AccessExceptionMessages;
-import org.effective_mobile.task_management_system.maintain.cache.AppCacheNames;
 import org.effective_mobile.task_management_system.database.entity.Task;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.database.repository.UserRepository;
 import org.effective_mobile.task_management_system.exception.DeniedOperationException;
-import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException;
-import org.effective_mobile.task_management_system.exception.TaskHasNoExecutorException;
 import org.effective_mobile.task_management_system.exception.UserAlreadyExistsException;
-import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages;
+import org.effective_mobile.task_management_system.exception.messages.AccessExceptionMessages;
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
-import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,10 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 import static org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages.NotFoundBy.EMAIL;
-import static org.effective_mobile.task_management_system.utils.enums.Status.ASSIGNED;
-import static org.effective_mobile.task_management_system.utils.enums.Status.NEW;
+import static org.effective_mobile.task_management_system.maintain.cache.AppCacheNames.USERS_AUTH;
 
 @Component
 @AllArgsConstructor
@@ -34,6 +27,33 @@ public class UserComponent {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public User getById(Long id) {
+        return userRepository.findOrThrow(User.class, id);
+    }
+
+    public User createAndSaveUser(SignupRequestPojo signUpPayload) {
+        User user = User.builder()
+            .username(signUpPayload.getUsername())
+            .email(signUpPayload.getEmail())
+            .password(passwordEncoder.encode(signUpPayload.getPassword())).build();
+
+        userRepository.save(user);
+        return user;
+    }
+
+    public User getByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        user.orElseThrow(() -> new EntityNotFoundException(UserExceptionMessages.notFound(username)));
+        return user.get();
+    }
+
+    @Cacheable(cacheNames = USERS_AUTH, key = "#email")
+    public User getByEmail(String email) {
+        return userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException(UserExceptionMessages.notFoundBy(EMAIL, email)));
+    }
 
     public Boolean usernameExists(String username) {
         return userRepository.existsByUsername(username);
@@ -61,69 +81,28 @@ public class UserComponent {
         }
     }
 
-    public User createAndSaveUser(SignupRequestPojo signUpPayload) {
-        User user = User.builder()
-            .username(signUpPayload.getUsername())
-            .email(signUpPayload.getEmail())
-            .password(passwordEncoder.encode(signUpPayload.getPassword())).build();
-
-        userRepository.save(user);
-        return user;
-    }
-
-    public User getByUsername(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        user.orElseThrow(() -> new EntityNotFoundException(UserExceptionMessages.notFound(username)));
-        return user.get();
-    }
-
-    @Cacheable(cacheNames = AppCacheNames.USERS_AUTH, key = "#email")
-    public User getByEmail(String email) {
-        return userRepository
-            .findByEmail(email)
-            .orElseThrow(() -> new EntityNotFoundException(UserExceptionMessages.notFoundBy(EMAIL, email)));
-    }
-
-    public User getById(Long id) {
-        return userRepository.findOrThrow(User.class, id);
-    }
-
-    public void checkCurrentUserIsCreator(CustomUserDetails principal, Task task) {
-        Long creatorId = task.getCreator().getId();
-        Long currentUserId = principal.getUserId();
-        if (!Objects.equals(creatorId, currentUserId)) {
-            String message = AccessExceptionMessages.notACreator(task.getId(), principal.getUsernameAtDb());
+    public void checkUserIsCreator(CustomUserDetails principal, Task task) {
+        if (!isCreator(principal, task)) {
+            String message = AccessExceptionMessages.notACreator(principal, task.getId());
             throw new DeniedOperationException(message);
         }
     }
 
-    public void validateStatusChange(Task task, Status newStatus, CustomUserDetails principal) {
-        switch (newStatus) {
-            case ASSIGNED -> {
-                String message = getMessage("exception.task.status.assign", ASSIGNED);
-                throw new IllegalStatusChangeException(message);
-            }
-            case EXECUTING, DONE, PENDING -> {
-                checkCurrentUserIsExecutor(task, principal);
-            }
-            case NEW -> {
-                String message = getMessage("exception.task.status.initial", NEW);
-                throw new IllegalStatusChangeException(message);
-            }
-        };
+    public void checkUserIsExecutor(CustomUserDetails principal, Task task) {
+        if (!isExecutor(principal, task)) {
+            String message = AccessExceptionMessages.notAExecutor(principal, task.getId());
+            throw new DeniedOperationException(message);
+        }
     }
 
-    private void checkCurrentUserIsExecutor(Task task, CustomUserDetails principal) {
+    public boolean isExecutor(CustomUserDetails principal, Task task) {
         User executor = task.getExecutor();
+        if (executor == null) return false;
+        return Objects.equals(principal.getUserId(), executor.getId());
+    }
 
-        if (executor == null) {
-            String message = TaskExceptionMessages.hasNoExecutor(task.getId());
-            throw new TaskHasNoExecutorException(message);
-        }
-
-        if (!Objects.equals(executor.getId(), principal.getUserId())) {
-            String message = AccessExceptionMessages.notAExecutor(task.getId(), principal.getUsernameAtDb());
-            throw new DeniedOperationException(message);
-        }
+    public boolean isCreator(CustomUserDetails principal, Task task) {
+        Long creatorId = task.getCreator().getId();
+        return Objects.equals(principal.getUserId(), creatorId);
     }
 }
