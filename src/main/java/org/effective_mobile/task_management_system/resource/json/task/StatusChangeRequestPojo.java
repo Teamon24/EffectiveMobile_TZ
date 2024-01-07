@@ -13,5 +13,5 @@ public class StatusChangeRequestPojo implements RequestPojo {
 
     @Getter
     @ValidEnum(clazz = Status.class)
-    private String newStatus;
+    private String status;
 }

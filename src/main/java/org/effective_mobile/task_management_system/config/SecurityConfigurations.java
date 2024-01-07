@@ -2,6 +2,7 @@ package org.effective_mobile.task_management_system.config;
 
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository;
@@ -10,7 +11,10 @@ import org.effective_mobile.task_management_system.security.authentication.AuthT
 import org.effective_mobile.task_management_system.security.authentication.AuthenticationComponent;
 import org.effective_mobile.task_management_system.security.authentication.AuthenticationComponentImpl;
 import org.effective_mobile.task_management_system.security.authentication.AuthenticationFilter;
+import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponent;
+import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponentImpl;
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationFilter;
+import org.effective_mobile.task_management_system.security.authorization.privilege.PrivilegesComponent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +34,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity
 @AllArgsConstructor
 public class SecurityConfigurations {
+
+    @Bean
+    public SecurityFilterChain configure(
+        final HttpSecurity http,
+        final AuthenticationFilter authenticationFilter,
+        final AuthorizationFilter authorizationFilter
+    ) throws Exception {
+        return http.cors(withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -57,17 +76,17 @@ public class SecurityConfigurations {
     }
 
     @Bean
-    public SecurityFilterChain configure(
-        final HttpSecurity http,
-        final AuthenticationFilter authenticationFilter,
-        final AuthorizationFilter authorizationFilter
-    ) throws Exception {
-        return http.cors(withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+    public AuthorizationComponent authorizationComponent(
+        UserComponent userComponent,
+        ContextComponent contextComponent,
+        TaskComponent taskComponent,
+        PrivilegesComponent privilegesComponent
+    ) {
+        return new AuthorizationComponentImpl(
+            userComponent,
+            contextComponent,
+            taskComponent,
+            privilegesComponent);
     }
 
     @Bean

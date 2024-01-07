@@ -1,3 +1,9 @@
-curl -L "localhost:9000/signup" -H "Content-Type: application/json" --data-raw "{\"email\": \"teamon24@gmail.com\",\"username\":\"teamon24\",\"password\": \"1As\$asfasf2323\"}"
-curl -L "localhost:9000/signin" -H "Content-Type: application/json" --data-raw "{\"email\": \"teamon24@gmail.com\", \"password\":\"1As\$asfasf2323\"}"
-
+HOST=${1:-"localhost"}
+PORT=$2
+CONTENT_TYPE="Content-Type: application/json"
+USERNAME="teamon24"
+EMAIL="$USERNAME@gmail.com"
+PASSWORD="1As!@asfasf2323"
+ADDRESS="$HOST:$PORT"
+curl -L "$ADDRESS/signup" -H "$CONTENT_TYPE" --data-raw "{\"email\": \"$EMAIL\",\"username\":\"$USERNAME\",\"password\": \"$PASSWORD\"}"
+curl -L "$ADDRESS/signin" -H "$CONTENT_TYPE" --data-raw "{\"email\": \"$EMAIL\", \"password\":\"$PASSWORD\"}"

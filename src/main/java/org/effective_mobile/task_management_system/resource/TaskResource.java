@@ -95,7 +95,7 @@ public class TaskResource {
         @PathVariable(name = ID) Long id,
         @RequestBody StatusChangeRequestPojo statusChangeRequestPojo
     ) {
-        String newStatusStr = statusChangeRequestPojo.getNewStatus();
+        String newStatusStr = statusChangeRequestPojo.getStatus();
         Status newStatus = new StatusConverter().convert(newStatusStr);
         Status oldStatus = taskService.setStatus(id, newStatus);
         return new StatusChangeResponsePojo(id, oldStatus, newStatus);

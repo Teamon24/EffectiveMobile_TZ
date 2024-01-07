@@ -7,10 +7,13 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${PROFILE}
     command: -Dspring.profiles.active=${PROFILE}
-    depends_on:
-      - task-management-system-db
     ports:
       - ${API_EXT_PORT}:${API_INT_PORT}
+    depends_on:
+      - task-management-system-db
+    networks:
+      - task-management-system-network
+
   task-management-system-db:
     profiles: ["default", "dev"]
     image: postgres
@@ -18,12 +21,17 @@ services:
     container_name: task-management-system-db${CONTAINER_POSTFIX}
     environment:
       PGDATA: /var/lib/postgresql/data/task_management_system_db/
-      POSTGRES_DB: task_management_system
-      POSTGRES_USER: artem
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./sql/tables.sql:/docker-entrypoint-initdb.d/tables.sql
       - /var/lib/deploy/volumes/task_management_system_db${CONTAINER_POSTFIX}/:/var/lib/postgresql/data/task_management_system_db${CONTAINER_POSTFIX}
     ports:
       - ${DB_EXT_PORT}:${DB_INT_PORT}
+    networks:
+      - task-management-system-network
+
+networks:
+  task-management-system-network:
