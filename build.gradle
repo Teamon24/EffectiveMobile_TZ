@@ -1,13 +1,16 @@
 plugins {
     id 'java'
+    id 'application'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.4'
-
-
+    id 'org.liquibase.gradle' version '2.2.1'
 }
 
 group 'org.effective_mobile.task_management_system'
 version '1.0-SNAPSHOT'
+
+def mainClazz = 'org.effective_mobile.task_management_system.TaskManagementSystemApp'
+application { mainClassName = mainClazz }
 
 java {
     sourceCompatibility = '17'
@@ -15,6 +18,42 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+ext {
+    paths = [ src     : slpath("$rootDir", 'src') ]
+
+    paths.resources     = slpath(paths.src, 'main', 'resources')
+
+    paths.database      = slpath("$rootDir", 'database')
+    paths.main          = slpath(paths.src, 'main')
+    paths.logs          = slpath("$rootDir", "logs")
+
+    paths.migrations    = slpath(paths.database, 'migrations')
+
+    props = [
+            default: [
+                    name: "application.properties",
+                    filepath: slpath(paths.resources, "application.properties")
+            ]
+    ]
+
+    liquibaseProps = [
+            changelogFile       :  slpath(paths.migrations, "master.yml"),
+            outputChangeLogFile :  slpath(paths.migrations, "output.txt"),
+            logsFilepath        :  slpath(paths.logs, 'liquibase.log'),
+    ]
+
+    file(liquibaseProps.changelogFile).with {if(!it.exists()) it.createNewFile() }
+
+    props.default.values = getProperties(props.default.filepath)
+}
+
+static Properties getProperties(String propertiesFilepath) {
+    return new Properties().with {
+        it.load(new File(propertiesFilepath).newReader()) //название файла с данными для бд
+        it
+    }
 }
 
 dependencies {
@@ -25,6 +64,14 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     //SPRING --------------------------------------------------------------
+    configurations {
+        all {
+            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+            exclude group: 'org.springframework.boot', module: 'logback-classic'
+        }
+    }
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -62,8 +109,60 @@ dependencies {
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.apache.commons:commons-text:1.9'
 
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.4.0'
+    //драйвер БД
+    liquibaseRuntime 'org.postgresql:postgresql'
+    //hibernate & spring & jpa
+    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate6:4.25.0'
+    liquibaseRuntime 'org.springframework.data:spring-data-jpa'
+    liquibaseRuntime 'org.springframework.data:spring-data-jdbc'
+    liquibaseRuntime 'org.springframework.boot:spring-boot'
+    liquibaseRuntime sourceSets.main.output
+    //для записи в yaml
+    liquibaseRuntime 'org.yaml:snakeyaml:1.26'
+    liquibaseRuntime 'info.picocli:picocli:4.6.1'
 }
+
+diff.dependsOn compileJava
+diffChangelog.dependsOn compileJava
+generateChangelog.dependsOn compileJava
 
 test {
     useJUnitPlatform()
+}
+
+configurations {
+    liquibaseRuntime.extendsFrom runtimeClasspath
+}
+
+liquibase {
+    activities {
+        main {
+            def profile = "default"
+            def properties = props.get(profile)
+            def values = properties.values
+            changelogFile liquibaseProps.changelogFile //указываем куда и с каким именем генерится файл
+            outputFile liquibaseProps.outputChangeLogFile
+
+            url "${values.get("spring.datasource.url")}"
+            username "${values.get("spring.datasource.username")}"
+            password "${values.get("spring.datasource.password")}"
+
+            //указываем путь к entity, а так же настройки для hibernate(диалект, сратегии наименования)
+            referenceUrl 'hibernate:spring:org.effective_mobile.task_management_system.database.entity?dialect=org.hibernate.dialect.PostgreSQLDialect'
+            driver 'org.postgresql.Driver'
+            defaultSchemaName 'public'
+            logfile "${liquibaseProps.logsFilepath}"
+            logLevel 'debug' //если хотим видить логи при выполнение команд
+        }
+        runList = "main"
+    }
+}
+
+changelogSync {
+    mainClass.set(application.mainClass)
+}
+
+static def slpath(String... pathParts) {
+    String.join(File.separator, pathParts)
 }
