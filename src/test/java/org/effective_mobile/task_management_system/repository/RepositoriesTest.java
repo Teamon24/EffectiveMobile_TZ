@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -65,9 +66,11 @@ public class RepositoriesTest {
         persistFlushRefresh(testEntityManager, comments3);
 
         List<User> createdUsers = List.of(creator1, creator2, executor);
-        List<User> foundUsers = getUsers(createdUsers.stream().map(AbstractEntity::getId).toList());
+        createdUsers.forEach(u -> u.getTasks().forEach(t -> t.getComments().forEach(c -> c.getUser())));
+        createdUsers.forEach(u -> u.getRoles().size());
 
-        createdUsers.forEach(testEntityManager::refresh);
+        testEntityManager.clear();
+        List<User> foundUsers = getUsers(createdUsers.stream().map(AbstractEntity::getId).toList());
 
         assertUsersAreEqual(
             findEqualTo(createdUsers, executor),
@@ -85,9 +88,9 @@ public class RepositoriesTest {
             .peek(pair -> assertFieldsAreEqual(pair, User::getPassword))
             .peek(pair -> assertFieldsAreEqual(pair, User::getEmail))
             .peek(pair -> {
-                List<Role> roles = pair.getLeft().getRoles();
+                List<Role> expectedRoles = pair.getLeft().getRoles();
                 List<Role> others = pair.getRight().getRoles();
-                assertRolesAreEqual(roles, others);
+                assertRolesAreEqual(expectedRoles, others);
             })
             .forEach(this::assertTasksAreFullyEqual);
     }
@@ -152,6 +155,7 @@ public class RepositoriesTest {
             .pairsById(comments, others)
             .peek(EntityAssertionUtils::assertIdsAreEqual)
             .peek(p -> assertFieldsAreEqual(p, Comment::getContent))
+            .peek(p -> assertFieldsAreEqual(p, Comment::getCreatedAt))
             .peek(p -> {
                 Task actualTask = p.getLeft().getTask();
                 assertTasksAreEqual(actualTask, p.getRight().getTask());
@@ -171,6 +175,7 @@ public class RepositoriesTest {
         assertEquals(task.getContent(), other.getContent());
         assertEquals(task.getStatus(), other.getStatus());
         assertEquals(task.getPriority(), other.getPriority());
+        assertEquals(task.getCreatedAt(), other.getCreatedAt());
     }
 
     private void assertUsersAreEqual(User user, User other) {
@@ -180,10 +185,12 @@ public class RepositoriesTest {
         assertEquals(user.getUsername(), other.getUsername());
         assertEquals(user.getEmail(), other.getEmail());
         assertEquals(user.getPassword(), other.getPassword());
+        assertEquals(user.getCreatedAt(), other.getCreatedAt());
         assertRolesAreEqual(user.getRoles(), other.getRoles());
     }
 
     public static void assertNamesAreEqual(Pair<Role, Role> pair) {
         assertFieldsAreEqual(pair, Role::getName);
+        assertFieldsAreEqual(pair, Role::getCreatedAt);
     }
 }

@@ -21,4 +21,13 @@ public abstract class AbstractEntity {
     @Column(nullable = false)
     protected Long id;
 
+    @Getter
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Date();
+    }
 }

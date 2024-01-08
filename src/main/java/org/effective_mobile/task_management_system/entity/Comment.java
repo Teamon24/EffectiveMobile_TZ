@@ -34,10 +34,11 @@ public class Comment extends AbstractEntity {
     private User user;
 
     @Builder
-    public Comment(String content, User user, Task task) {
+    public Comment(String content, User user, Task task, Date createdAt) {
         this.content = content;
         this.user = user;
         this.task = Objects.requireNonNull(task);
+        super.createdAt = createdAt;
     }
 
     @PostLoad
