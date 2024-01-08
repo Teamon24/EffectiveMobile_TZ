@@ -156,6 +156,7 @@ public class RepositoriesTest {
             .peek(EntityAssertionUtils::assertIdsAreEqual)
             .peek(p -> assertFieldsAreEqual(p, Comment::getContent))
             .peek(p -> assertFieldsAreEqual(p, Comment::getCreatedAt))
+            .peek(p -> assertFieldsAreEqual(p, Comment::getUpdatedAt))
             .peek(p -> {
                 Task actualTask = p.getLeft().getTask();
                 assertTasksAreEqual(actualTask, p.getRight().getTask());
@@ -171,26 +172,29 @@ public class RepositoriesTest {
     }
 
     private void assertTasksAreEqual(Task task, Task other) {
-        assertEquals(task.getId(), other.getId());
-        assertEquals(task.getContent(), other.getContent());
-        assertEquals(task.getStatus(), other.getStatus());
-        assertEquals(task.getPriority(), other.getPriority());
-        assertEquals(task.getCreatedAt(), other.getCreatedAt());
+        assertFieldsAreEqual(task, other, Task::getId);
+        assertFieldsAreEqual(task, other, Task::getContent);
+        assertFieldsAreEqual(task, other, Task::getStatus);
+        assertFieldsAreEqual(task, other, Task::getPriority);
+        assertFieldsAreEqual(task, other, Task::getCreatedAt);
+        assertFieldsAreEqual(task, other, Task::getUpdatedAt);
     }
 
     private void assertUsersAreEqual(User user, User other) {
         if (user == null && other == null) return;
         assertNotNull(user);
-        assertEquals(user.getId(), other.getId());
-        assertEquals(user.getUsername(), other.getUsername());
-        assertEquals(user.getEmail(), other.getEmail());
-        assertEquals(user.getPassword(), other.getPassword());
-        assertEquals(user.getCreatedAt(), other.getCreatedAt());
+        assertFieldsAreEqual(user, other, User::getId);
+        assertFieldsAreEqual(user, other, User::getUsername);
+        assertFieldsAreEqual(user, other, User::getEmail);
+        assertFieldsAreEqual(user, other, User::getPassword);
+        assertFieldsAreEqual(user, other, User::getCreatedAt);
+        assertFieldsAreEqual(user, other, User::getUpdatedAt);
         assertRolesAreEqual(user.getRoles(), other.getRoles());
     }
 
     public static void assertNamesAreEqual(Pair<Role, Role> pair) {
         assertFieldsAreEqual(pair, Role::getName);
         assertFieldsAreEqual(pair, Role::getCreatedAt);
+        assertFieldsAreEqual(pair, Role::getUpdatedAt);
     }
 }

@@ -22,6 +22,13 @@ public final class EntityAssertionUtils {
         assertEquals(getter.apply(pair.getLeft()), getter.apply(pair.getRight()));
     }
 
+    public static <E extends AbstractEntity, T> void assertFieldsAreEqual(
+        E e1, E e2,
+        Function<E, T> getter
+    ) {
+        assertEquals(getter.apply(e1), getter.apply(e2));
+    }
+
     public static <E extends AbstractEntity> void assertIdsAreEqual(Pair<E, E> pair) {
         assertFieldsAreEqual(pair, AbstractEntity::getId);
     }
