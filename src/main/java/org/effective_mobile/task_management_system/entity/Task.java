@@ -1,7 +1,7 @@
 package org.effective_mobile.task_management_system.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.effective_mobile.task_management_system.enums.Priority;
 import org.effective_mobile.task_management_system.enums.Status;
+import org.effective_mobile.task_management_system.enums.database.PriorityAttributeConverter;
+import org.effective_mobile.task_management_system.enums.database.StatusAttributeConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +37,15 @@ import java.util.Objects;
 @Getter
 @Entity
 @Table(name = "tasks")
-public class Task extends AbstractEntity{
+public class Task extends AbstractEntity {
 
-    @Column(length = 20, nullable = false)
+    @Convert(attributeName = "status", converter = StatusAttributeConverter.class)
+    @Column(length = 40, nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(nullable = false)
+    @Convert(attributeName = "priority", converter = PriorityAttributeConverter.class)
+    @Column(length = 40, nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private Priority priority;
 
@@ -53,12 +57,12 @@ public class Task extends AbstractEntity{
     private User executor;
 
     @NotNull
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
     @Setter
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @OneToMany
     @JoinColumn(name = "task_id")
     private List<Comment> comments = new ArrayList<>();
 

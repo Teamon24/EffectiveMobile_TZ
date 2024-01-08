@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.entity;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -8,8 +7,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,26 +21,23 @@ import java.util.Objects;
 @NoArgsConstructor
 public class Comment extends AbstractEntity {
 
+    @Size(min = 2, max = 510)
+    @Column(length = 510)
     private String content;
 
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
-
     @Builder
-    public Comment(String content, User user, Task task, Date creationDate) {
+    public Comment(String content, User user, Task task) {
         this.content = content;
         this.user = user;
         this.task = Objects.requireNonNull(task);
-        this.creationDate = Objects.requireNonNull(creationDate);
     }
 
     @PostLoad

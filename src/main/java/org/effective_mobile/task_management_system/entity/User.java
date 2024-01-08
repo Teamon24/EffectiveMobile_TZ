@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,7 +39,7 @@ import java.util.Set;
         @UniqueConstraint(columnNames = "email")
     })
 @ToString
-public class User extends AbstractEntity{
+public class User extends AbstractEntity {
 
     @NotBlank
     @Size(max = 20)

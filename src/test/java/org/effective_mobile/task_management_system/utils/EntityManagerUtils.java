@@ -33,6 +33,6 @@ public final class EntityManagerUtils {
     public static <E extends AbstractEntity> void persistFlushRefresh(TestEntityManager testEntityManager, Collection<E> entities) {
         persist(testEntityManager, entities);
         testEntityManager.flush();
-        refresh(testEntityManager, entities);
+        refresh(testEntityManager, entities.toArray());
     }
 }

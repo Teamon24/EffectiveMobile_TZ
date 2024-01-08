@@ -40,6 +40,6 @@ public final class EntityAssertionUtils {
             .toList();
 
         assertEquals(collect.size(), 1);
-        return collect.getFirst();
+        return collect.get(0);
     }
 }

@@ -10,7 +10,6 @@ services:
       POSTGRES_USER: artem
       POSTGRES_PASSWORD: 123456
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - /var/lib/deploy/volumes/task_management_sys/:/var/lib/postgresql/data/task_management_sys
     ports:
       - 9876:5432

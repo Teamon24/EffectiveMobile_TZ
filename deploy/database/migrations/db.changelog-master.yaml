@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: deploy/database/migrations/migration-[2024-01-08___23-53-59].sql

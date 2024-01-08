@@ -1,0 +1,1 @@
+docker-compose --profile dev --env-file ./profile/.env.dev up -d task_management_sys_db

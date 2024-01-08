@@ -1,3 +1,3 @@
 docker-compose stop
 docker-compose rm -f
-docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-compose.yml up -d --force-recreate

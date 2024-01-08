@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.repository;
 
+import lombok.NonNull;
 import org.apache.commons.lang3.tuple.Pair;
 import org.effective_mobile.task_management_system.entity.AbstractEntity;
 import org.effective_mobile.task_management_system.entity.Comment;
@@ -16,17 +17,15 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import static org.effective_mobile.task_management_system.utils.EntityAssertionUtils.assertFieldsAreEqual;
+import static org.effective_mobile.task_management_system.utils.EntityCreator.createComments;
 import static org.effective_mobile.task_management_system.utils.EntityCreator.createTask;
 import static org.effective_mobile.task_management_system.utils.EntityCreator.createUser;
-import static org.effective_mobile.task_management_system.utils.EntityManagerUtils.persist;
 import static org.effective_mobile.task_management_system.utils.EntityManagerUtils.persistFlushRefresh;
-import static org.effective_mobile.task_management_system.utils.EntityManagerUtils.refresh;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -48,28 +47,39 @@ public class RepositoriesTest {
         User creator2 = createUser(creatorRole, executorRole);
         User executor = createUser(executorRole);
 
-        Task task1 = createTask(creator1, 3, List.of(creator1, executor, creator2));
-        Task task2 = createTask(creator2, executor, 1, List.of(creator1));
-        Task task3 = createTask(creator1, creator2, 2, List.of(executor, creator2));
+        Task task1 = createTask(creator1);
+        Task task2 = createTask(creator2, executor);
+        Task task3 = createTask(creator1, creator2);
 
         persistFlushRefresh(testEntityManager, executorRole, creatorRole);
         persistFlushRefresh(testEntityManager, creator1, creator2, executor);
 
-        List<AbstractEntity> comments =
-            Stream.of(task1, task2, task3)
-                .map(Task::getComments)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
         persistFlushRefresh(testEntityManager, task1, task2, task3);
-        persistFlushRefresh(testEntityManager, comments);
+
+        List<Comment> comments1 = createComments(task1, 3, List.of(creator1, executor, creator2));
+        List<Comment> comments2 = createComments(task2, 1, List.of(creator1));
+        List<Comment> comments3 = createComments(task3, 2, List.of(executor, creator2));
+
+        persistFlushRefresh(testEntityManager, comments1);
+        persistFlushRefresh(testEntityManager, comments2);
+        persistFlushRefresh(testEntityManager, comments3);
 
         List<User> createdUsers = List.of(creator1, creator2, executor);
         List<User> foundUsers = getUsers(createdUsers.stream().map(AbstractEntity::getId).toList());
 
-        assertEquals(foundUsers.size(), createdUsers.size());
+        createdUsers.forEach(testEntityManager::refresh);
+
+        assertUsersAreEqual(
+            findEqualTo(createdUsers, executor),
+            findEqualTo(foundUsers, executor)
+        );
+
+        List<User> foundWithoutExecutor = foundUsers.stream().filter(userIsNot(executor)).toList();
+        List<User> createdWithoutExecutor = createdUsers.stream().filter(userIsNot(executor)).toList();
+
+        assertEquals(foundWithoutExecutor.size(), createdWithoutExecutor.size());
         EntityAssertionUtils
-            .pairsById(foundUsers, createdUsers)
+            .pairsById(foundWithoutExecutor, createdWithoutExecutor)
             .peek(EntityAssertionUtils::assertIdsAreEqual)
             .peek(pair -> assertFieldsAreEqual(pair, User::getUsername))
             .peek(pair -> assertFieldsAreEqual(pair, User::getPassword))
@@ -80,6 +90,21 @@ public class RepositoriesTest {
                 assertRolesAreEqual(roles, others);
             })
             .forEach(this::assertTasksAreFullyEqual);
+    }
+
+    @NonNull
+    private User findEqualTo(List<User> createdUsers, User executor) {
+        return createdUsers.stream().filter(userIs(executor)).findFirst().get();
+    }
+
+    @NonNull
+    private Predicate<User> userIs(User executor) {
+        return user -> Objects.equals(user.getId(), executor.getId());
+    }
+
+    @NonNull
+    private Predicate<User> userIsNot(User executor) {
+        return user -> !Objects.equals(user.getId(), executor.getId());
     }
 
     private List<User> getUsers(List<Long> ids) {
@@ -98,6 +123,7 @@ public class RepositoriesTest {
         User expectedCreator = usersPair.getLeft();
         List<Task> tasks = expectedCreator.getTasks();
         List<Task> others = usersPair.getRight().getTasks();
+
         assertFalse(tasks.isEmpty());
         assertEquals(tasks.size(), others.size());
         EntityAssertionUtils
@@ -126,7 +152,6 @@ public class RepositoriesTest {
             .pairsById(comments, others)
             .peek(EntityAssertionUtils::assertIdsAreEqual)
             .peek(p -> assertFieldsAreEqual(p, Comment::getContent))
-            .peek(p -> assertFieldsAreEqual(p, Comment::getCreationDate))
             .peek(p -> {
                 Task actualTask = p.getLeft().getTask();
                 assertTasksAreEqual(actualTask, p.getRight().getTask());

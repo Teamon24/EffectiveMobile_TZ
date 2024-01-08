@@ -23,29 +23,18 @@ public final class EntityCreator {
     public static final Internet internet = faker.internet();
     public static final  Text text = faker.text();
 
-    public static Task createTask(
-        User creator1,
-        User executor,
-        Integer commentsQuantity,
-        List<User> commentators
-    ) {
+    public static Task createTask(User creator1, User executor) {
         Task task = Task.builder()
             .content(text.text())
             .creator(creator1)
             .executor(executor)
             .build();
 
-        List<Comment> comments = createComments(task, commentsQuantity, commentators);
-        task.setComments(comments);
         return task;
     }
 
-    public static Task createTask(
-        User creator1,
-        Integer commentsQuantity,
-        List<User> commentators
-    ) {
-        return createTask(creator1, null, commentsQuantity, commentators);
+    public static Task createTask(User creator1) {
+        return createTask(creator1, null);
     }
 
     public static List<Comment> createComments(
@@ -53,10 +42,12 @@ public final class EntityCreator {
         Integer commentsQuantity,
         List<User> commentators
     ) {
-        return IntStream.range(0, commentsQuantity)
+        List<Comment> collect = IntStream.range(0, commentsQuantity)
             .boxed()
             .map(i -> createComment(task, text.text(), getRandomFrom(commentators)))
             .collect(Collectors.toList());
+
+        return collect;
     }
 
     private static User getRandomFrom(List<User> commentators) {
@@ -73,7 +64,7 @@ public final class EntityCreator {
             .content(content)
             .user(user)
             .task(task)
-            .creationDate(new Date(System.currentTimeMillis()))
+            .createdAt(new Date(System.currentTimeMillis()))
             .build();
     }
 
