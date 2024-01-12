@@ -1,0 +1,3 @@
+[submodule "deploy/database/migrations"]
+	path = deploy/database/migrations
+	url = https://github.com/Teamon24/migrations
