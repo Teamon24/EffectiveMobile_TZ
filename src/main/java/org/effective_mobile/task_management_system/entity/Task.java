@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.effective_mobile.task_management_system.entity.Naming.CREATOR_ID;
+import static org.effective_mobile.task_management_system.entity.Naming.EXECUTOR_ID;
+
 /**
  * Сущность задания, создаваемого пользователем.
  * Пользователи могут управлять своими задачами:
@@ -37,7 +40,7 @@ import java.util.Objects;
 @Getter
 @Entity
 @Table(name = "tasks")
-public class Task extends AbstractEntity {
+public class Task extends DatedEntity {
 
     @Convert(attributeName = "status", converter = StatusAttributeConverter.class)
     @Column(length = 40, nullable = false)
@@ -50,15 +53,16 @@ public class Task extends AbstractEntity {
     private Priority priority;
 
     @Column
+    @Setter
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "executor_id")
+    @JoinColumn(name = EXECUTOR_ID)
     private User executor;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = CREATOR_ID, nullable = false)
     private User creator;
 
     @Setter

@@ -64,7 +64,6 @@ public final class EntityCreator {
             .content(content)
             .user(user)
             .task(task)
-            .createdAt(new Date(System.currentTimeMillis()))
             .build();
     }
 
@@ -76,5 +75,13 @@ public final class EntityCreator {
             .email(username + "@gmail.com")
             .password(internet.password())
             .roles(rolesList).build();
+    }
+
+    public static String username() {
+        return internet.username();
+    }
+
+    public static String content() {
+        return text.text();
     }
 }

@@ -1,12 +1,8 @@
 package org.effective_mobile.task_management_system.entity;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -19,15 +15,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.Type;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -38,11 +29,11 @@ import java.util.Set;
         @UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")
     })
-@ToString
-public class User extends AbstractEntity {
+public class User extends DatedEntity {
 
+    @Setter
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 30)
     private String username;
 
     @NotBlank
@@ -62,7 +53,7 @@ public class User extends AbstractEntity {
 
     @Setter
     @OneToMany(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "creator_id")
+    @JoinColumn(name = Naming.CREATOR_ID)
     private List<Task> tasks = new ArrayList<>();
 
     @Builder

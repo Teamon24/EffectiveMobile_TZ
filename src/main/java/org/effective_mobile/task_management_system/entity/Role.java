@@ -15,7 +15,7 @@ import org.effective_mobile.task_management_system.enums.UserRole;
 @Table(name = "roles")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role extends AbstractEntity {
+public class Role extends HasLongId {
 
     @Getter
     @Setter

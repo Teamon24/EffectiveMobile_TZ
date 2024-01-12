@@ -4,23 +4,23 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Date;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(name = "comment")
 @NoArgsConstructor
-public class Comment extends AbstractEntity {
+public class Comment extends DatedEntity {
 
+    @Setter
     @Size(min = 2, max = 510)
     @Column(length = 510)
     private String content;
@@ -34,11 +34,14 @@ public class Comment extends AbstractEntity {
     private User user;
 
     @Builder
-    public Comment(String content, User user, Task task, Date createdAt) {
+    public Comment(
+        String content,
+        User user,
+        Task task
+    ) {
         this.content = content;
         this.user = user;
         this.task = Objects.requireNonNull(task);
-        super.createdAt = createdAt;
     }
 
     @PostLoad

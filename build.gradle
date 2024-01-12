@@ -1,20 +1,13 @@
 import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.text.SimpleDateFormat
-import java.util.function.Function
-import java.util.regex.MatchResult
-import java.util.regex.Pattern
 
 import static Lazy.lazy
 
 buildscript {
     dependencies {
         def separator = FileSystems.getDefault().getSeparator()
-        classpath files(String.join(separator, "$projectDir", "src", "main"))
+        classpath files(String.join(separator, "$rootDir", "src", "main"))
         classpath 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
         classpath 'commons-io:commons-io:2.15.1'
-
     }
 }
 
@@ -26,8 +19,10 @@ plugins {
     id 'org.liquibase.gradle' version '2.2.1'
 }
 
+//apply from: 'migrations.gradle'
+
 group 'org.effective_mobile.task_management_system'
-version '1.0-SNAPSHOT'
+version '1.2'
 
 def mainClazz = 'org.effective_mobile.task_management_system.TaskManagementSystemApp'
 application { mainClassName = mainClazz }
@@ -40,86 +35,39 @@ repositories {
     mavenCentral()
 }
 
-def extensions() {}
+def EXTENSIONS_BLOCK() {}
 ext {
-    paths = [src: slpath("$rootDir", 'src')]
-
-    paths.resources = slpath(paths.src, 'main', 'resources')
-    paths.database = slpath("$rootDir", 'deploy', 'database')
-
-    paths.main = slpath(paths.src, 'main')
-    paths.logs = slpath("$rootDir", "logs")
-
-    paths.migrations = slpath(paths.database, 'migrations')
-
-    props = [
-            default: [
-                    name    : "application.properties",
-                    filepath: slpath(paths.resources, "application.properties")
-            ]
+    paths = [
+            src: slpath("$rootDir", 'src'),
+            main : lazy { slpath(paths.src, 'main') },
+            resources : lazy { slpath(paths.src, 'main', 'resources') },
+            database : slpath("$rootDir", 'deploy', 'database'),
+            migrations : [
+                    it: lazy { slpath(paths.database, 'migrations') },
+                    up: lazy { slpath(paths.migrations.it(), 'up') }
+            ],
+            logs : slpath("$rootDir", "logs")
     ]
 
+
     props = [
             default: [
                     name    : "application.properties",
-                    filepath: slpath(paths.resources, "application.properties")
+                    filepath: slpath(paths.resources(), "application.properties")
             ],
             dev    : [
                     name    : "application-dev.properties",
-                    filepath: slpath(paths.resources, "application-dev.properties")
+                    filepath: slpath(paths.resources(), "application-dev.properties")
             ]
     ]
 
     props.default.values = getProperties(props.default.filepath)
     props.dev.values = applicationPropertiesDev(props.default.values, props.dev.filepath)
 
-    def extension = "sql"
-    liquibaseProps = [
-            extension              : extension,
-            changelog              : [
-                    path    : paths.database,
-                    filename: "changelog.$extension",
-            ],
-
-            logsFilepath           : slpath(paths.logs, 'liquibase.log'),
-            outputChangeLogFilepath: slpath(paths.migrations, "output.txt"),
-
-            migrations             : [
-                    labels          : "${project.version}",
-                    timeFormat      : "yyyy-MM-dd___HH-mm-ss",
-                    filenameTemplate: lazy { time -> "migration-[$time].${liquibaseProps.extension}" },
-                    path            : paths.migrations,
-                    relativePath    : slpath('deploy', 'database', 'migrations'),
-                    masterFilename  : "db.changelog-master.yaml",
-                    masterFilepath  : lazy { liquibaseProps.migrations.with { slpath(it.relativePath, it.masterFilename) } }
-            ],
-            activities             : [
-                    runnable: lazy { findProperty("enabledActivities") },
-                    names   : [
-                            migration: "migrationsByEntities",
-                            drop     : "dropDatabase",
-                            update   : "updateDatabase",
-                            rollback : "rollbackDatabase"
-                    ]
-            ]
-    ]
-
-    liquibaseProps.migrations.with {
-        it.filepath = (Function) (time) -> "${slpath(it.path, it.filenameTemplate(time))}"
-    }
-
-    liquibaseProps.changelog.with {
-        it.filepath = slpath(it.path, "${it.filename}")
-    }
-
     applicationProperties = props.dev.values
-    databaseUrl = applicationProperties.with { substitute(it, it["spring.datasource.url"]) }
-
 }
 
-//def lazy(Closure closure) { return new Function() { Object apply(Object o) { return closure.call(o) }}}
-
-def dependenciesBlock() {}
+def DEPENDENCIES_BLOCK() {}
 dependencies {
     //LOMBOK --------------------------------------------------------------
     compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -170,166 +118,13 @@ dependencies {
 
     //MISC --------------------------------------------------------------
     implementation 'org.postgresql:postgresql:42.3.1'
-    implementation 'com.google.guava:guava:31.0.1-jre'
-    implementation 'org.apache.commons:commons-text:1.9'
-
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.4.0'
-    //драйвер БД
-    liquibaseRuntime 'org.postgresql:postgresql'
-    //hibernate & spring & jpa
-    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate6:4.25.0'
-    liquibaseRuntime 'org.springframework.data:spring-data-jdbc'
-    liquibaseRuntime 'org.springframework.data:spring-data-jpa'
-    liquibaseRuntime 'org.springframework.boot:spring-boot'
-    liquibaseRuntime sourceSets.main.output
-    //для записи в yaml
-    liquibaseRuntime 'org.yaml:snakeyaml:1.26'
-    liquibaseRuntime 'info.picocli:picocli:4.6.1'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'org.apache.commons:commons-text:1.10.0'
 }
 
 test {
     useJUnitPlatform()
 }
-
-configurations {
-    liquibaseRuntime.extendsFrom runtimeClasspath
-}
-
-def liquibaseFromEntitiesTask() {}
-diff.dependsOn compileJava
-diffChangelog.dependsOn compileJava
-generateChangelog.dependsOn compileJava
-
-def migrationsByEntitiesTask() {}
-task migrationsByEntities {
-    doFirst {
-        liquibase { runList = liquibaseProps.activities.names.migration }
-    }
-}
-
-diffChangelog.dependsOn migrationsByEntities
-diff.dependsOn migrationsByEntities
-generateChangelog.dependsOn migrationsByEntities
-
-diffChangelog.doLast {
-    liquibaseProps.with {
-        def formatter = new SimpleDateFormat(it.migrations.timeFormat)
-        def time = formatter.format(System.currentTimeMillis())
-
-        def changelogFilepath = it.changelog.filepath
-        def migrationFilepath = it.migrations.filepath.apply(time)
-
-        println "Creating migrations from changelog."
-        println "Changelog  : $changelogFilepath"
-        println "Migrations : $migrationFilepath"
-
-        def fromPath = Paths.get(changelogFilepath)
-        def toPath = Paths.get(migrationFilepath)
-        Files.copy(fromPath, toPath)
-        Files.delete(fromPath)
-    }
-}
-
-def migrationsByEntitiesSettingsBlock() {}
-liquibase {
-    activities {
-        def entitiesPath = applicationProperties["liquibase.hibernate.entities.path"]
-        def dialect = applicationProperties["spring.jpa.properties.hibernate.dialect"]
-
-        "${liquibaseProps.activities.names.migration}" {
-            labels liquibaseProps.migrations.labels
-            changelogFile "${liquibaseProps.changelog.filepath}"
-            generateChangesetCreatedValues "true"
-            url databaseUrl
-            username applicationProperties["spring.datasource.username"]
-            password applicationProperties["spring.datasource.password"]
-            referenceUrl "hibernate:spring:$entitiesPath?dialect=$dialect"
-            driver applicationProperties["spring.datasource.driver-class-name"]
-            logfile liquibaseProps.logsFilepath
-            logLevel 'debug'
-        }
-    }
-}
-
-
-def updateDatabaseTask() {}
-task updateDatabase {
-    doFirst {
-        liquibase { runList = liquibaseProps.activities.names.update }
-    }
-}
-update.dependsOn updateDatabase
-
-def updateDatabaseSettingsBlock() {}
-liquibase {
-    activities {
-        "${liquibaseProps.activities.names.update}" {
-            changelogFile "${liquibaseProps.migrations.masterFilepath()}"
-            url databaseUrl
-            username applicationProperties["spring.datasource.username"]
-            password applicationProperties["spring.datasource.password"]
-            driver applicationProperties["spring.datasource.driver-class-name"]
-            logfile liquibaseProps.logsFilepath
-            logLevel 'debug'
-        }
-    }
-}
-
-def rollbackDatabaseTask() {}
-task rollbackDatabase {
-    doFirst {
-        liquibase {
-            activities {
-                main {
-                    classpath "$projectDir"
-                }
-            }
-            runList = liquibaseProps.activities.names.rollback
-        }
-    }
-}
-
-rollback.dependsOn rollbackSql
-rollbackSql.dependsOn rollbackDatabase
-
-def rollbackDatabaseSettingsBlock() {}
-liquibase {
-    activities {
-        "${liquibaseProps.activities.names.rollback}" {
-            changelogFile "${liquibaseProps.migrations.masterFilepath()}"
-            url databaseUrl
-            username applicationProperties["spring.datasource.username"]
-            password applicationProperties["spring.datasource.password"]
-            driver applicationProperties["spring.datasource.driver-class-name"]
-            logfile liquibaseProps.logsFilepath
-            logLevel 'debug'
-        }
-    }
-}
-
-def dropDatabaseTask() {}
-task dropDatabase {
-    doFirst {
-        liquibase { runList = liquibaseProps.activities.names.drop }
-    }
-}
-dropAll.dependsOn dropDatabase
-
-def dropDatabaseSettingsBlock() {}
-liquibase {
-    activities {
-        "${liquibaseProps.activities.names.drop}" {
-            url databaseUrl
-            username applicationProperties["spring.datasource.username"]
-            password applicationProperties["spring.datasource.password"]
-            driver applicationProperties["spring.datasource.driver-class-name"]
-            logfile liquibaseProps.logsFilepath
-            logLevel 'debug'
-        }
-    }
-}
-
-
 
 def jarName = 'task-management-system'
 def jarNameVersExt = "$jarName-${version}.jar"
@@ -354,30 +149,16 @@ String slpath(String... pathParts) {
     String.join(FileSystems.getDefault().getSeparator(), pathParts)
 }
 
-String substitute(Properties properties, String propertyValue) {
-    String regex = '\\$\\{([A-Za-z0-9.]+)}';
-    String[] keys = Pattern.compile(regex)
-            .matcher(propertyValue)
-            .results()
-            .map(MatchResult::group)
-            .map(key -> key.replaceAll('[${}]', ''))
-            .toArray(String[]::new);
-    Object[] values = new String[keys.length];
-
-    for (int i = 0; i < keys.length; i++) {
-        values[i] = properties.get(keys[i]);
-    }
-
-    String template = propertyValue.replaceAll(regex, "%s");
-    return template.formatted(values);
+String findProperty(String propertyName) {
+    return findProperty(propertyName, null)
 }
 
-
-String findProperty(String propertyName) {
+String findProperty(String propertyName, defaultValue) {
     return propertyName.with {
         def property = project.properties.get(it)
         if (property == null) property = System.properties.get(it)
-        if (property == null) throw new RuntimeException("There is no property '$it' in project or system properties")
+        if (property == null) property = defaultValue
+        if (property == null) throw new RuntimeException("Property '$it' is not in project, system or default properties.")
         property
     }
 }
@@ -396,8 +177,6 @@ Properties getProperties(String propertiesFilepath) {
         it
     }
 }
-
-def func(Closure closure) { return new Function() { Object apply(Object o) { return closure.call(o) }}}
 
 @groovy.transform.CompileStatic
 class Lazy extends Closure {
