@@ -72,8 +72,7 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
                 url = statusChangeUrl(task.getTaskId())
                 body = statusChangeBody(newInvalidStatus)
             } response { requestInfo ->
-                assertAny400(
-                    HttpStatus.BAD_REQUEST,
+                assert400(
                     requestInfo,
                     expectedEx.message!!,
                     expectedEx::class.canonicalName
@@ -83,14 +82,12 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
     }
 
     @ParameterizedTest
-    @MethodSource("incorrectUserRole")
-    fun `setStatus 403 wrong role`(
+    @MethodSource("incorrectUser")
+    fun `setStatus 403 wrong user`(
         user: User,
         task: Task,
         newValidStatus: Status,
-        lazyExpectedException: (
-            details: CustomUserDetails,
-            task: Task) -> DeniedOperationException,
+        lazyExpectedException: (details: CustomUserDetails, task: Task) -> String,
         saveEntities: (UserAndTaskIntegrationBase) -> Unit
     ) {
         saveEntities(this)
@@ -103,11 +100,10 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
                 url = statusChangeUrl(task.getTaskId())
                 body = statusChangeBody(newValidStatus)
             } response { requestInfo ->
-                assertAny400(
-                    HttpStatus.FORBIDDEN,
+                assert403(
                     requestInfo,
-                    expectedEx.message!!,
-                    expectedEx::class.canonicalName
+                    expectedEx,
+                    DeniedOperationException::class.canonicalName
                 )
             }
         }
@@ -117,7 +113,7 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
     companion object {
         @JvmStatic
         fun correctStatusChange(): Stream<Arguments> {
-            return StatusChangeValidatorTest.validChangeAndValidRole()
+            return StatusChangeValidatorTest.validChangeAndValidUser()
         }
 
         @JvmStatic
@@ -126,8 +122,8 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
         }
 
         @JvmStatic
-        fun incorrectUserRole(): Stream<Arguments> {
-            return StatusChangeValidatorTest.validChangeButNotValidRoleTestData()
+        fun incorrectUser(): Stream<Arguments> {
+            return StatusChangeValidatorTest.validChangeButNotValidUserTestData()
         }
     }
 }

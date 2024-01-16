@@ -150,19 +150,21 @@ abstract class IntegrationTest {
     }
 
     protected fun MockHttpServletResponse.assert403(
-        requestInfo: HttpRequestInfo,
-        message: String,
-        exceptionCanonicalName: String
+        requestInfo: HttpRequestInfo, message: String, exceptionCanonicalName: String
     ) {
         assertAny400(HttpStatus.FORBIDDEN, requestInfo, message, exceptionCanonicalName)
     }
 
     protected fun MockHttpServletResponse.assert404(
-        requestInfo: HttpRequestInfo,
-        message: String,
-        exceptionCanonicalName: String
+        requestInfo: HttpRequestInfo, message: String, exceptionCanonicalName: String
     ) {
         assertAny400(HttpStatus.NOT_FOUND, requestInfo, message, exceptionCanonicalName)
+    }
+
+    protected fun MockHttpServletResponse.assert400(
+        requestInfo: HttpRequestInfo, message: String, exceptionCanonicalName: String
+    ) {
+        assertAny400(HttpStatus.BAD_REQUEST, requestInfo, message, exceptionCanonicalName)
     }
 
     protected fun MockHttpServletResponse.assertAny400(

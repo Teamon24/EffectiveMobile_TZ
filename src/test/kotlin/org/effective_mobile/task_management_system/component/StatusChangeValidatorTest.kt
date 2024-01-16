@@ -64,23 +64,21 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
      * Test for [StatusChangeValidator.validateByRules].
      */
     @ParameterizedTest
-    @MethodSource("validChangeButNotValidRoleTestData")
-    fun `case when task status change is valid but not a role of user`(
+    @MethodSource("validChangeButNotValidUserTestData")
+    fun `case when task status change is valid but not a user`(
         user: User,
         task: Task,
         newValidStatus: Status,
-        lazyExpectedException: (
-            details: CustomUserDetails,
-            task: Task) -> DeniedOperationException,
+        lazyExpectedExceptionMessage: (details: CustomUserDetails, task: Task) -> String,
         saveEntities: (UserAndTaskIntegrationBase) -> Unit
     ) {
         saveEntities(this)
         user.authenticated()
-        val expectedEx = lazyExpectedException(customUserDetails, task);
-        Assertions.assertThrows(expectedEx::class.java) {
+        val expectedExMessage = lazyExpectedExceptionMessage(customUserDetails, task);
+        Assertions.assertThrows(DeniedOperationException::class.java) {
             validator.validateByRules(customUserDetails, task, newValidStatus)
         }.let { ex ->
-            Assertions.assertEquals(expectedEx.message, ex.message)
+            Assertions.assertEquals(expectedExMessage, ex.message)
         }
     }
 
@@ -88,8 +86,8 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
      * Test for [StatusChangeValidator.validateByRules].
      */
     @ParameterizedTest
-    @MethodSource("validChangeAndValidRole")
-    fun `case when task status change and role are valid but no authorities`(
+    @MethodSource("validChangeAndValidUser")
+    fun `case when task status change and user are valid but no authorities`(
         user: User,
         task: Task,
         newValidStatus: Status,
@@ -118,7 +116,7 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
      * Test for [StatusChangeValidator.validateByRules].
      */
     @ParameterizedTest
-    @MethodSource("validChangeAndValidRole")
+    @MethodSource("validChangeAndValidUser")
     fun `case when status change validation is positive`(
         user: User,
         task: Task,
@@ -140,7 +138,7 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
 
             val saveAll = { base: UserAndTaskIntegrationBase ->
                 for (it in (creator + executor + task)) {
-                    base.saveAllAndFlush(it)
+                    base.saveAndFlush(it)
                 }
             }
 
@@ -175,9 +173,10 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
         }
 
         @JvmStatic
-        fun validChangeButNotValidRoleTestData(): Stream<Arguments> {
+        fun validChangeButNotValidUserTestData(): Stream<Arguments> {
 
-            fun saveAll(creator: User, executor: User, neither: User, task: Task) = { base: UserAndTaskIntegrationBase ->
+            fun saveAll(creator: User, executor: User, neither: User, task: Task) = {
+                    base: UserAndTaskIntegrationBase ->
                 listOf(creator, executor, neither, task).forEach { base.saveAllAndFlush(it) }
             }
 
@@ -196,9 +195,7 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
                         +creator
                         val task = +task(creator, executor, statusChange.first) as Task
                         val newStatus = +statusChange.second
-                        +{ details: CustomUserDetails, task: Task ->
-                            DeniedOperationException(notAExecutor(details, task.id))
-                        }
+                        +{ details: CustomUserDetails, task: Task -> notAExecutor(details, task.id) }
                         +saveAll(creator, executor, neither, task)
                     }
                 }
@@ -209,16 +206,14 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
                     +neither
                     val task = +task(creator, executor, DONE) as Task
                     val newStatus = +PENDING
-                    +{ details: CustomUserDetails, task: Task ->
-                        DeniedOperationException(neitherCreatorOrExecutor(task.id, details.userId))
-                    }
+                    +{ details: CustomUserDetails, task: Task -> neitherCreatorOrExecutor(task.id, details.userId) }
                     +saveAll(creator, executor, neither, task)
                 }
             }
         }
 
         @JvmStatic
-        fun validChangeAndValidRole(): Stream<Arguments> {
+        fun validChangeAndValidUser(): Stream<Arguments> {
             fun saveAll(creator: User, executor: User, task: Task) = { base: UserAndTaskIntegrationBase ->
                 for (entity in (creator + executor + task)) {
                     base.saveAndFlush(entity)
