@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @param <Enam> тип enum-константы, которая будет конвертирована.
+ * @param <Enum> тип enum-константы, которая будет конвертирована.
  */
-public abstract class EnumNameConverter<Enam extends Enum<Enam> & ValuableEnum<String>> {
+public abstract class EnumNameConverter<Enum extends java.lang.Enum<Enum> & ValuableEnum<String>> {
 
-    protected abstract Class<Enam> enumClass();
+    protected abstract Class<Enum> enumClass();
 
-    public Enam convert(String value) {
+    public Enum convert(String value) throws ToEnumConvertException {
         return getEnumOrDie(enumClass(), value);
     }
 
@@ -27,10 +27,9 @@ public abstract class EnumNameConverter<Enam extends Enum<Enam> & ValuableEnum<S
      * @return enum-константа (никогда null).
      * @throws ToEnumConvertException если не получается связать заданное значение с enum-константой.
      */
-    public Enam getEnumOrDie(@NonNull final Class<Enam> enumClass, final String value)
-        throws ToEnumConvertException {
-        final Enam[] enumConstants = enumClass.getEnumConstants();
-        for (Enam enumConstant : enumConstants) {
+    public Enum getEnumOrDie(@NonNull final Class<Enum> enumClass, final String value) throws ToEnumConvertException {
+        final Enum[] enumConstants = enumClass.getEnumConstants();
+        for (Enum enumConstant : enumConstants) {
             final String enumValue = enumConstant.getValue();
             if (enumValue.equalsIgnoreCase(value)) return enumConstant;
         }
@@ -45,12 +44,12 @@ public abstract class EnumNameConverter<Enam extends Enum<Enam> & ValuableEnum<S
         throw new ToEnumConvertException(message);
     }
 
-    public static List<String> values(@NonNull final Class<? extends ValuableEnum<String>> enumClass) {
+    public static <T> List<T> values(@NonNull final Class<? extends ValuableEnum<T>> enumClass) {
         return Arrays.stream(enumClass.getEnumConstants()).map(ValuableEnum::getValue).collect(Collectors.toList());
     }
 
-    public static List<String> names(@NonNull final Class<? extends Enum<?>> enumClass) {
-        return Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
+    public static List<String> names(@NonNull final Class<? extends java.lang.Enum<?>> enumClass) {
+        return Arrays.stream(enumClass.getEnumConstants()).map(java.lang.Enum::name).collect(Collectors.toList());
     }
 }
 

@@ -1,17 +1,18 @@
 package org.effective_mobile.task_management_system.resource.json.task;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 import org.effective_mobile.task_management_system.resource.json.RequestPojo;
-import org.effective_mobile.task_management_system.utils.enums.Status;
 
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatusChangeRequestPojo implements RequestPojo {
 
+    public static final String STATUS_FIELD_NAME = "status";
+
     @Getter
-    @ValidEnum(clazz = Status.class)
+    @JsonProperty(STATUS_FIELD_NAME)
     private String status;
 }

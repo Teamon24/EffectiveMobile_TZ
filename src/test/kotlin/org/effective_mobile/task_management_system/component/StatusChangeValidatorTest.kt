@@ -94,8 +94,7 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
         saveEntities: (UserAndTaskIntegrationBase) -> Unit
     ) {
         saveEntities(this)
-        user.authenticated()
-        customUserDetails.authorities = hashSetOf()
+        user.unauthorized()
 
         val expectedEx = DeniedOperationException(
             AuthorizationExceptionMessages.cantChangeStatus(

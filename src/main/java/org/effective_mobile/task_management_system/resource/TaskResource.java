@@ -93,7 +93,7 @@ public class TaskResource {
     @PutMapping("/{"+ ID + "}" + Api.STATUS)
     public @ResponseBody StatusChangeResponsePojo setStatus(
         @PathVariable(name = ID) Long id,
-        @RequestBody StatusChangeRequestPojo statusChangeRequestPojo
+        @RequestBody @Valid StatusChangeRequestPojo statusChangeRequestPojo
     ) {
         String newStatusStr = statusChangeRequestPojo.getStatus();
         Status newStatus = new StatusConverter().convert(newStatusStr);

@@ -1,14 +1,11 @@
 package org.effective_mobile.task_management_system.resource.json.task;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.effective_mobile.task_management_system.component.validator.ValidEnum;
 import org.effective_mobile.task_management_system.resource.json.RequestPojo;
-import org.effective_mobile.task_management_system.utils.enums.Priority;
 
 /**
  * Json pojo с информацией для создания задачи.
@@ -18,12 +15,13 @@ import org.effective_mobile.task_management_system.utils.enums.Priority;
 @NoArgsConstructor
 public class TaskCreationRequestPojo implements RequestPojo {
 
-    @ValidEnum(clazz = Priority.class)
-    @JsonProperty
+    public static final String CONTENT_FIELD_NAME = "content";
+    public static final String PRIORITY_FIELD_NAME = "priority";
+
+    @JsonProperty(PRIORITY_FIELD_NAME)
     private String priority;
 
-    @NotBlank
-    @JsonProperty
+    @JsonProperty(CONTENT_FIELD_NAME)
     private String content;
 
     @Builder

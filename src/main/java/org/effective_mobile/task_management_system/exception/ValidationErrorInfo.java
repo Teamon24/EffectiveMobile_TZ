@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -40,6 +41,8 @@ public class ValidationErrorInfo extends ErrorInfo {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ValidationError {
         private String object;
         private String field;

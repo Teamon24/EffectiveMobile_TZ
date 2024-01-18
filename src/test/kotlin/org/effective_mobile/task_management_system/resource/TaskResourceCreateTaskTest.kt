@@ -12,6 +12,7 @@ import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
 import org.effective_mobile.task_management_system.resource.TaskResourceTestUtils.taskCreation
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo
+import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo.*
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
@@ -72,21 +73,23 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
             } response {
                 val validationErrorInfo = getBody<ValidationErrorInfo>()
                 taskCreationRequestPojo.apply {
-                    if (priority?.isBlank() ?: true) {
-                        val priorityErrors = validationErrorInfo.errors.filter { it.field == "priority" }
-                        assertEquals(1, priorityErrors.size)
-                        assertEquals(priority, priorityErrors[0].rejectedValue)
-                        assertEquals(lowercaseFirstSimpleName, priorityErrors[0].`object`)
-                    }
-
-                    if (content?.isBlank() ?: true) {
-                        val contentErrors = validationErrorInfo.errors.filter { it.field == "content" }
-                        assertEquals(1, contentErrors.size)
-                        assertEquals(content, contentErrors[0].rejectedValue)
-                        assertEquals(lowercaseFirstSimpleName, contentErrors[0].`object`)
-                    }
+                    assertErrors(validationErrorInfo, priority, PRIORITY_FIELD_NAME)
+                    assertErrors(validationErrorInfo, content, CONTENT_FIELD_NAME)
                 }
             }
+        }
+    }
+
+    private fun TaskCreationRequestPojo.assertErrors(
+        validationErrorInfo: ValidationErrorInfo,
+        field: String?,
+        fieldName: String
+    ) {
+        if (field != null && field.isBlank()) {
+            val fieldErrors = validationErrorInfo.errors.filter { it.field == fieldName }
+            assertEquals(1, fieldErrors.size)
+            assertEquals(field, fieldErrors[0].rejectedValue)
+            assertEquals(this@assertErrors.lowercaseFirstSimpleName, fieldErrors[0].`object`)
         }
     }
 

@@ -33,8 +33,8 @@ public final class ErrorCreator {
         final HttpStatus httpStatus,
         ExMessageHandler messageHandler
     ) {
-        final String userLogMessage = messageHandler.apply(ex);
-
+        String userLogMessage = messageHandler.apply(ex);
+        if (userLogMessage == null) userLogMessage = ex.getMessage();
         return new ErrorInfo(
             new Date().getTime(),               // unix-время возникновения ошибки
             httpStatus.value(),                 // код ошибки

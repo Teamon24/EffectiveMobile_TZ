@@ -75,8 +75,9 @@ dependencies {
     def jakarta_v = '3.1.0'
     def junitVersion = '5.10.1'
 
-    implementation("home:utils") {
+    implementation("home:utils:1.1") {
         version {
+            changing(true)
             branch = "main"
         }
         changing(true)

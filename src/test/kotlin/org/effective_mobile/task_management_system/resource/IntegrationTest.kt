@@ -6,6 +6,7 @@ import org.effective_mobile.task_management_system.TaskManagementSystemApp
 import org.effective_mobile.task_management_system.component.UsernameProvider
 import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.ErrorInfo
+import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException
 import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages
 import org.effective_mobile.task_management_system.resource.json.RequestPojo
@@ -52,7 +53,6 @@ abstract class IntegrationTest {
         lateinit var response: Class<*>
         lateinit var responseBody: MockHttpServletResponse
     }
-
 
     private var _customUserDetails: CustomUserDetails? = null
     protected var customUserDetails: CustomUserDetails
@@ -110,6 +110,14 @@ abstract class IntegrationTest {
             this,
             usernameProvider.getUsername(this),
             authorizationComponent.getAuthorities(RequiresAuthorizationInfoImplTest(this))
+        )
+    }
+
+    protected fun User.unauthorized() {
+        _customUserDetails = CustomUserDetails(
+            this,
+            usernameProvider.getUsername(this),
+            hashSetOf()
         )
     }
 
@@ -182,6 +190,31 @@ abstract class IntegrationTest {
         Assertions.assertEquals(message, errorInfo.message)
     }
 
-    protected val KClass<*>.canonicalName: String get() = this.java.canonicalName
+    protected fun MockHttpServletResponse.assertValidationErrorInfo(
+        requestInfo: HttpRequestInfo,
+        exceptionCanonicalName: String
+    ): ValidationErrorInfo {
+        val validationErrorInfo = getBody<ValidationErrorInfo>()
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), validationErrorInfo.status)
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.reasonPhrase, validationErrorInfo.error)
+        Assertions.assertEquals(requestInfo.url, validationErrorInfo.path)
+        Assertions.assertEquals(exceptionCanonicalName, validationErrorInfo.exception)
+        Assertions.assertEquals(null, validationErrorInfo.message)
+        return validationErrorInfo
+    }
 
+    protected inline fun ValidationErrorInfo.assertValidationError(
+        errorIndex: Int,
+        function: ValidationErrorInfo.ValidationError.() -> Unit
+    ) {
+        val expected = ValidationErrorInfo.ValidationError().apply(function)
+        val actual = this.errors[errorIndex]
+        Assertions.assertEquals(expected.field, actual.field)
+        Assertions.assertEquals(expected.rejectedValue, actual.rejectedValue)
+        Assertions.assertEquals(expected.message, actual.message)
+        Assertions.assertEquals(expected.`object`, actual.`object`)
+    }
+
+
+    protected inline val KClass<*>.canonicalName: String get() = this.java.canonicalName
 }
