@@ -20,11 +20,11 @@ import org.effective_mobile.task_management_system.exception.messages.EntityNotF
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
+import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo
+import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
 import org.effective_mobile.task_management_system.utils.Api
 import org.effective_mobile.task_management_system.utils.Constraints.Task.Content.Length
 import org.effective_mobile.task_management_system.utils.JsonPojos
-import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo
-import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
 import org.effective_mobile.task_management_system.utils.enums.Priority
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.params.ParameterizedTest
@@ -58,7 +58,6 @@ class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
         saveAndFlush(task)
 
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = editTaskUrl(task.getTaskId())
@@ -84,7 +83,6 @@ class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
         saveAllAndFlush(creator, task)
 
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = editTaskUrl(task.getTaskId())
@@ -106,7 +104,6 @@ class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
         saveAllAndFlush(creator, task)
 
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = editTaskUrl(task.getTaskId())
@@ -142,7 +139,6 @@ class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
         saveAllAndFlush(creator, task)
 
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = editTaskUrl(task.getTaskId())
@@ -187,6 +183,7 @@ class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
     ) {
         saveAllAndFlush(creator, task)
         creator {
+            unauthenticated()
             send(mvc) {
                 method = PUT
                 url = editTaskUrl(task.getTaskId())
@@ -206,7 +203,6 @@ class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
         saveAllAndFlush(creator)
         val absentTaskId = Long.MAX_VALUE
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = Api.TASK + "/$absentTaskId"

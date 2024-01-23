@@ -3,6 +3,7 @@ package org.effective_mobile.task_management_system.resource.task
 import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
 import home.extensions.StringsExtensions.decapitalized
+import org.effective_mobile.task_management_system.RandomTasks
 import org.effective_mobile.task_management_system.RandomTasks.task
 import org.effective_mobile.task_management_system.RandomUsers.user
 import org.effective_mobile.task_management_system.component.StatusChangeValidatorTest
@@ -11,13 +12,15 @@ import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
-import org.effective_mobile.task_management_system.utils.JsonPojos
 import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeResponsePojo
+import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo
 import org.effective_mobile.task_management_system.security.CustomUserDetails
+import org.effective_mobile.task_management_system.utils.JsonPojos
 import org.effective_mobile.task_management_system.utils.enums.Status
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -45,7 +48,6 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
         saveEntities(this)
         val oldStatus = task.getStatus()
         user {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setStatusUrl(task.getTaskId())
@@ -74,7 +76,6 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
     ) {
         saveEntities(this)
         user {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setStatusUrl(task.getTaskId())
@@ -101,7 +102,6 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
     ) {
         saveEntities(this)
         user {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setStatusUrl(task.getTaskId())
@@ -121,6 +121,23 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
         }
     }
 
+    @Test
+    fun `editTask 401`() {
+        val creator = user()
+        val task = task(creator)
+        saveAllAndFlush(creator, task)
+        creator {
+            unauthenticated()
+            send(mvc) {
+                method = PUT
+                url = editTaskUrl(task.getTaskId())
+                body = TaskEditionRequestPojo(RandomTasks.content(30), RandomTasks.priority())
+            } response { requestInfo ->
+                assert401(requestInfo)
+            }
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("incorrectUser")
     fun `setStatus 403 wrong user`(
@@ -132,8 +149,7 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
     ) {
         saveEntities(this)
         user {
-            authenticated()
-            customUserDetails.authorities = hashSetOf()
+            unauthorized()
             val expectedEx = lazyExpectedException(customUserDetails, task)
             send(mvc) {
                 method = PUT

@@ -33,6 +33,7 @@ class AuthenticationResourceTest : UserAndTaskIntegrationBase() {
         val user = RandomUsers.user()
 
         user {
+            unauthenticated()
             send(mvc) {
                 method = POST
                 url = Api.SIGN_UP

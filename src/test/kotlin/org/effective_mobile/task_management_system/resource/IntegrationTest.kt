@@ -1,9 +1,10 @@
 package org.effective_mobile.task_management_system.resource
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import home.extensions.BooleansExtensions.or
+import home.extensions.BooleansExtensions.then
 import jakarta.annotation.Nullable
 import org.effective_mobile.task_management_system.TaskManagementSystemApp
-import org.effective_mobile.task_management_system.security.UsernameProvider
 import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.ErrorInfo
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
@@ -11,6 +12,7 @@ import org.effective_mobile.task_management_system.exception.auth.TokenAuthentic
 import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages
 import org.effective_mobile.task_management_system.resource.json.RequestPojo
 import org.effective_mobile.task_management_system.security.CustomUserDetails
+import org.effective_mobile.task_management_system.security.UsernameProvider
 import org.effective_mobile.task_management_system.security.authentication.AuthProperties
 import org.effective_mobile.task_management_system.security.authentication.JwtAuthTokenComponent
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponent
@@ -55,6 +57,12 @@ abstract class IntegrationTest {
         lateinit var responseBody: MockHttpServletResponse
     }
 
+    protected class RequiresAuthorizationInfoImplTest(val user: User):
+        RequiredAuthorizationInfo {
+        override fun getUserId() = user.id!!
+    }
+
+    private var authenticated = true;
     private var _customUserDetails: CustomUserDetails? = null
     protected var customUserDetails: CustomUserDetails
         get() {
@@ -73,15 +81,15 @@ abstract class IntegrationTest {
 
     @BeforeEach
     fun setUp() {
-        _customUserDetails = null
+        authenticated = true
     }
 
-    private val post = { urlTemplate: String -> post(urlTemplate)}
-    private val put = { urlTemplate: String -> put(urlTemplate)}
-    private val get = { urlTemplate: String -> get(urlTemplate)}
+    private val post   = { urlTemplate: String -> post(urlTemplate)}
+    private val put    = { urlTemplate: String -> put(urlTemplate)}
+    private val get    = { urlTemplate: String -> get(urlTemplate)}
     private val delete = { urlTemplate: String -> delete(urlTemplate)}
 
-    private fun User.perform(
+    private inline fun User.perform(
         mockMvc: MockMvc,
         path: String,
         @Nullable payload: RequestPojo?,
@@ -101,18 +109,8 @@ abstract class IntegrationTest {
         return mockMvc.perform(requestBuilder).andReturn()
     }
 
-    class RequiresAuthorizationInfoImplTest(val user: User):
-        RequiredAuthorizationInfo {
-        override fun getUserId() = user.id!!
-    }
-
-    protected fun User.authenticated() {
-        _customUserDetails = CustomUserDetails(
-            this,
-            usernameProvider.getUsername(this),
-            authorizationComponent.getAuthorities(RequiresAuthorizationInfoImplTest(this))
-        )
-    }
+    protected fun User.unauthenticated() { authenticated = false }
+    protected fun User.authenticated() { authenticate() }
 
     protected fun User.unauthorized() {
         _customUserDetails = CustomUserDetails(
@@ -122,22 +120,23 @@ abstract class IntegrationTest {
         )
     }
 
-
-
     protected inline fun <reified T> MockHttpServletResponse.getBody(): T =
         objectMapper.readValue(contentAsString, T::class.java)
 
     protected operator fun <T> User.invoke(block: User.() -> T): T = this.block()
 
     protected fun User.send(mvc: MockMvc, create: HttpRequestInfo.() -> Unit): HttpRequestInfo {
-        return HttpRequestInfo().apply(create).apply {
-            when (method) {
-                GET    -> perform(mvc, url, body         , get)    .response.also { responseBody = it }
-                DELETE -> perform(mvc, url, body         , delete) .response.also { responseBody = it }
-                PUT    -> perform(mvc, url, body         , put)    .response.also { responseBody = it }
-                POST   -> perform(mvc, url, bodyOrThrow(), post)   .response.also { responseBody = it }
-                else -> throw UnsupportedOperationException("$method")
-            }
+        return HttpRequestInfo()
+            .apply(create)
+            .apply {
+                authenticated then { authenticate() } or { unauthenticate() }
+                when (method) {
+                    GET    -> perform(mvc, url, body         , get)    .response.also { responseBody = it }
+                    DELETE -> perform(mvc, url, body         , delete) .response.also { responseBody = it }
+                    PUT    -> perform(mvc, url, body         , put)    .response.also { responseBody = it }
+                    POST   -> perform(mvc, url, bodyOrThrow(), post)   .response.also { responseBody = it }
+                    else -> throw UnsupportedOperationException("$method")
+                }
         }
     }
 
@@ -213,6 +212,16 @@ abstract class IntegrationTest {
         Assertions.assertEquals(expected.`object`, actual.`object`)
     }
 
-
     protected inline val KClass<*>.canonicalName: String get() = this.java.canonicalName
+
+    private fun User.authenticate(): CustomUserDetails {
+        _customUserDetails = CustomUserDetails(
+            this,
+            usernameProvider.getUsername(this),
+            authorizationComponent.getAuthorities(RequiresAuthorizationInfoImplTest(this))
+        )
+        return customUserDetails
+    }
+
+    private fun User.unauthenticate() { _customUserDetails = null }
 }

@@ -11,10 +11,10 @@ import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
-import org.effective_mobile.task_management_system.utils.JsonPojos.Task
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo.*
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
+import org.effective_mobile.task_management_system.utils.JsonPojos.Task
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -38,7 +38,6 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
     ) {
         saveAndFlush(creator)
         creator {
-            authenticated()
             send(mvc) {
                 method = POST
                 url = createTaskUrl()
@@ -66,7 +65,6 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
         saveAndFlush(creator)
 
         creator {
-            authenticated()
             send(mvc) {
                 method = POST
                 url = createTaskUrl()
@@ -106,6 +104,7 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
     ) {
         saveAndFlush(creator)
         creator {
+            unauthenticated()
             send(mvc) {
                 method = POST
                 url = createTaskUrl()

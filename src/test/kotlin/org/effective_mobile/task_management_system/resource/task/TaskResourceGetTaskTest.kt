@@ -29,7 +29,6 @@ class TaskResourceGetTaskTest: AbstractTaskResourceTest() {
         saveAllAndFlush(creator, task)
 
         creator {
-            authenticated()
             send(mvc) {
                 method = GET
                 url = getTaskUrl(task.getTaskId())
@@ -50,6 +49,7 @@ class TaskResourceGetTaskTest: AbstractTaskResourceTest() {
         saveAllAndFlush(creator, task)
 
         creator {
+            unauthenticated()
             send(mvc) {
                 method = GET
                 url = getTaskUrl(task.getTaskId())
@@ -70,7 +70,6 @@ class TaskResourceGetTaskTest: AbstractTaskResourceTest() {
 
         val absentTaskId = Long.MAX_VALUE
         creator {
-            authenticated()
             send(mvc) {
                 method = GET
                 url = getTaskUrl(absentTaskId)

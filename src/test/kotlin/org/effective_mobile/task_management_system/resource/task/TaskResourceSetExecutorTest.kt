@@ -47,7 +47,6 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
         val oldExecutorUsername = task.getExecutorUsername()
 
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setExecutorUrl(task.getTaskId())
@@ -75,7 +74,6 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
     ) {
         initializeEntities(creator, oldExecutor, newExecutor, task)
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setExecutorUrl(task.getTaskId())
@@ -99,6 +97,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
         val newExecutor = user()
         saveAllAndFlush(creator, task, newExecutor)
         creator {
+            unauthenticated()
             send(mvc) {
                 method = PUT
                 url = setExecutorUrl(task.getTaskId())
@@ -119,7 +118,6 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
     ) {
         initializeEntities(creator, oldExecutor, newExecutor, task)
         newExecutor {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setExecutorUrl(task.getTaskId())
@@ -142,7 +140,6 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
         saveAllAndFlush(creator, newExecutor, task(creator))
         val absentTaskId = Long.MAX_VALUE
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setExecutorUrl(absentTaskId)
@@ -165,7 +162,6 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
         val task = task(creator)
         saveAllAndFlush(creator, task)
         creator {
-            authenticated()
             send(mvc) {
                 method = PUT
                 url = setExecutorUrl(task.getTaskId())
