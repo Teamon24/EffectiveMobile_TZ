@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.resource
+package org.effective_mobile.task_management_system.resource.task
 
 import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
@@ -21,8 +21,6 @@ import java.util.stream.Stream
  * Test for [TaskResource.getTask].
  */
 class TaskResourceGetTaskTest: AbstractTaskResourceTest() {
-
-    private fun getTaskUrl(taskId: Long) = "${Api.TASK}/$taskId"
 
     @ParameterizedTest
     @MethodSource("correctEntities")

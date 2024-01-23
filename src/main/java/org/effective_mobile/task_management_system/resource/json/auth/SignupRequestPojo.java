@@ -9,11 +9,11 @@ import org.effective_mobile.task_management_system.pojo.HasEmail;
 import org.effective_mobile.task_management_system.pojo.HasPassword;
 import org.effective_mobile.task_management_system.pojo.HasUsername;
 import org.effective_mobile.task_management_system.resource.json.RequestPojo;
-import org.effective_mobile.task_management_system.component.validator.Signup;
-import org.effective_mobile.task_management_system.component.validator.StrongPassword;
+import org.effective_mobile.task_management_system.validator.constraint.Signup;
+import org.effective_mobile.task_management_system.validator.constraint.StrongPassword;
 
-import static org.effective_mobile.task_management_system.component.validator.Signup.Type.EMAIL;
-import static org.effective_mobile.task_management_system.component.validator.Signup.Type.USERNAME;
+import static org.effective_mobile.task_management_system.validator.constraint.Signup.Type.EMAIL;
+import static org.effective_mobile.task_management_system.validator.constraint.Signup.Type.USERNAME;
 
 @AllArgsConstructor
 @NoArgsConstructor

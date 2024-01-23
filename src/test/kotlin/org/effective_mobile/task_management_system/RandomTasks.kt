@@ -9,17 +9,18 @@ import org.effective_mobile.task_management_system.utils.enums.Status
 object RandomTasks {
     fun task(user: User,
              executor: User? = null,
-             status: Status = Randoms.enum(Status::class.java)
+             status: Status = Randoms.enum(Status::class.java),
+             priority: Priority = Randoms.enum(Priority::class.java)
     ): Task = Task.builder()
-            .content(content())
+            .content(content(30))
             .status(status)
-            .priority(Randoms.enum(Priority::class.java))
+            .priority(priority)
             .creator(user)
             .executor(executor)
             .build()
 
     private val text = Faker().text()
-    fun content(): String = text.text(30)
+    fun content(length: Int): String = text.text(length)
     fun priority() = Randoms.enum(Priority::class.java).name
 }
 

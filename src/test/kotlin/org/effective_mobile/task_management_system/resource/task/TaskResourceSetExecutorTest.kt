@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.resource
+package org.effective_mobile.task_management_system.resource.task
 
 import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
@@ -13,8 +13,7 @@ import org.effective_mobile.task_management_system.exception.messages.AccessExce
 import org.effective_mobile.task_management_system.exception.messages.EntityNotFoundMessages
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
 import org.effective_mobile.task_management_system.exception.messages.UserExceptionMessages
-import org.effective_mobile.task_management_system.resource.Api.EXECUTOR
-import org.effective_mobile.task_management_system.resource.Api.TASK
+import org.effective_mobile.task_management_system.resource.IntegrationTest
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentRequestPojo
 import org.effective_mobile.task_management_system.resource.json.assignment.AssignmentResponsePojo
 import org.effective_mobile.task_management_system.utils.enums.Status
@@ -33,7 +32,6 @@ import java.util.stream.Stream
  */
 class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
 
-    private fun editTaskUrl(taskId: Long) = "$TASK/$taskId$EXECUTOR"
     private fun editTaskBody(newExecutor: User) = AssignmentRequestPojo(newExecutor.getUsername())
 
     @ParameterizedTest
@@ -52,7 +50,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = editTaskUrl(task.getTaskId())
+                url = setExecutorUrl(task.getTaskId())
                 body = editTaskBody(newExecutor)
             } response {
                 val (body, editedTask) = getBodyAndTask<AssignmentResponsePojo>()
@@ -80,7 +78,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = editTaskUrl(task.getTaskId())
+                url = setExecutorUrl(task.getTaskId())
                 body = editTaskBody(newExecutor)
             } response { requestInfo ->
                 assertAny400(
@@ -103,7 +101,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
         creator {
             send(mvc) {
                 method = PUT
-                url = editTaskUrl(task.getTaskId())
+                url = setExecutorUrl(task.getTaskId())
                 body = editTaskBody(newExecutor)
             } response { requestInfo ->
                 assert401(requestInfo)
@@ -124,7 +122,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = editTaskUrl(task.getTaskId())
+                url = setExecutorUrl(task.getTaskId())
                 body = editTaskBody(newExecutor)
             } response { requestInfo ->
                 assertAny400(
@@ -147,7 +145,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = editTaskUrl(absentTaskId)
+                url = setExecutorUrl(absentTaskId)
                 body = editTaskBody(newExecutor)
             } response { requestInfo ->
                 assertAny400(
@@ -170,7 +168,7 @@ class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = editTaskUrl(task.getTaskId())
+                url = setExecutorUrl(task.getTaskId())
                 body = editTaskBody(newExecutor)
             } response { requestInfo ->
                 assertAny400(

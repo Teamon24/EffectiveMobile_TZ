@@ -13,9 +13,11 @@ import java.util.stream.Collectors;
 /**
  * @param <Enum> тип enum-константы, которая будет конвертирована.
  */
-public abstract class EnumNameConverter<Enum extends java.lang.Enum<Enum> & ValuableEnum<String>> {
+public abstract class ValuableEnumConverter<Enum extends java.lang.Enum<Enum> & ValuableEnum<String>> {
 
-    protected abstract Class<Enum> enumClass();
+    public abstract Class<Enum> enumClass();
+
+    public abstract String getJsonPropertyName();
 
     public Enum convert(String value) throws ToEnumConvertException {
         return getEnumOrDie(enumClass(), value);
@@ -38,7 +40,7 @@ public abstract class EnumNameConverter<Enum extends java.lang.Enum<Enum> & Valu
             "exception.enum.conversion",
             value,
             enumClass().getSimpleName(),
-            StringUtils.join(EnumNameConverter.names(enumClass()), ", ")
+            StringUtils.join(ValuableEnumConverter.names(enumClass()), ", ")
         );
 
         throw new ToEnumConvertException(message);

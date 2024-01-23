@@ -1,6 +1,6 @@
-package org.effective_mobile.task_management_system.component.validator.smart;
+package org.effective_mobile.task_management_system.validator.smart;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.InitBinder;
  * Глобальный класс, который регистрирует валидацию для всех контроллеров.
  */
 @ControllerAdvice
+@AllArgsConstructor
 public class ValidationAdvice {
 
     /**
-     * Выбирает валидатор из некоторого каталога валидаторов и валидирует DTO. */
-    @Autowired
-    private SmartValidationComponent validationForwarder;
+     * Выбирает валидатор из каталога валидаторов {@link SmartValidationComponent} и валидирует DTO. */
+    private final SmartValidationComponent smartValidationComponent;
 
     /**
      * Регистрирует custom-ные валидаторы для получаемого с fronend-а json pojo.
@@ -22,6 +22,6 @@ public class ValidationAdvice {
      */
     @InitBinder
     protected void initBinder(final WebDataBinder binder) {
-        binder.setValidator(this.validationForwarder);
+        binder.setValidator(this.smartValidationComponent);
     }
 }

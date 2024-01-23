@@ -1,12 +1,13 @@
-package org.effective_mobile.task_management_system.component.validator.smart;
+package org.effective_mobile.task_management_system.validator.smart;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.effective_mobile.task_management_system.resource.json.RequestPojo;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 
 @AllArgsConstructor
-public abstract class SimpleValidator<T> implements SmartValidator {
+public abstract class SimpleValidator<T extends RequestPojo> implements SmartValidator {
 
     protected final SmartValidator smartValidator;
 

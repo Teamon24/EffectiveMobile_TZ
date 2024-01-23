@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.effective_mobile.task_management_system.component.validator.NullOrNotBlank;
+import org.effective_mobile.task_management_system.validator.constraint.NullOrNotBlank;
 
 @NoArgsConstructor
 @Getter

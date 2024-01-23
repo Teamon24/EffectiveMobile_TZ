@@ -61,7 +61,7 @@ public class TaskResource {
     @PutMapping("/{"+ ID + "}")
     public @ResponseBody TaskResponsePojo editTask(
         @PathVariable(name = ID) Long id,
-        @RequestBody TaskEditionRequestPojo taskEditionRequestPojo
+        @RequestBody @Valid TaskEditionRequestPojo taskEditionRequestPojo
     ) {
         Task editedTask = taskService.editTask(id, taskEditionRequestPojo);
         return TaskConverter.convertEdited(editedTask);

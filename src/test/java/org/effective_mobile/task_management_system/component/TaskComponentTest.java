@@ -157,7 +157,7 @@ class TaskComponentTest extends CachableComponentTest<Long, Task, TaskRepository
         Priority taskPriority = Priority.HIGH;
         String taskContent = randomContent();
 
-        TaskEditionRequestPojo payload  = new TaskEditionRequestPojo(null,        "LOW");
+        TaskEditionRequestPojo payload  = new TaskEditionRequestPojo(null, "LOW");
         TaskEditionRequestPojo payload2  = new TaskEditionRequestPojo(taskContent, "LOW");
         TaskEditionRequestPojo payload3 = new TaskEditionRequestPojo(randomContent(), taskPriority.name());
         TaskEditionRequestPojo payload4 = new TaskEditionRequestPojo(randomContent(), null);

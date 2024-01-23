@@ -37,6 +37,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.web.bind.MethodArgumentNotValidException
 import kotlin.reflect.KClass
 
 @RunWith(SpringRunner::class)
@@ -190,15 +191,12 @@ abstract class IntegrationTest {
         Assertions.assertEquals(message, errorInfo.message)
     }
 
-    protected fun MockHttpServletResponse.assertValidationErrorInfo(
-        requestInfo: HttpRequestInfo,
-        exceptionCanonicalName: String
-    ): ValidationErrorInfo {
+    protected fun MockHttpServletResponse.assertValidationErrorInfo(requestInfo: HttpRequestInfo): ValidationErrorInfo {
         val validationErrorInfo = getBody<ValidationErrorInfo>()
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), validationErrorInfo.status)
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.reasonPhrase, validationErrorInfo.error)
         Assertions.assertEquals(requestInfo.url, validationErrorInfo.path)
-        Assertions.assertEquals(exceptionCanonicalName, validationErrorInfo.exception)
+        Assertions.assertEquals(MethodArgumentNotValidException::class.canonicalName, validationErrorInfo.exception)
         Assertions.assertEquals(null, validationErrorInfo.message)
         return validationErrorInfo
     }

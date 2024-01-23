@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.component.validator.smart;
+package org.effective_mobile.task_management_system.validator.smart;
 
 import org.springframework.validation.SmartValidator;
 

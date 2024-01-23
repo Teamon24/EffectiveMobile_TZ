@@ -1,6 +1,9 @@
-package org.effective_mobile.task_management_system.component.validator.smart;
+package org.effective_mobile.task_management_system.validator.smart;
 
 import lombok.NonNull;
+import org.effective_mobile.task_management_system.validator.smart.task.StatusChangeValidator;
+import org.effective_mobile.task_management_system.validator.smart.task.TaskCreationValidator;
+import org.effective_mobile.task_management_system.validator.smart.task.TaskEditionValidator;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -15,15 +18,21 @@ import java.util.List;
 public class SmartValidationComponentImpl implements SmartValidationComponent {
 
     /**
-     * Базовый валидатор. */
+     * Кастомные валидаторы.
+     */
     private final List<Validator> validators;
 
-    public SmartValidationComponentImpl(SmartValidator smartValidator) {
+    public SmartValidationComponentImpl(
+        SmartValidator smartValidator,
+        ValuableEnumValidationComponent valuableEnumValidationComponent
+    ) {
         this.validators = List.of(
-            // Валидаторы dto, поступающих на вход в rest контроллеры:
-            new TaskCreationRequestPojoValidator(smartValidator),
-            new StatusChangeRequestPojoValidator(smartValidator),
-            // Стандартный валидатор - для объектов, у которых нет кастомного валидатора.
+            // 1. Валидаторы RequestPojos.
+            // 1.1. Task's RequestPojos валидаторы.
+            new TaskCreationValidator(smartValidator, valuableEnumValidationComponent),
+            new TaskEditionValidator(smartValidator, valuableEnumValidationComponent),
+            new StatusChangeValidator(smartValidator, valuableEnumValidationComponent),
+            // 2. Стандартный валидатор - для объектов, у которых нет smart-валидатора.
             smartValidator
         );
     }

@@ -1,8 +1,9 @@
-package org.effective_mobile.task_management_system.resource
+package org.effective_mobile.task_management_system.resource.task
 
+import home.CartesianProduct
 import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
-import home.extensions.AnysExtensions.lowercaseFirstSimpleName
+import home.extensions.AnysExtensions.decapitalizedSimpleName
 import org.effective_mobile.task_management_system.AssertionsUtils
 import org.effective_mobile.task_management_system.RandomTasks.content
 import org.effective_mobile.task_management_system.RandomTasks.priority
@@ -10,7 +11,7 @@ import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
-import org.effective_mobile.task_management_system.resource.TaskResourceTestUtils.taskCreation
+import org.effective_mobile.task_management_system.resource.JsonPojos.Task
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo.*
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
@@ -40,7 +41,7 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = POST
-                url = Api.TASK
+                url = createTaskUrl()
                 body = taskCreationRequestPojo
             } response {
                 val (body, task) = getBodyAndTask<TaskResponsePojo>()
@@ -68,13 +69,17 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = POST
-                url = Api.TASK
+                url = createTaskUrl()
                 body = taskCreationRequestPojo
             } response {
                 val validationErrorInfo = getBody<ValidationErrorInfo>()
                 taskCreationRequestPojo.apply {
-                    assertErrors(validationErrorInfo, priority, PRIORITY_FIELD_NAME)
-                    assertErrors(validationErrorInfo, content, CONTENT_FIELD_NAME)
+                    assertErrors(validationErrorInfo, priority,
+                        Task.Field.PRIORITY
+                    )
+                    assertErrors(validationErrorInfo, content,
+                        Task.Field.CONTENT
+                    )
                 }
             }
         }
@@ -89,7 +94,7 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
             val fieldErrors = validationErrorInfo.errors.filter { it.field == fieldName }
             assertEquals(1, fieldErrors.size)
             assertEquals(field, fieldErrors[0].rejectedValue)
-            assertEquals(this@assertErrors.lowercaseFirstSimpleName, fieldErrors[0].`object`)
+            assertEquals(this@assertErrors.decapitalizedSimpleName, fieldErrors[0].`object`)
         }
     }
 
@@ -103,7 +108,7 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
         creator {
             send(mvc) {
                 method = POST
-                url = Api.TASK
+                url = createTaskUrl()
                 body = taskCreationRequestPojo
             } response { requestInfo ->
                 assert401(requestInfo)
@@ -115,17 +120,25 @@ class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
         @JvmStatic
         fun correctTaskCreationRequestPojo(): Stream<Arguments> {
             val creator = RandomUsers.user()
-            return Stream.of(
-                Arguments.of(
-                    taskCreation { priority = priority(); content = content() }, creator
-                )
-            )
+            return stream {
+                args {
+                    + taskCreation { priority = priority(); content = content(30) }
+                    + creator
+                }
+            }
         }
 
         @JvmStatic
         fun notValidTaskCreationRequestPojo(): Stream<Arguments> {
             val creator = RandomUsers.user()
-            val notValid = TaskResourceTestUtils.notValidFieldsForTaskCreation()
+
+            val notValid = CartesianProduct.elements(
+                listOf(content(30), " ", "", null),
+                listOf(priority(), " ", "", null)
+            ).filter { args ->
+                args.any { it == null || (it as String).isBlank() }
+            }
+
             stream {
                 notValid.forEach {
                     args {

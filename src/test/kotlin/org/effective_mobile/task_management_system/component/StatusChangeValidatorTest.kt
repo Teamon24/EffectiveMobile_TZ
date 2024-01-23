@@ -1,9 +1,8 @@
 package org.effective_mobile.task_management_system.component
 
-import home.IndicesCartesianProduct.Companion.product
+import home.CartesianProduct
 import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
-import home.dsl.MutableListCreationDsl.mutableList
 import home.extensions.AnysExtensions.plus
 import home.extensions.CollectionsExtensions.plus
 import org.effective_mobile.task_management_system.RandomTasks.task
@@ -142,11 +141,8 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
             }
 
             return stream {
-                product(
-                    mutableList {
-                        at(0) { creator to task }
-                        at(1) { executor to task }
-                    },
+                CartesianProduct.elements(
+                    mutableListOf(creator to task, executor to task),
                     Status.values().toList(),
                     listOf(NEW, ASSIGNED)
                 ).let {

@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.resource
+package org.effective_mobile.task_management_system.resource.task
 
 import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
@@ -6,12 +6,13 @@ import home.extensions.StringsExtensions.decapitalized
 import org.effective_mobile.task_management_system.RandomTasks.task
 import org.effective_mobile.task_management_system.RandomUsers.user
 import org.effective_mobile.task_management_system.component.StatusChangeValidatorTest
-import org.effective_mobile.task_management_system.component.validator.smart.ValidationMessages
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException
-import org.effective_mobile.task_management_system.resource.Api.TASK
+import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
+import org.effective_mobile.task_management_system.resource.JsonPojos
+import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeResponsePojo
 import org.effective_mobile.task_management_system.security.CustomUserDetails
@@ -22,7 +23,6 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus.*
-import org.springframework.web.bind.MethodArgumentNotValidException
 import java.util.*
 import java.util.stream.Stream
 
@@ -31,7 +31,7 @@ import java.util.stream.Stream
  */
 class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
 
-    private fun statusChangeUrl(taskId: Long) = "$TASK/$taskId/status"
+
     private fun statusChangeBody(newStatus: String?) = StatusChangeRequestPojo(newStatus)
 
     @ParameterizedTest
@@ -48,7 +48,7 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = statusChangeUrl(task.getTaskId())
+                url = setStatusUrl(task.getTaskId())
                 body = statusChangeBody(validNewStatus.name)
             } response {
                 val (body, editedTask) = getBodyAndTask<StatusChangeResponsePojo>()
@@ -77,7 +77,7 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = statusChangeUrl(task.getTaskId())
+                url = setStatusUrl(task.getTaskId())
                 body = statusChangeBody(newInvalidStatus.name)
             } response { requestInfo ->
                 assert400(
@@ -104,16 +104,14 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
             authenticated()
             send(mvc) {
                 method = PUT
-                url = statusChangeUrl(task.getTaskId())
+                url = setStatusUrl(task.getTaskId())
                 body = statusChangeBody(invalidNewStatus)
             } response { requestInfo ->
-                assertValidationErrorInfo(
-                    requestInfo,
-                    MethodArgumentNotValidException::class.canonicalName
-                ).also { actual ->
+                assertValidationErrorInfo(requestInfo).also { actual ->
                     assertEquals(1, actual.errors.size)
                     actual.assertValidationError(0) {
-                        field = "status"
+                        field =
+                            JsonPojos.Task.Field.STATUS
                         message = expectedExMessage
                         rejectedValue = invalidNewStatus
                         `object` = StatusChangeRequestPojo::class.java.simpleName.decapitalized
@@ -139,7 +137,7 @@ class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
             val expectedEx = lazyExpectedException(customUserDetails, task)
             send(mvc) {
                 method = PUT
-                url = statusChangeUrl(task.getTaskId())
+                url = setStatusUrl(task.getTaskId())
                 body = statusChangeBody(newValidStatus.name)
             } response { requestInfo ->
                 assert403(

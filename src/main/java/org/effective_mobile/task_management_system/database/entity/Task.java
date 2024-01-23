@@ -9,11 +9,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo;
+import org.effective_mobile.task_management_system.resource.Constraints.Task.Content.Length;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
@@ -51,7 +54,8 @@ public class Task extends AbstractEntity implements HasTaskInfo {
     private Priority priority;
 
     @Setter
-    @Column
+    @Column(length = Length.MAX)
+    @Size(min = Length.MIN, max = Length.MAX)
     private String content;
 
     // TODO: избавиться от FetchType.EAGER (сейчас связи подтягиваются из-за spring-кеша).
@@ -70,6 +74,7 @@ public class Task extends AbstractEntity implements HasTaskInfo {
     @Setter
     @OneToMany
     @JoinColumn(name = "task_id")
+    @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
