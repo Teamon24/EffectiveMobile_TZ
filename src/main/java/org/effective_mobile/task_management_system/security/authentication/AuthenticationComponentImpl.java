@@ -2,7 +2,7 @@ package org.effective_mobile.task_management_system.security.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.springframework.stereotype.Component;
 

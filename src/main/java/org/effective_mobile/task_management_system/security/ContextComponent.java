@@ -1,7 +1,6 @@
-package org.effective_mobile.task_management_system.component;
+package org.effective_mobile.task_management_system.security;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;

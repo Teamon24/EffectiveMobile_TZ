@@ -1,10 +1,11 @@
 package org.effective_mobile.task_management_system.config;
 
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.effective_mobile.task_management_system.component.UsernameProvider;
+import org.effective_mobile.task_management_system.security.EmailAsUsernameProvider;
+import org.effective_mobile.task_management_system.security.UsernameProvider;
 import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository;
 import org.effective_mobile.task_management_system.database.repository.PrivilegeRepositoryStub;
 import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;

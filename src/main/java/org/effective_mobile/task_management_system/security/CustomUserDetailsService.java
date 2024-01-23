@@ -2,7 +2,6 @@ package org.effective_mobile.task_management_system.security;
 
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

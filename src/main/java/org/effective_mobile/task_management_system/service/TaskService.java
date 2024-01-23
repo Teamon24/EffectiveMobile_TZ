@@ -2,7 +2,7 @@ package org.effective_mobile.task_management_system.service;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.component.StatusChangeComponent;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;

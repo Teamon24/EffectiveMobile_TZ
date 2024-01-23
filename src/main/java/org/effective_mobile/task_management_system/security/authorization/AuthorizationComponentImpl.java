@@ -2,7 +2,7 @@ package org.effective_mobile.task_management_system.security.authorization;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.database.entity.Privilege;

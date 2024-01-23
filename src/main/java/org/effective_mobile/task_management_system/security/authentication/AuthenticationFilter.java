@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.effective_mobile.task_management_system.component.ContextComponent;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.exception.ErrorCreator;
 import org.effective_mobile.task_management_system.exception.ErrorInfo;
 import org.effective_mobile.task_management_system.exception.auth.AuthenticationException;

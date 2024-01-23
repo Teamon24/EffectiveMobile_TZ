@@ -1,18 +1,13 @@
-package org.effective_mobile.task_management_system.config;
+package org.effective_mobile.task_management_system.security;
 
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.UserComponent;
-import org.effective_mobile.task_management_system.component.UsernameProvider;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-/**
- * Класс содержит логику, которая определяет,
- * что за данные будут использоваться в качестве {@link UserDetails#getUsername()}
- */
 @Component
 @AllArgsConstructor
 public final class EmailAsUsernameProvider implements UsernameProvider {

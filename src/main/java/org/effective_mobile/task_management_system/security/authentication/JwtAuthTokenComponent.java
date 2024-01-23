@@ -9,7 +9,7 @@ import com.google.common.primitives.Ints;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.effective_mobile.task_management_system.component.UsernameProvider;
+import org.effective_mobile.task_management_system.security.UsernameProvider;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
