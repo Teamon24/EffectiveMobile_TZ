@@ -20,9 +20,9 @@ import org.effective_mobile.task_management_system.exception.messages.EntityNotF
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
-import org.effective_mobile.task_management_system.resource.Api
-import org.effective_mobile.task_management_system.resource.Constraints.Task.Content.Length
-import org.effective_mobile.task_management_system.resource.JsonPojos
+import org.effective_mobile.task_management_system.utils.Api
+import org.effective_mobile.task_management_system.utils.Constraints.Task.Content.Length
+import org.effective_mobile.task_management_system.utils.JsonPojos
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
 import org.effective_mobile.task_management_system.utils.enums.Priority

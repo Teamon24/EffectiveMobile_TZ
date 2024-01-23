@@ -17,6 +17,7 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskEditio
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
 import org.effective_mobile.task_management_system.service.TaskService;
+import org.effective_mobile.task_management_system.utils.Api;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
@@ -35,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.effective_mobile.task_management_system.resource.Api.PathParam.ID;
+import static org.effective_mobile.task_management_system.utils.Api.PathParam.ID;
 import static org.effective_mobile.task_management_system.utils.MiscUtils.nullOrApply;
 
 @RestController

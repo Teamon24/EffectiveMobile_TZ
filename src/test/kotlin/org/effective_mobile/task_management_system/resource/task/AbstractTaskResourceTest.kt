@@ -2,8 +2,8 @@ package org.effective_mobile.task_management_system.resource.task
 
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.pojo.HasTaskId
-import org.effective_mobile.task_management_system.resource.Api
-import org.effective_mobile.task_management_system.resource.Api.TASK
+import org.effective_mobile.task_management_system.utils.Api
+import org.effective_mobile.task_management_system.utils.Api.TASK
 import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo

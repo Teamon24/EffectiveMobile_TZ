@@ -9,6 +9,7 @@ import org.effective_mobile.task_management_system.resource.json.auth.SigninRequ
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo
 import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent
+import org.effective_mobile.task_management_system.utils.Api
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.util.StringUtils

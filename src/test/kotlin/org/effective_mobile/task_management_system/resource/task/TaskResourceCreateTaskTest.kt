@@ -11,7 +11,7 @@ import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
-import org.effective_mobile.task_management_system.resource.JsonPojos.Task
+import org.effective_mobile.task_management_system.utils.JsonPojos.Task
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo.*
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo

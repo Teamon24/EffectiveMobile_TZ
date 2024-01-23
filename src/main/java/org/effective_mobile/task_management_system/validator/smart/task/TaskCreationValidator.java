@@ -11,7 +11,7 @@ import org.springframework.validation.SmartValidator;
 
 import static org.effective_mobile.task_management_system.validator.smart.SmartValidationUtils.rejectValue;
 import static org.effective_mobile.task_management_system.exception.messages.ValidationMessages.invalidContent;
-import static org.effective_mobile.task_management_system.resource.JsonPojos.Task.Field.CONTENT;
+import static org.effective_mobile.task_management_system.utils.JsonPojos.Task.Field.CONTENT;
 
 public class TaskCreationValidator extends SimpleValidator<TaskCreationRequestPojo> {
 

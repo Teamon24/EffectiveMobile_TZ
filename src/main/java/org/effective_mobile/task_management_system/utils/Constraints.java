@@ -1,4 +1,4 @@
-package org.effective_mobile.task_management_system.resource;
+package org.effective_mobile.task_management_system.utils;
 
 public class Constraints {
     public static class Task {

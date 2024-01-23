@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo;
-import org.effective_mobile.task_management_system.resource.Constraints.Task.Content.Length;
+import org.effective_mobile.task_management_system.utils.Constraints.Task.Content.Length;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;

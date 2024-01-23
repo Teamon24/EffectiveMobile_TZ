@@ -11,7 +11,7 @@ import org.effective_mobile.task_management_system.database.entity.User
 import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
-import org.effective_mobile.task_management_system.resource.JsonPojos
+import org.effective_mobile.task_management_system.utils.JsonPojos
 import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeResponsePojo

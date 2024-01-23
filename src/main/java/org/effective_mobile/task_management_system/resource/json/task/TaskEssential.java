@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.effective_mobile.task_management_system.resource.JsonPojos;
+import org.effective_mobile.task_management_system.utils.JsonPojos;
 import org.effective_mobile.task_management_system.resource.json.JsonPojo;
 
 @Getter
