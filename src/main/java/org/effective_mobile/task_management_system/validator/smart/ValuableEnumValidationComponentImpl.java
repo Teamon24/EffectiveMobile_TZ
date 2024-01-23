@@ -26,33 +26,33 @@ public class ValuableEnumValidationComponentImpl implements ValuableEnumValidati
 
 
     @Override
-    public <T extends ValuableEnum<String>> void validate(
-        Class<T> valuableEnumClass,
-        String value,
+    public void validate(
+        String fieldName,
+        String fieldValue,
         Errors errors,
         Function<String, String> defaultMessage
     ) {
-        ValuableEnumConverter<? extends ValuableEnum<String>> converter = getConverter(valuableEnumClass);
-
-        if (StringUtils.isBlank(value)) {
-            SmartValidationUtils.rejectValue(converter.getJsonPropertyName(), value, errors, defaultMessage.apply(value));
+        Class enumClass = ValuableEnumByJsonPropertyNames.get(fieldName);
+        ValuableEnumConverter<? extends ValuableEnum<String>> converter = getConverter(enumClass);
+        if (StringUtils.isBlank(fieldValue)) {
+            SmartValidationUtils.rejectValue(fieldName, fieldValue, errors, defaultMessage.apply(fieldValue));
         } else {
             try {
-                converter.convert(value);
+                converter.convert(fieldValue);
             } catch (ToEnumConvertException e) {
-                SmartValidationUtils.rejectValue(converter.getJsonPropertyName(), value, errors, defaultMessage.apply(value));
+                SmartValidationUtils.rejectValue(fieldName, fieldValue, errors, defaultMessage.apply(fieldValue));
             }
         }
     }
 
     @Override
-    public <T extends ValuableEnum<String>> void validate(
-        Class<T> valuableEnumClass,
-        String value,
+    public void validate(
+        String fieldName,
+        String fieldValue,
         Errors errors,
         String defaultMessage
     ) {
-        validate(valuableEnumClass, value, errors, (ignored) -> defaultMessage);
+        validate(fieldName, fieldValue, errors, (ignored) -> defaultMessage);
     }
 
     private <T extends ValuableEnum<String>> ValuableEnumConverter<? extends ValuableEnum<String>> getConverter(

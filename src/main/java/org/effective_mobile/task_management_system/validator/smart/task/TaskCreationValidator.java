@@ -1,6 +1,7 @@
 package org.effective_mobile.task_management_system.validator.smart.task;
 
 import org.apache.commons.lang3.StringUtils;
+import org.effective_mobile.task_management_system.utils.JsonPojos;
 import org.effective_mobile.task_management_system.validator.smart.SimpleValidator;
 import org.effective_mobile.task_management_system.validator.smart.ValuableEnumValidationComponent;
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages;
@@ -38,6 +39,10 @@ public class TaskCreationValidator extends SimpleValidator<TaskCreationRequestPo
         }
 
         String priority = target.getPriority();
-        valuableEnumValidationComponent.validate(Priority.class, priority, errors, ValidationMessages::invalidPriority);
+        valuableEnumValidationComponent.validate(
+            JsonPojos.Task.Field.PRIORITY,
+            priority,
+            errors,
+            ValidationMessages::invalidPriority);
     }
 }

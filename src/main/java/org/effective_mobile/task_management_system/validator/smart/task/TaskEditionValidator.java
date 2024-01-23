@@ -1,12 +1,12 @@
 package org.effective_mobile.task_management_system.validator.smart.task;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.effective_mobile.task_management_system.validator.smart.SimpleValidator;
-import org.effective_mobile.task_management_system.validator.smart.ValuableEnumValidationComponent;
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages;
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
-import org.effective_mobile.task_management_system.utils.enums.Priority;
+import org.effective_mobile.task_management_system.utils.JsonPojos.Task.Field;
+import org.effective_mobile.task_management_system.validator.smart.SimpleValidator;
 import org.effective_mobile.task_management_system.validator.smart.SmartValidationUtils;
+import org.effective_mobile.task_management_system.validator.smart.ValuableEnumValidationComponent;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 
@@ -38,7 +38,11 @@ public class TaskEditionValidator extends SimpleValidator<TaskEditionRequestPojo
         if (ObjectUtils.allNull(content, priority)) {
             String defaultMessage = ValidationMessages.emptyBody();
             SmartValidationUtils.rejectValue(CONTENT, null, errors, defaultMessage);
-            valuableEnumValidationComponent.validate(Priority.class, null, errors, defaultMessage);
+            valuableEnumValidationComponent.validate(
+                Field.PRIORITY,
+                null,
+                errors,
+                defaultMessage);
             return;
         }
 
@@ -50,7 +54,10 @@ public class TaskEditionValidator extends SimpleValidator<TaskEditionRequestPojo
 
         if (priority != null) {
             valuableEnumValidationComponent.validate(
-                Priority.class, priority, errors, ValidationMessages::invalidPriority);
+                Field.PRIORITY,
+                priority,
+                errors,
+                ValidationMessages::invalidPriority);
         }
     }
 }

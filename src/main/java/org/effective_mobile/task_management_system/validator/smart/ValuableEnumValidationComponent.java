@@ -10,16 +10,16 @@ import java.util.function.Function;
  * Smart-валидация значения {@link ValuableEnum#getValue()} для {@link ValuableEnum}.
  */
 public interface ValuableEnumValidationComponent {
-    <T extends ValuableEnum<String>> void validate(
-        Class<T> valuableEnumClass,
-        @Nullable String value,
+    void validate(
+        String fieldName,
+        @Nullable String fieldValue,
         Errors errors,
         Function<String, String> defaultMessage
     );
 
-    <T extends ValuableEnum<String>> void validate(
-        Class<T> valuableEnumClass,
-        @Nullable String value,
+    void validate(
+        String fieldName,
+        @Nullable String fieldValue,
         Errors errors,
         String defaultMessage
     );

@@ -15,10 +15,6 @@ import java.util.List;
 public class CacheProperties {
 
     public final Boolean appCacheEnabled;
-    public final CacheSettings tasks;
-    public final CacheSettings usersAuth;
-    public final CacheSettings privileges;
-
     public final Collection<CacheSettings> settings;
 
     public CacheProperties(
@@ -29,10 +25,12 @@ public class CacheProperties {
         @Value("${app.cache.tasks.privileges.info}") String cachePrivilegesInfo
     ) throws JsonProcessingException {
         this.appCacheEnabled = appCacheEnabled;
-        this.tasks = objectMapper.readValue(cacheTasksInfo, CacheSettings.class);
-        this.usersAuth = objectMapper.readValue(cacheUsersAuthInfo, CacheSettings.class);
-        this.privileges = objectMapper.readValue(cachePrivilegesInfo, CacheSettings.class);
-        this.settings = List.of(this.tasks, this.usersAuth, this.privileges);
+        this.settings = List.of(
+            readCacheInfo(objectMapper, cacheTasksInfo),
+            readCacheInfo(objectMapper, cacheUsersAuthInfo),
+            readCacheInfo(objectMapper, cachePrivilegesInfo)
+        );
+
         for (CacheSettings setting : this.settings) {
             log.info(
                 "CACHE Settings [%s] was read: enabled - %s; expiration: %s %s".formatted(
@@ -43,5 +41,12 @@ public class CacheProperties {
                 )
             );
         }
+    }
+
+    private CacheSettings readCacheInfo(
+        ObjectMapper objectMapper,
+        String cacheTasksInfo
+    ) throws JsonProcessingException {
+        return objectMapper.readValue(cacheTasksInfo, CacheSettings.class);
     }
 }

@@ -17,8 +17,6 @@ public abstract class ValuableEnumConverter<Enum extends java.lang.Enum<Enum> & 
 
     public abstract Class<Enum> enumClass();
 
-    public abstract String getJsonPropertyName();
-
     public Enum convert(String value) throws ToEnumConvertException {
         return getEnumOrDie(enumClass(), value);
     }
