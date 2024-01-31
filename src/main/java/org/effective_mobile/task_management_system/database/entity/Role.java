@@ -1,6 +1,5 @@
 package org.effective_mobile.task_management_system.database.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -31,7 +30,7 @@ public class Role extends AbstractEntity {
     @Convert(converter = UserRoleAttributeConverter.class)
     private UserRole name;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "roles_privileges",
         joinColumns = @JoinColumn(name = "role_id"),
         inverseJoinColumns = @JoinColumn(name = "privilege_id"))

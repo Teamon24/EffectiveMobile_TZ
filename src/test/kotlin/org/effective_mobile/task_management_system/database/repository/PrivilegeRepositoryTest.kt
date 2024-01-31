@@ -98,17 +98,17 @@ open class PrivilegeRepositoryTest {
         }
 
         role(creatorRoleName) {
-            privileges.add(privilegeRepository.findByName(privilege1).get())
-            privileges.add(privilegeRepository.findByName(privilege2).get())
-            privileges.add(privilegeRepository.findByName(privilege32).get())
-            privileges.add(privilegeRepository.findByName(privilege422).get())
+            privileges.add(privilege1.find())
+            privileges.add(privilege2.find())
+            privileges.add(privilege32.find())
+            privileges.add(privilege422.find())
         }
 
         role(executorRoleName) {
-            privileges.add(privilegeRepository.findByName(privilege22).get())
-            privileges.add(privilegeRepository.findByName(privilege31).get())
-            privileges.add(privilegeRepository.findByName(privilege322).get())
-            privileges.add(privilegeRepository.findByName(privilege421).get())
+            privileges.add(privilege22.find())
+            privileges.add(privilege31.find())
+            privileges.add(privilege322.find())
+            privileges.add(privilege421.find())
         }
     }
 
