@@ -40,7 +40,7 @@ public class TaskComponentImpl implements TaskComponent {
     private final TaskRepository taskRepository;
     private final FilteredAndPagedTaskRepository filteredAndPagedTaskRepository;
 
-    @Cacheable(key = "#result.getId()")
+    @Cacheable(key = "#taskId")
     public Task getTask(Long taskId) {
         return taskRepository.findOrThrow(Task.class, taskId);
     }
