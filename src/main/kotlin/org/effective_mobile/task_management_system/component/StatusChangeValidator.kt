@@ -27,19 +27,25 @@ class StatusChangeValidator(private val statusChangeValidationComponent: StatusC
     private inline fun valid(createRules: ValidStatusChanges.() -> Unit) = ValidStatusChanges().apply(createRules)
     private inline fun invalid(createRules: InvalidStatusChanges.() -> Unit) = InvalidStatusChanges().apply(createRules)
 
-    private val isExecutor          = statusChangeValidationComponent::isExecutor
-    private val isCreatorOrExecutor = statusChangeValidationComponent::isCreatorOrExecutor
-    private val canStartNewTask     = statusChangeValidationComponent::canStartNewTask
-    private val canSuspendTask      = statusChangeValidationComponent::canSuspendTask
-    private val canChangeActiveTask = statusChangeValidationComponent::canChangeActiveTask
+    private val isTaskExecutor          = statusChangeValidationComponent::isExecutor
+    private val isTaskCreatorOrExecutor = statusChangeValidationComponent::isCreatorOrExecutor
+    private val canStartTask            = statusChangeValidationComponent::canStartNewTask
+    private val canSuspendTask          = statusChangeValidationComponent::canSuspendTask
+    private val canFinishTask           = statusChangeValidationComponent::canFinishTask
+    private val canFinishSuspendedTask  = statusChangeValidationComponent::canFinishSuspendedTask
+    private val canResumeTask           = statusChangeValidationComponent::canResumeTask
+    private val canResuspendTask        = statusChangeValidationComponent::canResuspendTask
 
     private val validChanges =
         valid {
-            from(ASSIGNED)  .to (EXECUTING)       user isExecutor          authorized canStartNewTask
-            from(EXECUTING) .to (PENDING)         user isExecutor          authorized canSuspendTask
-            from(EXECUTING) .to (DONE)            user isExecutor          authorized canChangeActiveTask
-            from(PENDING)   .to (EXECUTING, DONE) user isExecutor          authorized canChangeActiveTask
-            from(DONE)      .to (PENDING)         user isCreatorOrExecutor authorized canChangeActiveTask
+            from(ASSIGNED) .to (EXECUTING) user isTaskExecutor          authorized canStartTask
+            from(EXECUTING).to (PENDING)   user isTaskCreatorOrExecutor authorized canSuspendTask
+
+            from(EXECUTING).to (DONE)      user isTaskExecutor          authorized canFinishTask
+            from(PENDING)  .to (DONE)      user isTaskCreatorOrExecutor authorized canFinishSuspendedTask
+
+            from(PENDING)  .to (EXECUTING) user isTaskExecutor          authorized canResumeTask
+            from(DONE)     .to (PENDING)   user isTaskCreatorOrExecutor authorized canResuspendTask
         }
 
     private val invalidChanges =

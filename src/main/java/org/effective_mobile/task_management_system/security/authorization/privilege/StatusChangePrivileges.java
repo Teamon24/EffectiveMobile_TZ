@@ -4,8 +4,9 @@ import java.util.Set;
 
 public interface StatusChangePrivileges {
     Set<String> canStartNewTask();
-
     Set<String> canSuspendTask();
-
-    Set<String> canChangeStatusOfActiveTask();
+    Set<String> canFinishTask();
+    Set<String> canFinishSuspendedTask();
+    Set<String> canResumeTask();
+    Set<String> canResuspendTask();
 }

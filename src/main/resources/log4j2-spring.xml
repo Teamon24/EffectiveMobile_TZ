@@ -1,7 +1,7 @@
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
         <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss.SSSZ}] %p /%tid-%tn/: %m%n</Property>
-        <Property name="FILE_SIZE_THRESHOLD">25000KB</Property>
+        <Property name="FILE_SIZE_THRESHOLD">100000KB</Property>
         <Property name="FILE_NAME_PATTERN">%d{yyyy-MM-dd HH.mm.ss}</Property>
         <Property name="LOG_DIR">logs${sys:file.separator}</Property>
         <Property name="APPLICATION_LOG_PREFIX">app</Property>

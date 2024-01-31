@@ -15,6 +15,10 @@ import org.effective_mobile.task_management_system.RandomTasks.task
 import org.effective_mobile.task_management_system.RandomUsers.user
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException
 import org.effective_mobile.task_management_system.exception.messages.EntityNotFoundMessages
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
@@ -30,6 +34,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod.*
 import org.springframework.http.HttpStatus
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
@@ -39,7 +44,17 @@ import java.util.stream.Stream
 /**
  * Test for [TaskResource.editTask].
  */
-class TaskResourceEditTaskTest : AbstractTaskResourceTest() {
+class TaskResourceEditTaskTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): AbstractTaskResourceTest(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
 
     data class TestDto(
         val taskPriority: Priority,

@@ -6,7 +6,7 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskEditio
 import org.effective_mobile.task_management_system.utils.JsonPojos.Task.Field;
 import org.effective_mobile.task_management_system.validator.smart.SimpleValidator;
 import org.effective_mobile.task_management_system.validator.smart.SmartValidationUtils;
-import org.effective_mobile.task_management_system.validator.smart.ValuableEnumValidationComponent;
+import org.effective_mobile.task_management_system.validator.smart.StringValueEnumValidationComponent;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 
@@ -15,11 +15,11 @@ import static org.effective_mobile.task_management_system.utils.JsonPojos.Task.F
 
 public class TaskEditionValidator extends SimpleValidator<TaskEditionRequestPojo> {
 
-    private final ValuableEnumValidationComponent valuableEnumValidationComponent;
+    private final StringValueEnumValidationComponent valuableEnumValidationComponent;
 
     public TaskEditionValidator(
         SmartValidator smartValidator,
-        ValuableEnumValidationComponent valuableEnumValidationComponent
+        StringValueEnumValidationComponent valuableEnumValidationComponent
     ) {
         super(smartValidator);
         this.valuableEnumValidationComponent = valuableEnumValidationComponent;

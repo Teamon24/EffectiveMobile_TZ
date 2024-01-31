@@ -9,17 +9,17 @@ import java.util.function.Function;
 /**
  * Smart-валидация значения {@link ValuableEnum#getValue()} для {@link ValuableEnum}.
  */
-public interface ValuableEnumValidationComponent {
+public interface ValuableEnumValidationComponent<ValueType> {
     void validate(
         String fieldName,
-        @Nullable String fieldValue,
+        @Nullable ValueType fieldValue,
         Errors errors,
-        Function<String, String> defaultMessage
+        Function<ValueType, String> defaultMessage
     );
 
     void validate(
         String fieldName,
-        @Nullable String fieldValue,
+        @Nullable ValueType fieldValue,
         Errors errors,
         String defaultMessage
     );

@@ -7,8 +7,13 @@ import home.extensions.AnysExtensions.plus
 import home.extensions.CollectionsExtensions.plus
 import org.effective_mobile.task_management_system.RandomTasks.task
 import org.effective_mobile.task_management_system.RandomUsers.user
+import org.effective_mobile.task_management_system.database.entity.Role
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException
 import org.effective_mobile.task_management_system.exception.messages.AccessExceptionMessages.notAExecutor
@@ -17,12 +22,16 @@ import org.effective_mobile.task_management_system.exception.messages.Authorizat
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
 import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.security.CustomUserDetails
+import org.effective_mobile.task_management_system.utils.StatusChange
 import org.effective_mobile.task_management_system.utils.enums.Status
 import org.effective_mobile.task_management_system.utils.enums.Status.ASSIGNED
 import org.effective_mobile.task_management_system.utils.enums.Status.DONE
 import org.effective_mobile.task_management_system.utils.enums.Status.EXECUTING
 import org.effective_mobile.task_management_system.utils.enums.Status.NEW
 import org.effective_mobile.task_management_system.utils.enums.Status.PENDING
+import org.effective_mobile.task_management_system.utils.enums.UserRole
+import org.effective_mobile.task_management_system.utils.enums.UserRole.CREATOR
+import org.effective_mobile.task_management_system.utils.enums.UserRole.EXECUTOR
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -33,7 +42,17 @@ import java.util.stream.Stream
 /**
  * Test for class [StatusChangeValidator]
  */
-class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
+class StatusChangeValidatorTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): UserAndTaskIntegrationBase(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
 
     @Autowired
     private lateinit var validator: StatusChangeValidator
@@ -178,10 +197,8 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
             return stream {
                 listOf(
                     ASSIGNED to EXECUTING,
-                    EXECUTING to PENDING,
                     EXECUTING to DONE,
-                    PENDING to EXECUTING,
-                    PENDING to DONE
+                    PENDING to EXECUTING
                 ).onEach { statusChange ->
                     args {
                         val creator = user()
@@ -194,15 +211,27 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
                         +saveAll(creator, executor, neither, task)
                     }
                 }
-                args {
+
+                run {
                     val creator = user()
                     val executor = user()
-                    val neither = user()
-                    +neither
-                    val task = +task(creator, executor, DONE) as Task
-                    val newStatus = +PENDING
-                    +{ details: CustomUserDetails, task: Task -> neitherCreatorOrExecutor(task.id, details.userId) }
-                    +saveAll(creator, executor, neither, task)
+                    CartesianProduct.elements(
+                        listOf(EXECUTING to PENDING, DONE to PENDING, PENDING to DONE),
+                        listOf(creator, executor)
+                    ).forEach { userAndChange ->
+                        val change = userAndChange[0] as StatusChange
+                        val user = userAndChange[1] as User
+                        val neither = user()
+                        args {
+                            +neither
+                            val task = +task(creator, executor, change.first) as Task
+                            val newStatus = +change.second
+                            +{ details: CustomUserDetails,
+                               task: Task -> neitherCreatorOrExecutor(task.id, details.userId)
+                            }
+                            +saveAll(creator, executor, neither, task)
+                        }
+                    }
                 }
             }
         }
@@ -217,15 +246,13 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
 
             return stream {
                 listOf(
-                    ASSIGNED to EXECUTING,
-                    EXECUTING to PENDING,
-                    EXECUTING to DONE,
-                    PENDING to EXECUTING,
-                    PENDING to DONE
+                   ASSIGNED to EXECUTING,
+                   EXECUTING to DONE,
+                   PENDING to EXECUTING
                 ).onEach { statusChange ->
                     args {
-                        val creator = user()
-                        val executor = user()
+                        val creator = user(roles = mutableListOf(creatorRole))
+                        val executor = user(roles = mutableListOf(executorRole))
                         +executor
                         val task = +task(creator, executor, statusChange.first) as Task
                         val newStatus = +statusChange.second
@@ -233,18 +260,39 @@ class StatusChangeValidatorTest : UserAndTaskIntegrationBase() {
                     }
                 }
                     run {
-                        val creator = user()
-                        val executor = user()
-                        listOf(creator, executor).forEach {
+                        CartesianProduct.elements(
+                            listOf(EXECUTING to PENDING, PENDING to DONE, DONE to PENDING),
+                            listOf(creatorRole, executorRole)
+                        ).forEach { userAndChange ->
+                            val change = userAndChange[0] as StatusChange
+                            val role = userAndChange[1] as Role
                             args {
-                                +it
-                                val task = +task(creator, executor, DONE) as Task
-                                val newStatus = +PENDING
+                                var creator = user()
+                                var executor = user()
+                                role.isCreator {
+                                    creator = user(roles = mutableListOf(role))
+                                    +creator
+                                }
+
+                                role.isExecutor {
+                                    executor = user(roles = mutableListOf(role))
+                                    +executor
+                                }
+
+                                val task = +task(creator, executor, change.first) as Task
+                                val newStatus = +change.second
                                 +saveAll(creator, executor, task)
                             }
                         }
                     }
             }
+        }
+
+        private inline fun Role.isCreator(block: () -> Unit) = isRole(CREATOR, block)
+        private inline fun Role.isExecutor(block: () -> Unit) = isRole(EXECUTOR, block)
+
+        private inline fun Role.isRole(userRole: UserRole, block: () -> Unit) {
+            if (this.name == userRole) block()
         }
     }
 }

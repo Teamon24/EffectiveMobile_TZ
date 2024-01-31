@@ -1,8 +1,10 @@
 package org.effective_mobile.task_management_system.utils.enums;
 
+import org.effective_mobile.task_management_system.exception.ToEnumConvertException;
+
 /**
  * Статус задачи. */
-public enum Status implements ValuableEnum<String> {
+public enum Status implements ValuableEnum {
     NEW,
     ASSIGNED,
     EXECUTING,
@@ -12,5 +14,9 @@ public enum Status implements ValuableEnum<String> {
     @Override
     public String getValue() {
         return this.name();
+    }
+
+    public static Status convert(String value) throws ToEnumConvertException {
+        return ValuableEnum.convert(Status.class, value);
     }
 }

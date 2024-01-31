@@ -20,7 +20,6 @@ import org.effective_mobile.task_management_system.service.TaskService;
 import org.effective_mobile.task_management_system.utils.Api;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
 import org.effective_mobile.task_management_system.utils.enums.Status;
-import org.effective_mobile.task_management_system.utils.enums.converter.StatusConverter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -97,7 +96,7 @@ public class TaskResource {
         @RequestBody @Valid StatusChangeRequestPojo statusChangeRequestPojo
     ) {
         String newStatusStr = statusChangeRequestPojo.getStatus();
-        Status newStatus = new StatusConverter().convert(newStatusStr);
+        Status newStatus = Status.convert(newStatusStr);
         Status oldStatus = taskService.setStatus(id, newStatus);
         return new StatusChangeResponsePojo(id, oldStatus, newStatus);
     }

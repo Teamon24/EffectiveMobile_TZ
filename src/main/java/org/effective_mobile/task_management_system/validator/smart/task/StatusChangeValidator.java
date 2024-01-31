@@ -4,17 +4,17 @@ import org.effective_mobile.task_management_system.exception.messages.Validation
 import org.effective_mobile.task_management_system.resource.json.task.StatusChangeRequestPojo;
 import org.effective_mobile.task_management_system.utils.JsonPojos;
 import org.effective_mobile.task_management_system.validator.smart.SimpleValidator;
-import org.effective_mobile.task_management_system.validator.smart.ValuableEnumValidationComponent;
+import org.effective_mobile.task_management_system.validator.smart.StringValueEnumValidationComponent;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 
 public class StatusChangeValidator extends SimpleValidator<StatusChangeRequestPojo> {
 
-    private final ValuableEnumValidationComponent valuableEnumValidationComponent;
+    private final StringValueEnumValidationComponent valuableEnumValidationComponent;
 
     public StatusChangeValidator(
         SmartValidator smartValidator,
-        ValuableEnumValidationComponent valuableEnumValidationComponent
+        StringValueEnumValidationComponent valuableEnumValidationComponent
     ) {
         super(smartValidator);
         this.valuableEnumValidationComponent = valuableEnumValidationComponent;

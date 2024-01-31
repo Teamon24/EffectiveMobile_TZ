@@ -7,6 +7,10 @@ import org.effective_mobile.task_management_system.RandomTasks.task
 import org.effective_mobile.task_management_system.RandomUsers.user
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.exception.AssignmentException
 import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.messages.AccessExceptionMessages
@@ -22,6 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
@@ -30,7 +35,17 @@ import java.util.stream.Stream
 /**
  * Test for [TaskResource.setExecutor].
  */
-class TaskResourceSetExecutorTest : AbstractTaskResourceTest() {
+class TaskResourceSetExecutorTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): AbstractTaskResourceTest(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
 
     private fun editTaskBody(newExecutor: User) = AssignmentRequestPojo(newExecutor.getUsername())
 

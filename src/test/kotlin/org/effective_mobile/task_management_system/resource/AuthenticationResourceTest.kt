@@ -3,6 +3,10 @@ package org.effective_mobile.task_management_system.resource
 import org.effective_mobile.task_management_system.AssertionsUtils
 import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.pojo.HasUserInfo
 import org.effective_mobile.task_management_system.resource.json.assignment.SignupResponsePojo
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo
@@ -17,7 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod.POST
 import org.springframework.security.crypto.password.PasswordEncoder
 
-class AuthenticationResourceTest : UserAndTaskIntegrationBase() {
+class AuthenticationResourceTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): UserAndTaskIntegrationBase(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
     @Autowired
     private lateinit var authTokenComponent: AuthTokenComponent
 
@@ -79,4 +93,6 @@ class AuthenticationResourceTest : UserAndTaskIntegrationBase() {
             }
         }
     }
+
+    //TODO: write test for signin where invalid credentials are present
 }

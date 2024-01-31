@@ -2,7 +2,10 @@ package org.effective_mobile.task_management_system.database.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -42,6 +45,12 @@ public class User extends AbstractEntity implements HasUserInfo {
     @Size(max = 120)
     private String password;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinTable(name = "users_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles = new ArrayList<>();
+
     @Setter
     @OneToMany(cascade = { CascadeType.REMOVE })
     @JoinColumn(name = "creator_id")
@@ -49,10 +58,11 @@ public class User extends AbstractEntity implements HasUserInfo {
     private List<Task> tasks = new ArrayList<>();
 
     @Builder
-    private User(String username, String email, String password, List<Task> tasks) {
+    private User(String username, String email, String password, List<Role> roles, List<Task> tasks) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.tasks = tasks;
+        this.roles = roles;
     }
 }

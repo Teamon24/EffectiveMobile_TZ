@@ -8,5 +8,5 @@ import java.util.Set;
 
 public interface PrivilegesComponent {
     Set<Privilege> getPrivileges(RequiredAuthorizationInfo requiredAuthorizationInfo);
-    Boolean userHasPrivileges(CustomUserDetails customUserDetails, Set<String> privileges);
+    Boolean checkPrivileges(CustomUserDetails customUserDetails, Set<String> privileges);
 }

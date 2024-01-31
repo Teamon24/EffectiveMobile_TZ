@@ -9,6 +9,10 @@ import org.effective_mobile.task_management_system.RandomTasks.content
 import org.effective_mobile.task_management_system.RandomTasks.priority
 import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
 import org.effective_mobile.task_management_system.resource.json.task.TaskCreationRequestPojo
@@ -19,13 +23,24 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod.*
 import java.util.stream.Stream
 
 /**
  * Test for [TaskResource.createTask].
  */
-class TaskResourceCreateTaskTest : AbstractTaskResourceTest() {
+class TaskResourceCreateTaskTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): AbstractTaskResourceTest(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
 
     /**
      * 200 response code.

@@ -28,19 +28,31 @@ class StatusChangeValidationComponent(
         userComponent.checkUserIsExecutor(customUserDetails, task)
     }
 
+    fun isCreator(customUserDetails: CustomUserDetails, task: Task) {
+        userComponent.checkUserIsCreator(customUserDetails, task)
+    }
+
     fun canStartNewTask(customUserDetails: CustomUserDetails): Boolean {
-        val privileges = statusChangePrivileges.canStartNewTask()
-        return privilegesComponent.userHasPrivileges(customUserDetails, privileges)
+        return privilegesComponent.checkPrivileges(customUserDetails, statusChangePrivileges.canStartNewTask())
     }
 
     fun canSuspendTask(customUserDetails: CustomUserDetails): Boolean {
-        val privileges = statusChangePrivileges.canSuspendTask()
-        return privilegesComponent.userHasPrivileges(customUserDetails, privileges)
+        return privilegesComponent.checkPrivileges(customUserDetails, statusChangePrivileges.canSuspendTask())
     }
 
-    fun canChangeActiveTask(customUserDetails: CustomUserDetails): Boolean {
-        val privileges = statusChangePrivileges.canChangeStatusOfActiveTask()
-        return privilegesComponent.userHasPrivileges(customUserDetails, privileges)
+    fun canFinishTask(customUserDetails: CustomUserDetails): Boolean {
+        return privilegesComponent.checkPrivileges(customUserDetails, statusChangePrivileges.canFinishTask())
     }
 
+    fun canFinishSuspendedTask(customUserDetails: CustomUserDetails): Boolean {
+        return privilegesComponent.checkPrivileges(customUserDetails, statusChangePrivileges.canFinishSuspendedTask())
+    }
+
+    fun canResumeTask(customUserDetails: CustomUserDetails): Boolean {
+        return privilegesComponent.checkPrivileges(customUserDetails, statusChangePrivileges.canResumeTask())
+    }
+
+    fun canResuspendTask(customUserDetails: CustomUserDetails): Boolean {
+        return privilegesComponent.checkPrivileges(customUserDetails, statusChangePrivileges.canResuspendTask())
+    }
 }

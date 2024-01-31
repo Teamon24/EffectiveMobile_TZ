@@ -7,12 +7,17 @@ import org.effective_mobile.task_management_system.RandomTasks.task
 import org.effective_mobile.task_management_system.RandomUsers.user
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.exception.messages.EntityNotFoundMessages
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod.*
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import java.util.stream.Stream
@@ -20,7 +25,17 @@ import java.util.stream.Stream
 /**
  * Test for [TaskResource.getTask].
  */
-class TaskResourceGetTaskTest: AbstractTaskResourceTest() {
+class TaskResourceGetTaskTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): AbstractTaskResourceTest(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
 
     @ParameterizedTest
     @MethodSource("correctEntities")

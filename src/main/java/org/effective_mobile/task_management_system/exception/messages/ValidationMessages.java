@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.ValuableEnum;
-import org.effective_mobile.task_management_system.utils.enums.converter.ValuableEnumConverter;
 
 public class ValidationMessages {
 
@@ -20,12 +19,12 @@ public class ValidationMessages {
         return invalid(status, Status.class, "validation.error.enum.invalid");
     }
 
-    public static String invalid(String value, Class<? extends ValuableEnum<String>> enumClass, String templateKey) {
+    public static String invalid(String value, Class<? extends ValuableEnum> enumClass, String templateKey) {
         return ExceptionMessages.getMessage(
                 templateKey,
                 resolveValue(value),
                 enumClass,
-                StringUtils.join(ValuableEnumConverter.values(enumClass), ", ")
+                StringUtils.join(ValuableEnum.values(enumClass), ", ")
             );
     }
 

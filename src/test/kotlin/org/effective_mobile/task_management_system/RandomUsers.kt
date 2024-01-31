@@ -1,14 +1,23 @@
 package org.effective_mobile.task_management_system
 
 import net.datafaker.Faker
+import org.effective_mobile.task_management_system.database.entity.Role
 import org.effective_mobile.task_management_system.database.entity.User
 
 object RandomUsers {
     fun user(passwordEncoding: () -> String) =
         user(password = passwordEncoding())
 
-    fun user(username: String = username(), password: String = safePassword()): User =
-        User.builder().email(email(username)).username(username).password(password).build()
+    fun user(username: String = username(),
+             password: String = safePassword(),
+             roles: MutableList<Role> = mutableListOf()
+    ): User =
+        User.builder()
+            .email(email(username))
+            .username(username)
+            .password(password)
+            .roles(roles)
+            .build()
 
     private val internet = Faker().internet()
 

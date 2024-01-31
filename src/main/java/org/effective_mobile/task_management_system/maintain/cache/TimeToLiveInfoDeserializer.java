@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.exception.ToEnumConvertException;
 import org.effective_mobile.task_management_system.exception.messages.ExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
-import org.effective_mobile.task_management_system.utils.enums.converter.ValuableEnumConverter;
+import org.effective_mobile.task_management_system.utils.enums.ValuableEnum;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -49,7 +49,7 @@ public class TimeToLiveInfoDeserializer extends JsonDeserializer<TimeToLiveInfo>
                 "exception.enum.conversion",
                 fieldNames.hasNext() ? fieldNames.next() : null,
                 TimeUnit.class.getSimpleName(),
-                StringUtils.join(ValuableEnumConverter.names(TimeUnit.class), ", ")
+                StringUtils.join(ValuableEnum.names(TimeUnit.class), ", ")
             );
             throw new ToEnumConvertException(message);
         }

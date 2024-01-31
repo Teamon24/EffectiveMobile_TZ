@@ -9,6 +9,10 @@ import org.effective_mobile.task_management_system.RandomUsers.user
 import org.effective_mobile.task_management_system.component.StatusChangeValidatorTest
 import org.effective_mobile.task_management_system.database.entity.Task
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.database.repository.PrivilegeRepository
+import org.effective_mobile.task_management_system.database.repository.RoleRepository
+import org.effective_mobile.task_management_system.database.repository.TaskRepository
+import org.effective_mobile.task_management_system.database.repository.UserRepository
 import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.IllegalStatusChangeException
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
@@ -24,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus.*
 import java.util.*
@@ -32,8 +37,17 @@ import java.util.stream.Stream
 /**
  * Test for [TaskResource.setStatus].
  */
-class TaskResourceSetStatusTest : AbstractTaskResourceTest() {
-
+class TaskResourceSetStatusTest @Autowired constructor(
+    userRepository: UserRepository,
+    taskRepository: TaskRepository,
+    privilegeRepository: PrivilegeRepository,
+    roleRepository: RoleRepository
+): AbstractTaskResourceTest(
+    userRepository,
+    taskRepository,
+    privilegeRepository,
+    roleRepository
+) {
 
     private fun statusChangeBody(newStatus: String?) = StatusChangeRequestPojo(newStatus)
 

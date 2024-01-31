@@ -17,7 +17,6 @@ import org.effective_mobile.task_management_system.utils.MiscUtils;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
-import org.effective_mobile.task_management_system.utils.enums.converter.PriorityConverter;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -87,7 +86,7 @@ public class TaskComponentImpl implements TaskComponent {
         }
 
         if (StringUtils.isNotBlank(newPriority)) {
-            Priority priority = new PriorityConverter().convert(newPriority);
+            Priority priority = Priority.convert(newPriority);
             toSave = toSave | setIfNew(task, priority, Task::getPriority, Task::setPriority);
         }
 

@@ -6,6 +6,7 @@ import home.extensions.BooleansExtensions.then
 import jakarta.annotation.Nullable
 import org.effective_mobile.task_management_system.TaskManagementSystemApp
 import org.effective_mobile.task_management_system.database.entity.User
+import org.effective_mobile.task_management_system.utils.enums.UserRole
 import org.effective_mobile.task_management_system.exception.ErrorInfo
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException
@@ -60,6 +61,9 @@ abstract class IntegrationTest {
     protected class RequiresAuthorizationInfoImplTest(val user: User):
         RequiredAuthorizationInfo {
         override fun getUserId() = user.id!!
+        override fun getUserRoles(): Collection<UserRole> {
+            return user.roles.map { it.name }
+        }
     }
 
     private var authenticated = true;
