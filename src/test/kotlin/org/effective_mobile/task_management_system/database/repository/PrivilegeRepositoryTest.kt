@@ -12,7 +12,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.transaction.annotation.Transactional
 
-
+/**
+ * Tests for [PrivilegeRepository].
+ */
 @DataJpaTest
 @Transactional
 open class PrivilegeRepositoryTest {
@@ -110,26 +112,37 @@ open class PrivilegeRepositoryTest {
         }
     }
 
+    /**
+     * Test for [PrivilegeRepository.findBranch].
+     */
     @Test
     open fun findBranchTest() {
-        assertBranch(privilege1, privilegesBranch1) { assertPrivilegesBranch1(it) }
-        assertBranch(privilege2, privilegesBranch2) { assertPrivilegesBranch2(it) }
-        assertBranch(privilege3, privilegesBranch3) { assertPrivilegesBranch3(it) }
-        assertBranch(privilege4, privilegesBranch4) { assertPrivilegesBranch4(it) }
+        Assertions.assertEquals(1,  privilege1.findBranch().size)
+        Assertions.assertEquals(10, privilege2.findBranch().size)
+        Assertions.assertEquals(5,  privilege21.findBranch().size)
+        Assertions.assertEquals(1,  privilege211.findBranch().size)
+        Assertions.assertEquals(3,  privilege212.findBranch().size)
+        Assertions.assertEquals(2,  privilege2121.findBranch().size)
+        Assertions.assertEquals(1,  privilege21211.findBranch().size)
+        Assertions.assertEquals(4,  privilege22.findBranch().size)
+        Assertions.assertEquals(1,  privilege221.findBranch().size)
+        Assertions.assertEquals(1,  privilege222.findBranch().size)
+        Assertions.assertEquals(1,  privilege223.findBranch().size)
+        Assertions.assertEquals(5,  privilege3.findBranch().size)
+        Assertions.assertEquals(1,  privilege31.findBranch().size)
+        Assertions.assertEquals(3,  privilege32.findBranch().size)
+        Assertions.assertEquals(1,  privilege321.findBranch().size)
+        Assertions.assertEquals(1,  privilege322.findBranch().size)
+        Assertions.assertEquals(5,  privilege4.findBranch().size)
+        Assertions.assertEquals(1,  privilege41.findBranch().size)
+        Assertions.assertEquals(3,  privilege42.findBranch().size)
+        Assertions.assertEquals(1,  privilege421.findBranch().size)
+        Assertions.assertEquals(1,  privilege422.findBranch().size)
     }
 
-    private fun assertBranch(privilegeName: String,
-                             expected: HashSet<String>,
-                             assert: (HashSet<Privilege>) -> Unit
-    ) {
-        val privilegesBranch = privilegeRepository.findBranch(privilegeName.findId())
-        Assertions.assertTrue(expected.isNotEmpty())
-        Assertions.assertTrue(privilegesBranch.isNotEmpty())
-        Assertions.assertEquals(expected.size, privilegesBranch.size)
-        Assertions.assertTrue(privilegesBranch.names.containsAll(expected))
-        assert(privilegesBranch)
-    }
-
+    /**
+     * Test for [PrivilegeRepository.findByUserRoles].
+     */
     @Test
     open fun findByUserRolesTest() {
         creatorRoleName.findPrivileges().also {
@@ -143,55 +156,19 @@ open class PrivilegeRepositoryTest {
             Assertions.assertTrue(it.names.containsAll(expected))
         }
 
-
-
         executorRoleName.findPrivileges().also {
             val expected =
-                listOf(privilege22, privilege221, privilege222, privilege223) +
-                listOf(privilege31) +
-                listOf(privilege322) +
-                listOf(privilege421)
+                listOf(
+                    privilege22, privilege221, privilege222, privilege223,
+                    privilege31,
+                    privilege322,
+                    privilege421
+                )
 
             Assertions.assertEquals(expected.size, it.size)
             Assertions.assertTrue(it.names.containsAll(expected))
         }
     }
-
-    private fun assertPrivilegesBranch1(privilegesBranch: HashSet<Privilege>) {
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege1).size)
-    }
-
-    private fun assertPrivilegesBranch2(privilegesBranch: HashSet<Privilege>) {
-        Assertions.assertEquals(2, privilegesBranch.childrenOf(privilege2).size)
-        Assertions.assertEquals(2, privilegesBranch.childrenOf(privilege21).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege211).size)
-        Assertions.assertEquals(1, privilegesBranch.childrenOf(privilege212).size)
-        Assertions.assertEquals(1, privilegesBranch.childrenOf(privilege2121).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege21211).size)
-        Assertions.assertEquals(3, privilegesBranch.childrenOf(privilege22).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege221).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege222).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege223).size)
-    }
-
-    private fun assertPrivilegesBranch3(privilegesBranch: HashSet<Privilege>) {
-        Assertions.assertEquals(2, privilegesBranch.childrenOf(privilege3).size)
-        Assertions.assertEquals(2, privilegesBranch.childrenOf(privilege32).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege321).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege322).size)
-    }
-
-    private fun assertPrivilegesBranch4(privilegesBranch: HashSet<Privilege>) {
-        Assertions.assertEquals(2, privilegesBranch.childrenOf(privilege4).size)
-        Assertions.assertEquals(2, privilegesBranch.childrenOf(privilege42).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege421).size)
-        Assertions.assertEquals(0, privilegesBranch.childrenOf(privilege422).size)
-    }
-
-    private fun HashSet<Privilege>.childrenOf(privilegeName: String) =
-        filter { it.parentId == privilegeName.findId() }
-
-
 
     private inline fun role(roleName: String, create: Role.() -> Unit = {}): Role {
         return Role().apply {
@@ -231,13 +208,16 @@ open class PrivilegeRepositoryTest {
         }
     }
 
-    private fun String.findPrivileges(): HashSet<Privilege> = privilegeRepository.findByUserRoles(listOf(this))
+    private fun String.findPrivileges() = privilegeRepository.findByUserRoles(listOf(this))
+    private fun String.findBranch() = privilegeRepository.findBranch(this.findId())
 
-    private fun String.find(): Privilege = privilegeRepository
-        .findByName(this)
-        .orElseThrow {
-            RuntimeException("There is no ${Privilege::class.java.simpleName} with name '$this'")
-        }
+    private fun String.find() =
+        privilegeRepository
+            .findByName(this)
+            .orElseThrow {
+                RuntimeException(
+                    "There is no ${Privilege::class.java.simpleName} with name '$this'")
+            }
 
     private fun String.findId(): Long = find().id
 

@@ -1,5 +1,6 @@
 package org.effective_mobile.task_management_system.resource
 
+import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.database.entity.AbstractEntity
 import org.effective_mobile.task_management_system.database.entity.Privilege
 import org.effective_mobile.task_management_system.database.entity.Role
@@ -31,6 +32,7 @@ abstract class UserAndTaskIntegrationBase @Autowired constructor(
         taskRepository.deleteAll()
         userRepository.deleteAll()
     }
+
 
     internal inline fun <reified T : AbstractEntity> saveAllAndFlush(vararg entities: T) =
         entities.forEach { saveAndFlush(it) }
@@ -87,6 +89,10 @@ abstract class UserAndTaskIntegrationBase @Autowired constructor(
                 privileges.add(statusChange.find())
             }
         }
+
+        fun executor() = RandomUsers.user(roles = listOf(executorRole))
+        fun creator() = RandomUsers.user(roles = listOf(creatorRole))
+
 
         private fun initPrivileges() {
             if (privilegesNotInitialized) {

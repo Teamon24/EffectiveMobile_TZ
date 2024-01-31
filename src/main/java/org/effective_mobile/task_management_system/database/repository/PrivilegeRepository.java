@@ -25,8 +25,6 @@ public interface PrivilegeRepository extends AbstractJpaRepository<Privilege, Lo
                 SELECT child.name, child.id, child.parent_id
                 FROM privileges child
                          JOIN tree ON child.parent_id = tree.id
-                         LEFT JOIN roles_privileges rp on rp.privilege_id = child.id
-                         LEFT JOIN roles r on r.id = rp.role_id
             )
             SELECT id, name, parent_id FROM tree
         """,

@@ -19,14 +19,16 @@ import org.effective_mobile.task_management_system.database.repository.Privilege
 import org.effective_mobile.task_management_system.database.repository.RoleRepository
 import org.effective_mobile.task_management_system.database.repository.TaskRepository
 import org.effective_mobile.task_management_system.database.repository.UserRepository
+import org.effective_mobile.task_management_system.exception.DeniedOperationException
 import org.effective_mobile.task_management_system.exception.NothingToUpdateInTaskException
+import org.effective_mobile.task_management_system.exception.messages.AccessExceptionMessages
 import org.effective_mobile.task_management_system.exception.messages.EntityNotFoundMessages
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
 import org.effective_mobile.task_management_system.exception.messages.ValidationMessages
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo
+import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
-import org.effective_mobile.task_management_system.utils.Api
 import org.effective_mobile.task_management_system.utils.Constraints.Task.Content.Length
 import org.effective_mobile.task_management_system.utils.JsonPojos
 import org.effective_mobile.task_management_system.utils.enums.Priority
@@ -171,15 +173,12 @@ class TaskResourceEditTaskTest @Autowired constructor(
                                     .or(JsonPojos.Task.Field.PRIORITY)
 
                                 message = content.let {
-                                    if (StringUtils.isBlank(it)) {
-                                        ValidationMessages.invalidContent(it)
-                                    } else {
-                                        ValidationMessages.invalidPriority(priority)
+                                    when {
+                                        StringUtils.isBlank(it) -> ValidationMessages.invalidContent(it)
+                                        else -> ValidationMessages.invalidPriority(priority)
                                     }
                                 }
-                                rejectedValue = content.let {
-                                    if (StringUtils.isBlank(it)) content else priority
-                                }
+                                rejectedValue = content.let { if (StringUtils.isBlank(it)) content else priority }
                                 `object` = TaskEditionRequestPojo::class.java.simpleName.decapitalized
                             }
                         }
@@ -210,6 +209,31 @@ class TaskResourceEditTaskTest @Autowired constructor(
     }
 
     @ParameterizedTest
+    @MethodSource("editorIsNotCreatorBodies")
+    fun `editTask 403 invalid user`(
+        editor: User,
+        task: Task,
+        taskEditionRequestPojo: TaskEditionRequestPojo,
+        saveEntities: (base: UserAndTaskIntegrationBase) -> Unit,
+    ) {
+        saveEntities(this)
+        editor {
+            send(mvc) {
+                method = PUT
+                url = editTaskUrl(task.id)
+                body = taskEditionRequestPojo
+            } response { requestInfo ->
+                assert403(
+                    requestInfo,
+                    AccessExceptionMessages.notACreator(customUserDetails, task.id),
+                    DeniedOperationException::class.canonicalName
+                )
+            }
+        }
+    }
+
+
+    @ParameterizedTest
     @MethodSource("taskIsAbsent")
     fun `editTask 404 task is absent`(
         creator: User,
@@ -220,7 +244,7 @@ class TaskResourceEditTaskTest @Autowired constructor(
         creator {
             send(mvc) {
                 method = PUT
-                url = Api.TASK + "/$absentTaskId"
+                url = editTaskUrl(absentTaskId)
                 body = taskEditionRequestPojo
             } response { requestInfo ->
                 assert404(
@@ -231,6 +255,7 @@ class TaskResourceEditTaskTest @Autowired constructor(
             }
         }
     }
+
 
     companion object {
 
@@ -244,10 +269,9 @@ class TaskResourceEditTaskTest @Autowired constructor(
                             listOf(it),
                             validPriorities().exclude(it.name, it.name.lowercase()),
                             validContent()
-                        )
-                            .map(::toDto)
-                            .filter(::notEmptyBody)
-                            .forEach { dto -> argsUserTaskAndBody(dto) }
+                        ).map(::toDto)
+                         .filter(::notEmptyBody)
+                         .forEach { dto -> argsUserTaskAndBody(dto) }
                     }
                 }
             }
@@ -316,6 +340,41 @@ class TaskResourceEditTaskTest @Autowired constructor(
         }
 
         @JvmStatic
+        fun editorIsNotCreatorBodies(): Stream<Arguments> {
+            val existedTaskPriorities = Priority.values().toList().sorted()
+            fun saveAll(creator: User, editor: User, task: Task) = { base: UserAndTaskIntegrationBase ->
+                base.saveAndFlush(creator)
+                base.saveAndFlush(editor)
+                base.saveAndFlush(task)
+            }
+            return stream {
+                existedTaskPriorities.forEach { existedTaskPriority ->
+                    existedTaskPriority.also {
+                        CartesianProduct.elements(
+                            listOf(it),
+                            validPriorities().exclude(it.name, it.name.lowercase()),
+                            validContent()
+                        )
+                            .map(::toDto)
+                            .filter(::notEmptyBody)
+                            .forEach { (existedTaskPriority, newPriority, newContent) ->
+                                args {
+                                    val editor = +creator() as User
+                                    val creator = creator()
+                                    val task = +task(creator, priority = existedTaskPriority) as Task
+                                    +taskEditing {
+                                        priority = newPriority
+                                        content = newContent
+                                    }
+                                    +saveAll(creator, editor, task)
+                                }
+                            }
+                    }
+                }
+            }
+        }
+
+        @JvmStatic
         fun taskIsAbsent(): Stream<Arguments> {
             return stream {
                 args {
@@ -348,8 +407,8 @@ class TaskResourceEditTaskTest @Autowired constructor(
         private fun MutableList<Arguments>.argsUserTaskAndBody(args: TestDto) {
             val (existedTaskPriority, newPriority, newContent) = args
             args {
-                val user = +user() as User
-                +task(user, priority = existedTaskPriority)
+                val creator = +creator() as User
+                +task(creator, priority = existedTaskPriority)
                 +taskEditing {
                     priority = newPriority
                     content = newContent
