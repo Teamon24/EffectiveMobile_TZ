@@ -4,4 +4,5 @@ public interface AppCacheNames {
     String TASKS = "tasks";
     String USERS_AUTH = "usersAuth";
     String PRIVILEGES = "privileges";
+    String AUTHORITIES = "authorities";
 }

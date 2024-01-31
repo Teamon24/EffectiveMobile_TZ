@@ -28,8 +28,8 @@ public class CacheConfigurations {
 
                 Cache<Object, Object> cache =
                     Caffeine.newBuilder()
-                        .initialCapacity(50)
-                        .maximumSize(100)
+                        .initialCapacity(setting.getInitialCapacity())
+                        .maximumSize(setting.getMaximumSize())
                         .expireAfterAccess(timeToLiveInfo.getValue(), timeToLiveInfo.getType())
                         .build();
 

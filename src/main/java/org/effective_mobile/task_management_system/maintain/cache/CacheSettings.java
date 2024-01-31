@@ -8,6 +8,8 @@ import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
 @Getter
 @AllArgsConstructor
 public class CacheSettings {
+	@JsonProperty private int initialCapacity;
+	@JsonProperty private long maximumSize;
 	@JsonProperty private String name;
 	@JsonProperty private TimeToLiveInfo ttl;
 	@JsonProperty private boolean enabled;

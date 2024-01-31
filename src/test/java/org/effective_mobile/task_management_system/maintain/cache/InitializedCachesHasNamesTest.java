@@ -38,10 +38,13 @@ public class InitializedCachesHasNamesTest {
     @Value("${app.cache.privileges.name}")
     private String privileges;
 
+    @Value("${app.cache.authorities.name}")
+    private String authorities;
+
     @Test
     public void initializedCachesHasNamesTest() {
         List<String> expected = cacheProperties.settings.stream().map(CacheSettings::getName).toList();
-        List<String> actual = List.of(this.tasks, usersAuth, privileges);
+        List<String> actual = List.of(this.tasks, usersAuth, privileges, authorities);
         Assertions.assertEquals(expected.size(), actual.size());
         Assertions.assertTrue(expected.containsAll(actual));
     }
