@@ -12,4 +12,5 @@ typealias StatusesChanges = Collection<StatusChange>
 typealias UserChecking = (customUserDetails: CustomUserDetails, task: Task) -> Unit
 typealias AuthoritiesChecking = (customUserDetails: CustomUserDetails) -> Boolean
 typealias AuthoritiesExtracting = (customUserDetails: CustomUserDetails) -> Set<GrantedAuthority>
+typealias ExceptionsMap = MutableMap<StatusChange, Exception>
 

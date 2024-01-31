@@ -58,7 +58,7 @@ class StatusChangeValidatorTest @Autowired constructor(
     private lateinit var validator: StatusChangeValidator
 
     /**
-     * Test for [StatusChangeValidator.validateByRules].
+     * Test for [StatusChangeValidator.validate].
      */
     @ParameterizedTest
     @MethodSource("invalidStatusChangeTestData")
@@ -72,14 +72,14 @@ class StatusChangeValidatorTest @Autowired constructor(
         saveEntities(this)
         user.authenticated()
         Assertions.assertThrows(expectedEx::class.java) {
-            validator.validateByRules(customUserDetails, task, newInvalidStatus)
+            validator.validate(customUserDetails, task, newInvalidStatus)
         }.let { ex ->
             Assertions.assertEquals(expectedEx.message, ex.message)
         }
     }
 
     /**
-     * Test for [StatusChangeValidator.validateByRules].
+     * Test for [StatusChangeValidator.validate].
      */
     @ParameterizedTest
     @MethodSource("validChangeButNotValidUserTestData")
@@ -94,14 +94,14 @@ class StatusChangeValidatorTest @Autowired constructor(
         user.authenticated()
         val expectedExMessage = lazyExpectedExceptionMessage(customUserDetails, task);
         Assertions.assertThrows(DeniedOperationException::class.java) {
-            validator.validateByRules(customUserDetails, task, newValidStatus)
+            validator.validate(customUserDetails, task, newValidStatus)
         }.let { ex ->
             Assertions.assertEquals(expectedExMessage, ex.message)
         }
     }
 
     /**
-     * Test for [StatusChangeValidator.validateByRules].
+     * Test for [StatusChangeValidator.validate].
      */
     @ParameterizedTest
     @MethodSource("validChangeAndValidUser")
@@ -123,14 +123,14 @@ class StatusChangeValidatorTest @Autowired constructor(
             )
         )
         Assertions.assertThrows(expectedEx::class.java) {
-            validator.validateByRules(customUserDetails, task, newValidStatus)
+            validator.validate(customUserDetails, task, newValidStatus)
         }.let { ex ->
             Assertions.assertEquals(expectedEx.message, ex.message)
         }
     }
 
     /**
-     * Test for [StatusChangeValidator.validateByRules].
+     * Test for [StatusChangeValidator.validate].
      */
     @ParameterizedTest
     @MethodSource("validChangeAndValidUser")
@@ -142,7 +142,7 @@ class StatusChangeValidatorTest @Autowired constructor(
     ) {
         saveEntities(this)
         user.authenticated()
-        validator.validateByRules(customUserDetails, task, newValidStatus)
+        validator.validate(customUserDetails, task, newValidStatus)
     }
 
 
@@ -239,9 +239,7 @@ class StatusChangeValidatorTest @Autowired constructor(
         @JvmStatic
         fun validChangeAndValidUser(): Stream<Arguments> {
             fun saveAll(creator: User, executor: User, task: Task) = { base: UserAndTaskIntegrationBase ->
-                for (entity in (creator + executor + task)) {
-                    base.saveAndFlush(entity)
-                }
+                base.saveAllAndFlush(creator, executor, task)
             }
 
             return stream {
@@ -251,8 +249,8 @@ class StatusChangeValidatorTest @Autowired constructor(
                    PENDING to EXECUTING
                 ).onEach { statusChange ->
                     args {
-                        val creator = user(roles = mutableListOf(creatorRole))
-                        val executor = user(roles = mutableListOf(executorRole))
+                        val creator = creator()
+                        val executor = executor()
                         +executor
                         val task = +task(creator, executor, statusChange.first) as Task
                         val newStatus = +statusChange.second

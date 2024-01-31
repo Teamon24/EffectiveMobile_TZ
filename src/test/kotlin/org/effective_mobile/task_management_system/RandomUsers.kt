@@ -10,7 +10,7 @@ object RandomUsers {
 
     fun user(username: String = username(),
              password: String = safePassword(),
-             roles: MutableList<Role> = mutableListOf()
+             roles: List<Role> = listOf()
     ): User =
         User.builder()
             .email(email(username))

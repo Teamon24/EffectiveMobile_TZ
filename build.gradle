@@ -44,14 +44,15 @@ sourceSets {
 ext {
     paths = [ src     : slpath("$rootDir", 'src') ]
 
-    paths.resources     = slpath(paths.src, 'main', 'resources')
-    paths.main          = slpath(paths.src, 'main')
-    paths.javaSrc       = slpath(paths.src, 'main', 'java')
-    paths.kotlinSrc     = slpath(paths.src, 'main', 'kotlin')
+    paths.main          = slpath(paths.src,  'main')
+    paths.resources     = slpath(paths.main, 'resources')
+    paths.javaSrc       = slpath(paths.main, 'java')
+    paths.kotlinSrc     = slpath(paths.main, 'kotlin')
 
-    paths.testResources = slpath(paths.src, 'test', 'resources')
-    paths.testJavaSrc   = slpath(paths.src, 'test', 'java')
-    paths.testKotlinSrc = slpath(paths.src, 'test', 'kotlin')
+    paths.test          = slpath(paths.src, 'test')
+    paths.testResources = slpath(paths.test, 'resources')
+    paths.testJavaSrc   = slpath(paths.test, 'java')
+    paths.testKotlinSrc = slpath(paths.test, 'kotlin')
 }
 
 sourceSets {

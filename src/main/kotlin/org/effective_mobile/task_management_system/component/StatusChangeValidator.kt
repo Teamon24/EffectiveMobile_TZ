@@ -10,6 +10,7 @@ import org.effective_mobile.task_management_system.exception.messages.Authorizat
 import org.effective_mobile.task_management_system.exception.messages.TaskExceptionMessages
 import org.effective_mobile.task_management_system.security.CustomUserDetails
 import org.effective_mobile.task_management_system.utils.AuthoritiesChecking
+import org.effective_mobile.task_management_system.utils.ExceptionsMap
 import org.effective_mobile.task_management_system.utils.StatusChange
 import org.effective_mobile.task_management_system.utils.Statuses
 import org.effective_mobile.task_management_system.utils.StatusesChanges
@@ -56,7 +57,7 @@ class StatusChangeValidator(private val statusChangeValidationComponent: StatusC
 
     private fun any() = Status.values().toList()
 
-    fun validateByRules(
+    fun validate(
         customUserDetails: CustomUserDetails,
         task: Task,
         newStatus: Status
@@ -111,7 +112,7 @@ class StatusChangeValidator(private val statusChangeValidationComponent: StatusC
     /**
      * Class contains common logic of [ValidStatusChanges] and [InvalidStatusChanges].
      */
-    sealed class ValidatableStatusChanges {
+    private sealed class ValidatableStatusChanges {
         val statusChanges: MutableSet<StatusChange> = hashSetOf()
 
         fun from(vararg statuses: Status): Statuses = statuses.toList()
@@ -129,28 +130,20 @@ class StatusChangeValidator(private val statusChangeValidationComponent: StatusC
     }
 
     /**
-     * Class that contain information about valid status changes.
+     * Class contains information about valid status changes.
      */
     private class ValidStatusChanges(
         val userCheckers: MutableMap<StatusChange, UserChecking> = hashMapOf(),
         val authoritiesCheckers: MutableMap<StatusChange, AuthoritiesChecking> = hashMapOf()
     ): ValidatableStatusChanges() {
-
-        inline infix fun StatusesChanges.user(noinline userChecking: UserChecking) =
-            onEach { userCheckers[it] = userChecking }
-
-        inline infix fun StatusesChanges.authorized(noinline authoritiesChecking: AuthoritiesChecking): Unit =
-            forEach { authoritiesCheckers[it] = authoritiesChecking }
+        infix fun StatusesChanges.user(checking: UserChecking) = onEach { userCheckers[it] = checking }
+        infix fun StatusesChanges.authorized(checking: AuthoritiesChecking) = forEach { authoritiesCheckers[it] = checking }
     }
 
     /**
      * Class that contain information about INVALID status changes and respective exceptions.
      */
-    private class InvalidStatusChanges(
-        val exceptionsMap: MutableMap<StatusChange, Exception> = hashMapOf()): ValidatableStatusChanges()
-    {
-        inline infix fun StatusesChanges.exception(exception: Exception): Unit = forEach {
-            exceptionsMap[it] = exception
-        }
+    private class InvalidStatusChanges(val exceptionsMap: ExceptionsMap = hashMapOf()): ValidatableStatusChanges() {
+        infix fun StatusesChanges.exception(exception: Exception) = forEach { exceptionsMap[it] = exception }
     }
 }
