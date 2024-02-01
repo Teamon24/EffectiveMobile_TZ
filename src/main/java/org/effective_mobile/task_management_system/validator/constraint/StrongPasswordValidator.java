@@ -3,6 +3,7 @@ package org.effective_mobile.task_management_system.validator.constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.AllArgsConstructor;
+import org.effective_mobile.task_management_system.utils.constraints.length.user.password;
 
 @AllArgsConstructor
 public class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {
@@ -13,9 +14,13 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
      * <p><strong> (?=.*[a-z])</strong>: минимум одна прописная буква
      * <p><strong> (?=.*[A-Z])</strong>: минимум одна заглавная буква
      * <p><strong> (?=.*[@#$%^&+=!*()])</strong>: минимум один спец. символ
-     * <p><strong> .{8,}</strong>: минимум 8 символов.
+     * <p><strong> .{a,}</strong>: минимум a символов.
      */
-    public static final String STRONG_PASSWORD_REGEX = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!*()]).{8,}$";
+    private static final String SPECIAL_SYMBOLS_PART = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!*()])";
+    private static final String MIN_LENGTH_PART = "{%s,}";
+
+    public static final String STRONG_PASSWORD_REGEX =
+        "^" + SPECIAL_SYMBOLS_PART + "." +  MIN_LENGTH_PART.formatted(password.MIN) + "$";
 
     private FieldAndValueValidationComponent validationComponent;
 

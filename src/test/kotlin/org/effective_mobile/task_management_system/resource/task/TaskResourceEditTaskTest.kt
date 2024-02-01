@@ -29,8 +29,8 @@ import org.effective_mobile.task_management_system.pojo.HasTaskInfo
 import org.effective_mobile.task_management_system.resource.UserAndTaskIntegrationBase
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo
-import org.effective_mobile.task_management_system.utils.Constraints.Task.Content.Length
 import org.effective_mobile.task_management_system.utils.JsonPojos
+import org.effective_mobile.task_management_system.utils.constraints.length.task.content
 import org.effective_mobile.task_management_system.utils.enums.Priority
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.params.ParameterizedTest
@@ -402,7 +402,7 @@ class TaskResourceEditTaskTest @Autowired constructor(
             +null
         }
 
-        private fun validContent() = listOf(content(Length.MAX), content(Length.MIN), null)
+        private fun validContent() = listOf(content(content.MAX), content(content.MIN), null)
 
         private fun MutableList<Arguments>.argsUserTaskAndBody(args: TestDto) {
             val (existedTaskPriority, newPriority, newContent) = args

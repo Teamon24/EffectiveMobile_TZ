@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.effective_mobile.task_management_system.pojo.HasTaskInfo;
-import org.effective_mobile.task_management_system.utils.Constraints.Task.Content.Length;
 import org.effective_mobile.task_management_system.utils.MiscUtils;
+import org.effective_mobile.task_management_system.utils.constraints.length.task;
 import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ public class Task extends AbstractEntity implements HasTaskInfo {
 
 
     @Setter
-    @Column(length = 20, nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
@@ -54,8 +54,8 @@ public class Task extends AbstractEntity implements HasTaskInfo {
     private Priority priority;
 
     @Setter
-    @Column(length = Length.MAX)
-    @Size(min = Length.MIN, max = Length.MAX)
+    @Column(length = task.content.MAX)
+    @Size(min = task.content.MIN, max = task.content.MAX)
     private String content;
 
     // TODO: избавиться от FetchType.EAGER (сейчас связи подтягиваются из-за spring-кеша).

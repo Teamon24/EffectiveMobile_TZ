@@ -1,6 +1,7 @@
 package org.effective_mobile.task_management_system.database.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -8,7 +9,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,31 +18,30 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.effective_mobile.task_management_system.pojo.HasUserInfo;
+import org.effective_mobile.task_management_system.utils.constraints.length.user;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "users",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = "username"),
-        @UniqueConstraint(columnNames = "email")
-})
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
+@Entity
+@Table(name = "users")
 public class User extends AbstractEntity implements HasUserInfo {
 
     @NotBlank
-    @Size(max = 30)
+    @Size(min = user.username.MIN, max = user.username.MAX)
+    @Column(unique = true, nullable = false, length = user.username.MAX)
     private String username;
 
     @Email
     @NotBlank
-    @Size(max = 50)
+    @Size(min = user.email.MIN, max = user.email.MAX)
+    @Column(unique = true, nullable = false, length = user.email.MAX)
     private String email;
 
     @NotBlank
-    @Size(max = 120)
+    @Column(nullable = false)
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
