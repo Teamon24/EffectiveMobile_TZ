@@ -7,7 +7,6 @@ import org.effective_mobile.task_management_system.resource.json.comment.Comment
 import org.effective_mobile.task_management_system.resource.json.comment.CommentCreationResponsePojo;
 import org.effective_mobile.task_management_system.service.CommentService;
 import org.effective_mobile.task_management_system.utils.Api;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,12 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(Api.COMMENT)
 @AllArgsConstructor
-public class CommentResource {
+public class CommentResource implements AuthenticatedResource {
 
     private CommentService commentService;
 
     @PostMapping
-    @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody CommentCreationResponsePojo createComment(
         @RequestBody @Valid CommentCreationRequestPojo commentCreationRequestPojo
     ) {

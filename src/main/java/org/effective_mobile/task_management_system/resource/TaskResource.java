@@ -23,7 +23,6 @@ import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,8 +40,7 @@ import static org.effective_mobile.task_management_system.utils.MiscUtils.nullOr
 @RestController
 @RequestMapping(Api.TASK)
 @AllArgsConstructor
-@PreAuthorize("@authenticationComponent.isAuthenticated()")
-public class TaskResource {
+public class TaskResource implements AuthenticatedResource {
 
     private final TaskService taskService;
 

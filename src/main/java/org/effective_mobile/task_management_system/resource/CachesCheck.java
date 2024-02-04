@@ -12,7 +12,6 @@ import org.hibernate.LazyInitializationException;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,13 +29,12 @@ import java.util.stream.Collectors;
 @Profile("dev")
 @RequestMapping("/cache")
 @AllArgsConstructor
-public class CachesCheck {
+public class CachesCheck implements AuthenticatedResource {
 
     private CacheManager cacheManager;
     private TaskComponent taskComponent;
 
     @GetMapping
-    @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Collection<Cache> getAllCache() {
         return cacheManager
             .getCacheNames()
@@ -46,7 +44,6 @@ public class CachesCheck {
     }
 
     @GetMapping("/{cache_name}/{id}")
-    @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Collection<TaskResponsePojoWithCacheInfo> getCachedEntityBy(
         @PathVariable(name = "cache_name") String cacheName,
         @PathVariable Long id
@@ -62,7 +59,6 @@ public class CachesCheck {
     }
 
     @GetMapping("/{name}")
-    @PreAuthorize("@authenticationComponent.isAuthenticated()")
     public @ResponseBody Collection<JsonPojoId> getCacheByName(
         @PathVariable String name
     ) {
