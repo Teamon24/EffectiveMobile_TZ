@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
 
-public interface AuthTokenComponent {
+public interface AuthenticationTokenComponent {
     @Nullable String getToken(Cookie cookie);
     String getTokenFromCookies(HttpServletRequest request) throws TokenAuthenticationException;
     boolean hasTokenInCookies(HttpServletRequest request) throws TokenAuthenticationException;

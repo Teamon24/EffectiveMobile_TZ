@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
@@ -15,14 +15,13 @@ import java.io.IOException;
 @AllArgsConstructor
 public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
 
-    private final AuthTokenComponent authTokenComponent;
+    private final AuthenticationTokenComponent authenticationTokenComponent;
     private final HttpExchangeLoggingComponent httpExchangeLoggingComponent;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (log.isDebugEnabled() || log.isInfoEnabled()) {
             setStartTime(request);
-            boolean hasTokenInCookie = authTokenComponent.hasTokenInCookies(request);
             HttpRequestLogPojo httpRequestLogPojo = HttpRequestLogPojo.builder()
                 .httpMethod(request.getMethod())
                 .path(request.getRequestURI())
@@ -33,7 +32,11 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
                     HttpRequestAuthInfo.builder()
                         .headers(httpExchangeLoggingComponent.getHeaders(request))
                         .cookies(request.getCookies())
-                        .token(hasTokenInCookie ? authTokenComponent.getTokenFromCookies(request) : "UNAUTHENTICATED")
+                        .token(
+                            authenticationTokenComponent.hasTokenInCookies(request) ?
+                                authenticationTokenComponent.getTokenFromCookies(request) :
+                                "UNAUTHENTICATED"
+                        )
                         .build()).build();
 
             log.debug(httpExchangeLoggingComponent.asPretty(httpRequestLogPojo));

@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class AuthenticationComponentImpl implements AuthenticationComponent {
 
-    private final AuthTokenComponent authTokenComponent;
+    private final AuthenticationTokenComponent authenticationTokenComponent;
     private final ContextComponent contextComponent;
 
     @Override
     public boolean isAuthenticated() throws TokenAuthenticationException {
-        authTokenComponent.validateToken(contextComponent.getRequest());
+        authenticationTokenComponent.validateToken(contextComponent.getRequest());
         return true;
     }
 }

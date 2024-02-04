@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class JwtAuthTokenComponent implements AuthTokenComponent {
+public class JwtAuthTokenComponent implements AuthenticationTokenComponent {
 
     private final UsernameProvider usernameProvider;
 
@@ -35,13 +35,13 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
 
     public JwtAuthTokenComponent(
         UsernameProvider usernameProvider,
-        AuthProperties authProperties
+        AuthenticationTokenProperties authenticationTokenProperties
     ) {
         this.usernameProvider = usernameProvider;
-        this.authTokenName = authProperties.getAuthTokenName();
-        this.tokenTimeToLiveInfo = authProperties.getTokenTimeToLiveInfo();
+        this.authTokenName = authenticationTokenProperties.getAuthTokenName();
+        this.tokenTimeToLiveInfo = authenticationTokenProperties.getTokenTimeToLiveInfo();
 
-        this.hmac512 = Algorithm.HMAC512(authProperties.getSecret());
+        this.hmac512 = Algorithm.HMAC512(authenticationTokenProperties.getSecret());
         this.verifier = JWT.require(this.hmac512).build();
     }
 

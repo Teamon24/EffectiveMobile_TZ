@@ -32,7 +32,7 @@ class JwtAuthTokenComponentTest {
     private val authTokenName = "auth_token"
 
     private val authProperties = spy(
-        AuthProperties(
+        AuthenticationTokenProperties(
             ObjectMapper(), "{\"${TimeUnit.MINUTES.name}\":5}", authTokenName, "vaeOk2Mx4p9COZfRRbVsVxC7EuV9TW18pWf2"
         )
     )

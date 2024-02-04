@@ -26,9 +26,9 @@ import java.io.IOException;
 
 @Component
 @AllArgsConstructor
-public class AuthenticationFilter extends OncePerRequestFilter {
+public class AuthenticationTokenFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
-    private final AuthTokenComponent authTokenComponent;
+    private final AuthenticationTokenComponent authenticationTokenComponent;
     private final ObjectMapper objectMapper;
     private final ContextComponent contextComponent;
 
@@ -49,8 +49,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         Exception caught = null;
 
         try {
-            String authToken = authTokenComponent.getTokenFromCookies(request);
-            String username = authTokenComponent.validateTokenAndGetUsername(authToken);
+            String authToken = authenticationTokenComponent.getTokenFromCookies(request);
+            String username = authenticationTokenComponent.validateTokenAndGetUsername(authToken);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authentication = unauthenticated(userDetails, request);
             contextComponent.setAuthentication(authentication);

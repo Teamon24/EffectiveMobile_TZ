@@ -12,7 +12,7 @@ import org.effective_mobile.task_management_system.resource.json.assignment.Sign
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo
-import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent
 import org.effective_mobile.task_management_system.utils.Api
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -33,7 +33,7 @@ class AuthenticationResourceTest @Autowired constructor(
     roleRepository
 ) {
     @Autowired
-    private lateinit var authTokenComponent: AuthTokenComponent
+    private lateinit var authenticationTokenComponent: AuthenticationTokenComponent
 
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
@@ -86,7 +86,7 @@ class AuthenticationResourceTest @Autowired constructor(
                 userRepository.findByEmail(getEmail()).apply {
                     val foundUser = get()
                     Assertions.assertNotNull(foundUser)
-                    val username = authTokenComponent.validateTokenAndGetUsername(authToken)
+                    val username = authenticationTokenComponent.validateTokenAndGetUsername(authToken)
                     Assertions.assertEquals(usernameProvider.getUsername(foundUser), username)
                     Assertions.assertTrue(passwordEncoder.matches(notEncodedPassword, foundUser.getPassword()))
                 }

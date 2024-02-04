@@ -6,10 +6,10 @@ import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.security.EmailAsUsernameProvider;
 import org.effective_mobile.task_management_system.security.UsernameProvider;
-import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent;
 import org.effective_mobile.task_management_system.security.authentication.AuthenticationComponent;
 import org.effective_mobile.task_management_system.security.authentication.AuthenticationComponentImpl;
-import org.effective_mobile.task_management_system.security.authentication.AuthenticationFilter;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenFilter;
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponent;
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponentImpl;
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationFilter;
@@ -37,13 +37,13 @@ public class SecurityConfigurations {
     @Bean
     public SecurityFilterChain configure(
         final HttpSecurity http,
-        final AuthenticationFilter authenticationFilter,
+        final AuthenticationTokenFilter authenticationTokenFilter,
         final AuthorizationFilter authorizationFilter
     ) throws Exception {
         return http.cors(withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
@@ -68,10 +68,10 @@ public class SecurityConfigurations {
 
     @Bean
     public AuthenticationComponent authenticationComponent(
-        final AuthTokenComponent authTokenComponent,
+        final AuthenticationTokenComponent authenticationTokenComponent,
         final ContextComponent contextComponent
     ) {
-        return new AuthenticationComponentImpl(authTokenComponent, contextComponent);
+        return new AuthenticationComponentImpl(authenticationTokenComponent, contextComponent);
     }
 
     @Bean

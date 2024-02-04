@@ -14,7 +14,7 @@ import org.effective_mobile.task_management_system.exception.messages.AuthExcept
 import org.effective_mobile.task_management_system.resource.json.RequestPojo
 import org.effective_mobile.task_management_system.security.CustomUserDetails
 import org.effective_mobile.task_management_system.security.UsernameProvider
-import org.effective_mobile.task_management_system.security.authentication.AuthProperties
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenProperties
 import org.effective_mobile.task_management_system.security.authentication.JwtAuthTokenComponent
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponent
 import org.effective_mobile.task_management_system.security.authorization.RequiredAuthorizationInfo
@@ -78,7 +78,7 @@ abstract class IntegrationTest {
     @Autowired protected lateinit var mvc: MockMvc
     @Autowired protected lateinit var objectMapper: ObjectMapper
 
-    @Autowired protected lateinit var authProperties: AuthProperties
+    @Autowired protected lateinit var authProperties: AuthenticationTokenProperties
     @Autowired protected lateinit var jwtTokenComponent: JwtAuthTokenComponent
     @Autowired protected lateinit var authorizationComponent: AuthorizationComponent
     @Autowired protected lateinit var usernameProvider: UsernameProvider

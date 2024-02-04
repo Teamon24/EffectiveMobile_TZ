@@ -9,7 +9,7 @@ import org.effective_mobile.task_management_system.resource.json.assignment.Sign
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
-import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
+import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent;
 import org.effective_mobile.task_management_system.service.UserService;
 import org.effective_mobile.task_management_system.utils.Api;
 import org.effective_mobile.task_management_system.utils.converter.UserConverter;
@@ -32,7 +32,7 @@ public class AuthenticationResource {
     private final UsernameProvider usernameProvider;
     private final ContextComponent contextComponent;
     private final UserDetailsService userDetailsService;
-    private final AuthTokenComponent authTokenComponent;
+    private final AuthenticationTokenComponent authenticationTokenComponent;
     private final UserService userService;
 
     @PostMapping(Api.SIGN_UP)
@@ -52,7 +52,7 @@ public class AuthenticationResource {
         }
 
         contextComponent.setAuthentication(authentication);
-        final String token = authTokenComponent.generateToken(authentication);
+        final String token = authenticationTokenComponent.generateToken(authentication);
         return new SigninResponsePojo(token);
     }
 
