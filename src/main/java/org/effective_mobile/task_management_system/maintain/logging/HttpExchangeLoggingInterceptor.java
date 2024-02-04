@@ -3,6 +3,7 @@ package org.effective_mobile.task_management_system.maintain.logging;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.effective_mobile.task_management_system.security.authentication.AuthTokenComponent;
@@ -21,6 +22,7 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (log.isDebugEnabled() || log.isInfoEnabled()) {
             setStartTime(request);
+            boolean hasTokenInCookie = authTokenComponent.hasTokenInCookies(request);
             HttpRequestLogPojo httpRequestLogPojo = HttpRequestLogPojo.builder()
                 .httpMethod(request.getMethod())
                 .path(request.getRequestURI())
@@ -31,7 +33,7 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
                     HttpRequestAuthInfo.builder()
                         .headers(httpExchangeLoggingComponent.getHeaders(request))
                         .cookies(request.getCookies())
-                        .token(authTokenComponent.getTokenFromCookies(request))
+                        .token(hasTokenInCookie ? authTokenComponent.getTokenFromCookies(request) : "UNAUTHENTICATED")
                         .build()).build();
 
             log.debug(httpExchangeLoggingComponent.asPretty(httpRequestLogPojo));
@@ -40,10 +42,11 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request,
-                                HttpServletResponse response,
-                                Object handler,
-                                Exception ex)
+    public void afterCompletion(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler,
+        Exception ex)
     {
         val startTime = getStartTime(request);
         val endTime = System.currentTimeMillis();

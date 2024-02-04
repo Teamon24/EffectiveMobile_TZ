@@ -1,9 +1,8 @@
 package org.effective_mobile.task_management_system.security.authentication;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,9 +14,7 @@ public class AuthenticationComponentImpl implements AuthenticationComponent {
 
     @Override
     public boolean isAuthenticated() throws TokenAuthenticationException {
-        HttpServletRequest request = contextComponent.getRequest();
-        String token = authTokenComponent.getTokenFromCookies(request);
-        authTokenComponent.validateToken(token);
+        authTokenComponent.validateToken(contextComponent.getRequest());
         return true;
     }
 }

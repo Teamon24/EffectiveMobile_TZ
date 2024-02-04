@@ -20,40 +20,50 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtAuthTokenComponent implements AuthTokenComponent {
 
     private final UsernameProvider usernameProvider;
-    private final AuthProperties authProperties;
 
     private final Algorithm hmac512;
     private final JWTVerifier verifier;
+    private final String authTokenName;
+    private final TimeToLiveInfo tokenTimeToLiveInfo;
 
     public JwtAuthTokenComponent(
         UsernameProvider usernameProvider,
         AuthProperties authProperties
     ) {
         this.usernameProvider = usernameProvider;
-        this.authProperties = authProperties;
-        this.hmac512 = Algorithm.HMAC512(this.authProperties.secret);
+        this.authTokenName = authProperties.getAuthTokenName();
+        this.tokenTimeToLiveInfo = authProperties.getTokenTimeToLiveInfo();
+
+        this.hmac512 = Algorithm.HMAC512(authProperties.getSecret());
         this.verifier = JWT.require(this.hmac512).build();
     }
 
     @Override
-    public String getTokenFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, authProperties.authTokenName);
-        return getToken(cookie);
+    public String getTokenFromCookies(HttpServletRequest request) throws TokenAuthenticationException {
+        Cookie cookie = WebUtils.getCookie(request, authTokenName);
+        String token = getToken(cookie);
+        if (token == null) {
+            throw new TokenAuthenticationException(AuthExceptionMessages.noTokenInCookie(this.authTokenName));
+        }
+        return token;
+    }
+
+    @Override
+    public boolean hasTokenInCookies(HttpServletRequest request) throws TokenAuthenticationException {
+        Cookie authTokenCookie = WebUtils.getCookie(request, authTokenName);
+        return getToken(authTokenCookie) != null;
     }
 
     @Override
     public @Nullable String getToken(Cookie cookie) {
-        if (cookie != null) {
-            return cookie.getValue();
-        } else {
-            return null;
-        }
+        return cookie != null ? cookie.getValue() : null;
     }
 
     @Override
@@ -71,7 +81,11 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
     @Override
     public ResponseCookie generateTokenResponseCookie(UserDetails userDetails) {
         String token = generateToken(userDetails);
-        return ResponseCookie.from(authProperties.authTokenName, token).maxAge(24 * 60 * 60).httpOnly(true).build();
+        return ResponseCookie
+            .from(authTokenName, token)
+            .maxAge(secondsOf(tokenTimeToLiveInfo))
+            .httpOnly(true)
+            .build();
     }
 
     @Override
@@ -85,9 +99,43 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
     }
 
     @Override
-    public DecodedJWT validateToken(final String token) throws TokenAuthenticationException {
+    public void validateToken(HttpServletRequest request) throws TokenAuthenticationException {
+        String token = getTokenFromCookies(request);
         if (token == null) {
-            throw new TokenAuthenticationException(AuthExceptionMessages.noTokenInCookie(authProperties.authTokenName));
+            throw new TokenAuthenticationException(AuthExceptionMessages.noTokenInCookie(this.authTokenName));
+        }
+        validateToken(token);
+    }
+
+
+    @Override
+    public String validateTokenAndGetUsername(final String token) throws TokenAuthenticationException {
+        return validateToken(token).getSubject();
+    }
+
+    @Override
+    public Date getExpirationDate(final String token) throws TokenAuthenticationException {
+        return validateToken(token).getExpiresAt();
+    }
+
+    @Override
+    public Date getIssueDate(final String token) throws TokenAuthenticationException {
+        return validateToken(token).getIssuedAt();
+    }
+
+    private String generateToken(final String subject) {
+        final Instant now = Instant.now();
+        return JWT.create()
+            .withSubject(subject)
+            .withIssuer("app")
+            .withIssuedAt(now)
+            .withExpiresAt(now.plusMillis(millisOf(this.tokenTimeToLiveInfo)))
+            .sign(this.hmac512);
+    }
+
+    private DecodedJWT validateToken(final String token) throws TokenAuthenticationException {
+        if (token == null) {
+            throw new TokenAuthenticationException("Authentication token is null");
         }
 
         try {
@@ -97,29 +145,15 @@ public class JwtAuthTokenComponent implements AuthTokenComponent {
         }
     }
 
-    @Override
-    public String validateTokenAndGetUsername(final String token) throws TokenAuthenticationException {
-        return validateToken(token).getSubject();
-    }
-
-    private String generateToken(final String subject) {
-        final Instant now = Instant.now();
-        return JWT.create()
-            .withSubject(subject)
-            .withIssuer("app")
-            .withIssuedAt(now)
-            .withExpiresAt(getExpiresAt(now))
-            .sign(this.hmac512);
-    }
-
-    private Instant getExpiresAt(Instant now) {
-        long millis = toMillis(authProperties.tokenTimeToLiveInfo);
-        return now.plusMillis(millis);
-    }
-
-    public static long toMillis(TimeToLiveInfo tokenTimeToLiveInfo) {
+    private long millisOf(TimeToLiveInfo tokenTimeToLiveInfo) {
         TimeUnit tokenTimeUnit = tokenTimeToLiveInfo.getType();
         int timeToLive = tokenTimeToLiveInfo.getValue();
         return TimeUnit.MILLISECONDS.convert(timeToLive, tokenTimeUnit);
+    }
+
+    private long secondsOf(TimeToLiveInfo tokenTimeToLiveInfo) {
+        TimeUnit tokenTimeUnit = tokenTimeToLiveInfo.getType();
+        int timeToLive = tokenTimeToLiveInfo.getValue();
+        return TimeUnit.SECONDS.convert(timeToLive, tokenTimeUnit);
     }
 }
