@@ -18,9 +18,9 @@ public class HttpRequestAuthInfo implements HttpExchangeLogPojo {
 
     /**
      * Cookie из http-запроса. */
-    @JsonProperty private Cookie[] cookies = new Cookie[0];
+    @JsonProperty private Cookie[] cookies;
 
     /**
      * Заголовки http-запроса. */
-    @JsonProperty private Headers headers = Headers.empty();
+    @JsonProperty private Headers headers;
 }

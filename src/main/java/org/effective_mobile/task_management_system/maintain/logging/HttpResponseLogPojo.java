@@ -25,7 +25,7 @@ public class HttpResponseLogPojo implements HttpExchangeLogPojo {
 
     /**
      * Заголовки http-запроса. */
-    @JsonProperty(index = 3) private Headers headers = Headers.empty();
+    @JsonProperty(index = 3) private Headers headers;
 
     /**
      * Время исполнения запроса. */
