@@ -6,22 +6,24 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.primitives.Ints;
-import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.effective_mobile.task_management_system.security.UsernameProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;
+import org.effective_mobile.task_management_system.security.CookieComponent;
+import org.effective_mobile.task_management_system.security.UsernameProvider;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import static org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent.throwIfBlank;
 
 @Component
 public class JwtAuthTokenComponent implements AuthenticationTokenComponent {
@@ -32,10 +34,12 @@ public class JwtAuthTokenComponent implements AuthenticationTokenComponent {
     private final JWTVerifier verifier;
     private final String authTokenName;
     private final TimeToLiveInfo tokenTimeToLiveInfo;
+    private final CookieComponent cookieComponent;
 
     public JwtAuthTokenComponent(
         UsernameProvider usernameProvider,
-        AuthenticationTokenProperties authenticationTokenProperties
+        AuthenticationTokenProperties authenticationTokenProperties,
+        CookieComponent cookieComponent
     ) {
         this.usernameProvider = usernameProvider;
         this.authTokenName = authenticationTokenProperties.getAuthTokenName();
@@ -43,27 +47,8 @@ public class JwtAuthTokenComponent implements AuthenticationTokenComponent {
 
         this.hmac512 = Algorithm.HMAC512(authenticationTokenProperties.getSecret());
         this.verifier = JWT.require(this.hmac512).build();
-    }
 
-    @Override
-    public String getTokenFromCookies(HttpServletRequest request) throws TokenAuthenticationException {
-        Cookie cookie = WebUtils.getCookie(request, authTokenName);
-        String token = getToken(cookie);
-        if (token == null) {
-            throw new TokenAuthenticationException(AuthExceptionMessages.noTokenInCookie(this.authTokenName));
-        }
-        return token;
-    }
-
-    @Override
-    public boolean hasTokenInCookies(HttpServletRequest request) throws TokenAuthenticationException {
-        Cookie authTokenCookie = WebUtils.getCookie(request, authTokenName);
-        return getToken(authTokenCookie) != null;
-    }
-
-    @Override
-    public @Nullable String getToken(Cookie cookie) {
-        return cookie != null ? cookie.getValue() : null;
+        this.cookieComponent = cookieComponent;
     }
 
     @Override
@@ -100,12 +85,11 @@ public class JwtAuthTokenComponent implements AuthenticationTokenComponent {
 
     @Override
     public void validateToken(HttpServletRequest request) throws TokenAuthenticationException {
-        String token = getTokenFromCookies(request);
-        if (token == null) {
-            throw new TokenAuthenticationException(AuthExceptionMessages.noTokenInCookie(this.authTokenName));
-        }
+        String token = cookieComponent.getToken(request);
+        throwIfBlank(token, AuthExceptionMessages.noTokenInCookie(this.authTokenName));
         validateToken(token);
     }
+
 
 
     @Override

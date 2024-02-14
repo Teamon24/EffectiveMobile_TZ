@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent;
+import org.effective_mobile.task_management_system.security.CookieComponent;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.io.IOException;
 @AllArgsConstructor
 public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
 
-    private final AuthenticationTokenComponent authenticationTokenComponent;
+    private final CookieComponent cookieComponent;
     private final HttpExchangeLoggingComponent httpExchangeLoggingComponent;
 
     @Override
@@ -33,11 +33,10 @@ public class HttpExchangeLoggingInterceptor implements HandlerInterceptor {
                         .headers(httpExchangeLoggingComponent.getHeaders(request))
                         .cookies(request.getCookies())
                         .token(
-                            authenticationTokenComponent.hasTokenInCookies(request) ?
-                                authenticationTokenComponent.getTokenFromCookies(request) :
-                                "UNAUTHENTICATED"
-                        )
-                        .build()).build();
+                            cookieComponent.hasToken(request) ? cookieComponent.getToken(request) : "UNAUTHENTICATED")
+                        .build()
+                )
+                .build();
 
             log.debug(httpExchangeLoggingComponent.asPretty(httpRequestLogPojo));
         }

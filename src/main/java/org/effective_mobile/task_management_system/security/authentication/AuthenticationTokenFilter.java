@@ -7,12 +7,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.exception.ErrorCreator;
 import org.effective_mobile.task_management_system.exception.ErrorInfo;
 import org.effective_mobile.task_management_system.exception.auth.AuthenticationException;
+import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
+import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages;
 import org.effective_mobile.task_management_system.security.ContextComponent;
+import org.effective_mobile.task_management_system.security.CookieComponent;
 import org.effective_mobile.task_management_system.utils.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,13 +27,36 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent.throwIfBlank;
+
 @Component
-@AllArgsConstructor
 public class AuthenticationTokenFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
-    private final AuthenticationTokenComponent authenticationTokenComponent;
+    private final String authTokenName;
+
     private final ObjectMapper objectMapper;
     private final ContextComponent contextComponent;
+    private final CookieComponent cookieComponent;
+
+    private final AuthenticationTokenComponent authenticationTokenComponent;
+    private final UserDetailsService userDetailsService;
+
+    public AuthenticationTokenFilter(
+        ObjectMapper objectMapper,
+        ContextComponent contextComponent,
+        CookieComponent cookieComponent,
+        UserDetailsService userDetailsService,
+        AuthenticationTokenComponent authenticationTokenComponent,
+        AuthenticationTokenProperties authenticationTokenProperties
+    ) {
+        this.authTokenName = authenticationTokenProperties.getAuthTokenName();
+
+        this.objectMapper = objectMapper;
+        this.contextComponent = contextComponent;
+        this.cookieComponent = cookieComponent;
+
+        this.userDetailsService = userDetailsService;
+        this.authenticationTokenComponent = authenticationTokenComponent;
+    }
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
@@ -49,11 +75,13 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
         Exception caught = null;
 
         try {
-            String authToken = authenticationTokenComponent.getTokenFromCookies(request);
-            String username = authenticationTokenComponent.validateTokenAndGetUsername(authToken);
+            String token = cookieComponent.getToken(request);
+            throwIfBlank(token, AuthExceptionMessages.noTokenInCookie(this.authTokenName));
+            String username = authenticationTokenComponent.validateTokenAndGetUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authentication = unauthenticated(userDetails, request);
             contextComponent.setAuthentication(authentication);
+
         } catch (EntityNotFoundException e) {
             httpStatus = HttpStatus.NOT_FOUND;
             caught = e;

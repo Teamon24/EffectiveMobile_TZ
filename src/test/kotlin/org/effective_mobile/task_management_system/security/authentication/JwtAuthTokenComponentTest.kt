@@ -5,6 +5,7 @@ import home.dsl.JUnit5ArgumentsDsl.args
 import home.dsl.JUnit5ArgumentsDsl.stream
 import org.effective_mobile.task_management_system.RandomUsers
 import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo
+import org.effective_mobile.task_management_system.security.CookieComponent
 import org.effective_mobile.task_management_system.security.EmailAsUsernameProvider
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -29,6 +30,7 @@ import java.util.stream.Stream
 class JwtAuthTokenComponentTest {
 
     private val usernameProvider = mock(EmailAsUsernameProvider::class.java)
+    private val cookieComponent = mock(CookieComponent::class.java)
     private val authTokenName = "auth_token"
 
     private val authProperties = spy(
@@ -45,7 +47,11 @@ class JwtAuthTokenComponentTest {
     init {
         Mockito.doReturn(email).`when`(userDetails).username
         Mockito.`when`(usernameProvider.getSubject(ArgumentMatchers.eq(userDetails))).thenReturn(email)
-        component = JwtAuthTokenComponent(usernameProvider, authProperties)
+        component = JwtAuthTokenComponent(
+            usernameProvider,
+            authProperties,
+            cookieComponent
+        )
     }
 
     /**
@@ -65,7 +71,7 @@ class JwtAuthTokenComponentTest {
     fun getExpirationDateTest(timeToLiveInfo: TimeToLiveInfo) {
         authProperties.also {
             Mockito.`when`(it.tokenTimeToLiveInfo).thenReturn(timeToLiveInfo)
-            component = JwtAuthTokenComponent(usernameProvider, it)
+            component = JwtAuthTokenComponent(usernameProvider, it, cookieComponent)
         }
 
         val authenticationToken = component.generateToken(userDetails)

@@ -5,7 +5,7 @@ import org.effective_mobile.task_management_system.utils.enums.Priority;
 import org.effective_mobile.task_management_system.utils.enums.Status;
 import org.effective_mobile.task_management_system.utils.enums.ValuableEnum;
 
-public class ValidationMessages {
+public final class ValidationMessages {
 
     public static String invalidContent(String content) {
         return ExceptionMessages.getMessage("validation.error.content.invalid", content);

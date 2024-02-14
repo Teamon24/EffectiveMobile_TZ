@@ -6,7 +6,7 @@ import org.effective_mobile.task_management_system.security.CustomUserDetails;
 
 import static org.effective_mobile.task_management_system.exception.messages.ExceptionMessages.getMessage;
 
-public class AccessExceptionMessages {
+public final class AccessExceptionMessages {
     public static String notACreator(CustomUserDetails customUserDetails, Long taskId) {
         return getMessage(
             "exception.unauthorized.task.notCreator",
