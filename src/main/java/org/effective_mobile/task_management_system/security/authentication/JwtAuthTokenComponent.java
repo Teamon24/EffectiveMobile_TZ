@@ -8,7 +8,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.primitives.Ints;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException;
 import org.effective_mobile.task_management_system.exception.messages.AuthExceptionMessages;
 import org.effective_mobile.task_management_system.pojo.TimeToLiveInfo;

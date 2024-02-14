@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.effective_mobile.task_management_system.database.entity.Role;
 import org.effective_mobile.task_management_system.database.entity.User;
-import org.effective_mobile.task_management_system.utils.enums.UserRole;
 import org.effective_mobile.task_management_system.security.authorization.RequiredAuthorizationInfo;
+import org.effective_mobile.task_management_system.utils.enums.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

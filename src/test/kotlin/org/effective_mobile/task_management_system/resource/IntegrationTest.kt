@@ -6,7 +6,6 @@ import home.extensions.BooleansExtensions.then
 import jakarta.annotation.Nullable
 import org.effective_mobile.task_management_system.TaskManagementSystemApp
 import org.effective_mobile.task_management_system.database.entity.User
-import org.effective_mobile.task_management_system.utils.enums.UserRole
 import org.effective_mobile.task_management_system.exception.ErrorInfo
 import org.effective_mobile.task_management_system.exception.ValidationErrorInfo
 import org.effective_mobile.task_management_system.exception.auth.TokenAuthenticationException
@@ -18,6 +17,7 @@ import org.effective_mobile.task_management_system.security.authentication.Authe
 import org.effective_mobile.task_management_system.security.authentication.JwtAuthTokenComponent
 import org.effective_mobile.task_management_system.security.authorization.AuthorizationComponent
 import org.effective_mobile.task_management_system.security.authorization.RequiredAuthorizationInfo
+import org.effective_mobile.task_management_system.utils.enums.UserRole
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.runner.RunWith

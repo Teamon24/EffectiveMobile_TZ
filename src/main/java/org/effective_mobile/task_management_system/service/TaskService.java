@@ -3,7 +3,6 @@ package org.effective_mobile.task_management_system.service;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.effective_mobile.task_management_system.component.StatusChangeValidator;
-import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.component.TaskComponent;
 import org.effective_mobile.task_management_system.component.UserComponent;
 import org.effective_mobile.task_management_system.database.entity.Task;
@@ -12,6 +11,7 @@ import org.effective_mobile.task_management_system.resource.json.task.TaskCreati
 import org.effective_mobile.task_management_system.resource.json.task.TaskEditionRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.task.TaskResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.task.TasksFiltersRequestPojo;
+import org.effective_mobile.task_management_system.security.ContextComponent;
 import org.effective_mobile.task_management_system.security.CustomUserDetails;
 import org.effective_mobile.task_management_system.utils.converter.TaskConverter;
 import org.effective_mobile.task_management_system.utils.enums.Status;

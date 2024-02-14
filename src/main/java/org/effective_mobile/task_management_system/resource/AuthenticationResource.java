@@ -2,13 +2,13 @@ package org.effective_mobile.task_management_system.resource;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.effective_mobile.task_management_system.security.ContextComponent;
-import org.effective_mobile.task_management_system.security.UsernameProvider;
 import org.effective_mobile.task_management_system.database.entity.User;
 import org.effective_mobile.task_management_system.resource.json.assignment.SignupResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninRequestPojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SigninResponsePojo;
 import org.effective_mobile.task_management_system.resource.json.auth.SignupRequestPojo;
+import org.effective_mobile.task_management_system.security.ContextComponent;
+import org.effective_mobile.task_management_system.security.UsernameProvider;
 import org.effective_mobile.task_management_system.security.authentication.AuthenticationTokenComponent;
 import org.effective_mobile.task_management_system.service.UserService;
 import org.effective_mobile.task_management_system.utils.Api;
